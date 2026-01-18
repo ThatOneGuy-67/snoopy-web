@@ -57,7 +57,7 @@ const Index = () => {
   };
 
   const handleAppClick = (url: string, name: string) => {
-    createTab(url, name);
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const closeTab = (id: string) => {
