@@ -79,9 +79,8 @@ const Index = () => {
   };
 
   const createTab = (url: string, title?: string) => {
-    // If user prefers new tab AND we don't have a proxy, just pop it out
-    const hasProxy = !!settings.proxyUrl;
-    if (settings.openInNewTab && !hasProxy) {
+    // Only pop out to a new browser tab if the user explicitly opted in
+    if (settings.openInNewTab) {
       openExternal(url);
       return;
     }

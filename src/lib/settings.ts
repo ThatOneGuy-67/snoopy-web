@@ -18,7 +18,7 @@ export interface AppSettings {
 const DEFAULTS: AppSettings = {
   proxyUrl: '',
   proxyPrefix: '/service/',
-  openInNewTab: true,
+  openInNewTab: false,
   aboutBlankCloak: false,
   autoCloakOnLoad: false,
   defaultCloakTitle: '',
