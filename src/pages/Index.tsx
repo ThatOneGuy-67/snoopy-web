@@ -180,8 +180,11 @@ const Index = () => {
               onBack={goBack}
               onForward={goForward}
               onReload={reload}
+              onHome={() => setActiveTabId(null)}
+              onCloseTab={() => closeTab(activeTab.id)}
               canBack={activeTab.index > 0}
               canForward={activeTab.index < activeTab.history.length - 1}
+              fullscreenTargetId="snoopy-root"
             />
           )}
         </header>
