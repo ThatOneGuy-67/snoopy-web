@@ -136,7 +136,19 @@ const Index = () => {
   const proxyResolved = currentUrl ? buildProxyUrl(currentUrl, settings) : null;
 
   return (
-    <div className="min-h-screen relative">
+    <div id="snoopy-root" className="min-h-screen relative">
+      {settings.backgroundImage && (
+        <>
+          <div
+            className="fixed inset-0 z-0 bg-cover bg-center transition-all duration-500"
+            style={{ backgroundImage: `url(${settings.backgroundImage})` }}
+          />
+          <div
+            className="fixed inset-0 z-0"
+            style={{ background: `hsl(var(--background) / ${settings.backgroundDim / 100})` }}
+          />
+        </>
+      )}
       {settings.showParticles && <StarField />}
       <div className="noise-overlay" />
 
