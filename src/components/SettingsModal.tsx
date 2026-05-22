@@ -122,8 +122,11 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
 
           {tab === 'proxy' && (
             <>
+              <Toggle label="Use built-in Scramjet proxy"
+                hint="Bundled in-app proxy via public Wisp server. No server setup needed."
+                checked={settings.useScramjet} onChange={v => update('useScramjet', v)} />
               <p className="text-sm text-muted-foreground">
-                Paste your Render-hosted proxy URL (Scramjet / Ultraviolet) to load sites inside the app.
+                Or paste your own Render-hosted proxy URL (Scramjet / Ultraviolet) below. Used only when the built-in proxy is off.
               </p>
               <Field label="Proxy server URL" hint="e.g. https://snoopy-proxy.onrender.com">
                 <input type="text" value={settings.proxyUrl}
