@@ -8,7 +8,7 @@ import ProxyFrame from '@/components/ProxyFrame';
 import BrowserChrome from '@/components/BrowserChrome';
 import SettingsModal from '@/components/SettingsModal';
 import SectionTitle from '@/components/SectionTitle';
-import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank } from '@/lib/settings';
+import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank, extractDominantHue } from '@/lib/settings';
 
 interface Tab {
   id: string;
