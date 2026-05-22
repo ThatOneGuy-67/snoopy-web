@@ -221,6 +221,9 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
 
           {tab === 'theme' && (
             <>
+              <Toggle label="Match accent to wallpaper"
+                hint="Automatically picks a hue from your background image."
+                checked={settings.autoAccentFromBg} onChange={v => update('autoAccentFromBg', v)} />
               <Field label={`Accent hue (${settings.accentHue}°)`}>
                 <input type="range" min={0} max={360} value={settings.accentHue}
                   onChange={e => update('accentHue', Number(e.target.value))}
