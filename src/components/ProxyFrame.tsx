@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AlertTriangle, ExternalLink, Loader2 } from 'lucide-react';
+import ScramjetFrame from './ScramjetFrame';
+import { loadSettings } from '@/lib/settings';
 
 interface ProxyFrameProps {
   url: string;
@@ -7,6 +9,9 @@ interface ProxyFrameProps {
 }
 
 const ProxyFrame = ({ url, proxyResolvedUrl }: ProxyFrameProps) => {
+  const settings = loadSettings();
+  if (settings.useScramjet) return <ScramjetFrame url={url} />;
+
   const src = proxyResolvedUrl || (url.startsWith('http') ? url : `https://${url}`);
   const ref = useRef<HTMLIFrameElement>(null);
   const [blocked, setBlocked] = useState(false);

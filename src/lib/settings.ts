@@ -35,6 +35,7 @@ const DEFAULTS: AppSettings = {
   backgroundImage: '',
   backgroundDim: 60,
   autoAccentFromBg: true,
+  useScramjet: true,
 };
 
 export async function extractDominantHue(url: string): Promise<number | null> {
