@@ -290,8 +290,8 @@ const Toggle = ({ label, hint, checked, onChange }: { label: string; hint?: stri
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${checked ? 'bg-primary' : 'bg-secondary'}`}>
-      <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-foreground transition-transform ${checked ? 'translate-x-5' : 'translate-x-0.5'}`} />
+      className={`relative w-11 h-6 rounded-full transition-colors shrink-0 flex items-center ${checked ? 'bg-primary' : 'bg-secondary'}`}>
+      <span className={`block w-5 h-5 rounded-full bg-foreground shadow-md transition-transform duration-200 ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
     </button>
   </label>
 );
