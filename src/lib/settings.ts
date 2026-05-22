@@ -16,6 +16,7 @@ export interface AppSettings {
   backgroundImage: string; // URL or '' for none
   backgroundDim: number;   // 0-100 overlay darkness
   autoAccentFromBg: boolean;
+  useScramjet: boolean; // bundled in-app proxy
 }
 
 const DEFAULTS: AppSettings = {
