@@ -73,6 +73,19 @@ const Index = () => {
     return () => window.removeEventListener('keydown', handler);
   }, [settings.panicKey, settings.panicUrl]);
 
+  // Auto-match accent to wallpaper
+  useEffect(() => {
+    if (!settings.autoAccentFromBg || !settings.backgroundImage) return;
+    let cancelled = false;
+    extractDominantHue(settings.backgroundImage).then(h => {
+      if (!cancelled && h !== null && h !== settings.accentHue) {
+        setSettings({ ...settings, accentHue: h });
+      }
+    });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings.backgroundImage, settings.autoAccentFromBg]);
+
   const openExternal = (url: string) => {
     if (settings.aboutBlankCloak) openAboutBlank(url);
     else window.open(url, '_blank', 'noopener,noreferrer');
