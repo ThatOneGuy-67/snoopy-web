@@ -1,11 +1,9 @@
-// Scramjet proxy bootstrap. Loads UMD bundles from /scramjet and /baremux
-// and exposes a single getController() promise so the rest of the app can
-// share one instance.
+// Scramjet proxy bootstrap. Registers the SW, sets up bare-mux transport
+// (epoxy + a public Wisp server), and exposes a shared controller.
 
 declare global {
   interface Window {
     $scramjetLoadController?: () => { ScramjetController: any };
-    BareMux?: { BareMuxConnection: new (workerUrl: string) => any };
   }
 }
 
@@ -31,15 +29,7 @@ async function init() {
     throw new Error('Service workers not supported in this browser');
   }
 
-  // Load Scramjet + bare-mux client scripts
   await loadScript('/scramjet/scramjet.bundle.js');
-  // bare-mux ships an ESM worker but we need its client API too — use a tiny inline shim
-  // bundled via dynamic import of the package's index.mjs alternative: copy index.js then load
-  // Simpler: use dynamic ESM import.
-  const baremux = await import(/* @vite-ignore */ '/baremux-client.mjs').catch(() => null);
-  if (!baremux) {
-    // fall back to npm import (bundled)
-  }
 
   const { ScramjetController } = window.$scramjetLoadController!();
   const controller = new ScramjetController({
@@ -53,11 +43,9 @@ async function init() {
   });
   await controller.init();
 
-  // Register service worker
   await navigator.serviceWorker.register('/sw.js', { scope: '/' });
   await navigator.serviceWorker.ready;
 
-  // Set bare-mux transport to epoxy + wisp
   const { BareMuxConnection } = await import('@mercuryworkshop/bare-mux');
   const conn = new BareMuxConnection('/baremux/worker.js');
   await conn.setTransport('/epoxy/index.mjs', [{ wisp: WISP_URL }]);
@@ -68,8 +56,4 @@ async function init() {
 export function getController(): Promise<any> {
   if (!controllerPromise) controllerPromise = init();
   return controllerPromise;
-}
-
-export function encodeUrl(controller: any, url: string): string {
-  return controller.encodeUrl(url);
 }
