@@ -11,6 +11,11 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
+    headers: {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Resource-Policy": "cross-origin",
+    },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
