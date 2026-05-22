@@ -8,7 +8,7 @@ import ProxyFrame from '@/components/ProxyFrame';
 import BrowserChrome from '@/components/BrowserChrome';
 import SettingsModal from '@/components/SettingsModal';
 import SectionTitle from '@/components/SectionTitle';
-import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank } from '@/lib/settings';
+import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank, extractDominantHue } from '@/lib/settings';
 
 interface Tab {
   id: string;
@@ -72,6 +72,19 @@ const Index = () => {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [settings.panicKey, settings.panicUrl]);
+
+  // Auto-match accent to wallpaper
+  useEffect(() => {
+    if (!settings.autoAccentFromBg || !settings.backgroundImage) return;
+    let cancelled = false;
+    extractDominantHue(settings.backgroundImage).then(h => {
+      if (!cancelled && h !== null && h !== settings.accentHue) {
+        setSettings({ ...settings, accentHue: h });
+      }
+    });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings.backgroundImage, settings.autoAccentFromBg]);
 
   const openExternal = (url: string) => {
     if (settings.aboutBlankCloak) openAboutBlank(url);

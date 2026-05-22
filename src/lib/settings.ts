@@ -15,6 +15,7 @@ export interface AppSettings {
   accentHue: number;
   backgroundImage: string; // URL or '' for none
   backgroundDim: number;   // 0-100 overlay darkness
+  autoAccentFromBg: boolean;
 }
 
 const DEFAULTS: AppSettings = {
@@ -32,7 +33,46 @@ const DEFAULTS: AppSettings = {
   accentHue: 200,
   backgroundImage: '',
   backgroundDim: 60,
+  autoAccentFromBg: true,
 };
+
+export async function extractDominantHue(url: string): Promise<number | null> {
+  if (!url) return null;
+  return new Promise(resolve => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const c = document.createElement('canvas');
+        const size = 40;
+        c.width = size; c.height = size;
+        const ctx = c.getContext('2d');
+        if (!ctx) return resolve(null);
+        ctx.drawImage(img, 0, 0, size, size);
+        const data = ctx.getImageData(0, 0, size, size).data;
+        const buckets = new Array(36).fill(0);
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i] / 255, g = data[i + 1] / 255, b = data[i + 2] / 255;
+          const max = Math.max(r, g, b), min = Math.min(r, g, b);
+          const d = max - min;
+          if (d < 0.15) continue; // skip grays
+          let h = 0;
+          if (max === r) h = ((g - b) / d) % 6;
+          else if (max === g) h = (b - r) / d + 2;
+          else h = (r - g) / d + 4;
+          h = Math.round(h * 60);
+          if (h < 0) h += 360;
+          buckets[Math.floor(h / 10)] += d * 100;
+        }
+        let best = 0;
+        for (let i = 1; i < 36; i++) if (buckets[i] > buckets[best]) best = i;
+        resolve(best * 10 + 5);
+      } catch { resolve(null); }
+    };
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
 
 const KEY = 'snoopy-settings-v1';
 
