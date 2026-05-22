@@ -15,6 +15,7 @@ export interface AppSettings {
   accentHue: number;
   backgroundImage: string; // URL or '' for none
   backgroundDim: number;   // 0-100 overlay darkness
+  autoAccentFromBg: boolean;
 }
 
 const DEFAULTS: AppSettings = {
