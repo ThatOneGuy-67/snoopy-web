@@ -16,6 +16,7 @@ export interface AppSettings {
   backgroundImage: string; // URL or '' for none
   backgroundDim: number;   // 0-100 overlay darkness
   autoAccentFromBg: boolean;
+  useScramjet: boolean; // bundled in-app proxy
 }
 
 const DEFAULTS: AppSettings = {
@@ -34,6 +35,7 @@ const DEFAULTS: AppSettings = {
   backgroundImage: '',
   backgroundDim: 60,
   autoAccentFromBg: true,
+  useScramjet: true,
 };
 
 export async function extractDominantHue(url: string): Promise<number | null> {
