@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Settings as SettingsIcon, X, Shield, Globe, Palette, KeyRound, Check, AlertCircle, Loader2, Image as ImageIcon } from 'lucide-react';
 import { AppSettings, testProxyReachable, BACKGROUND_PRESETS } from '@/lib/settings';
+import { testWispReachable } from '@/lib/scramjet';
 
 interface Props {
   isOpen: boolean;
@@ -37,6 +38,8 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
   const [customFavicon, setCustomFavicon] = useState('');
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [wispTesting, setWispTesting] = useState(false);
+  const [wispResult, setWispResult] = useState<{ ok: boolean; message: string } | null>(null);
 
   if (!isOpen) return null;
 
@@ -49,6 +52,14 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
     const r = await testProxyReachable(settings.proxyUrl);
     setTestResult(r);
     setTesting(false);
+  };
+
+  const runWispTest = async () => {
+    setWispTesting(true);
+    setWispResult(null);
+    const r = await testWispReachable();
+    setWispResult(r);
+    setWispTesting(false);
   };
 
   return (
@@ -125,7 +136,25 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
               <Toggle label="Use built-in Scramjet proxy"
                 hint="Bundled in-app proxy via public Wisp server. No server setup needed."
                 checked={settings.useScramjet} onChange={v => update('useScramjet', v)} />
-              <p className="text-sm text-muted-foreground">
+
+              <div className="space-y-2">
+                <button
+                  onClick={runWispTest}
+                  disabled={wispTesting}
+                  className="w-full py-2 rounded-lg bg-secondary text-secondary-foreground font-medium hover:bg-secondary/80 disabled:opacity-50 flex items-center justify-center gap-2">
+                  {wispTesting ? <><Loader2 className="w-4 h-4 animate-spin" /> Testing Wisp relay…</> : 'Test Scramjet connection'}
+                </button>
+                {wispResult && (
+                  <div className={`flex items-start gap-2 p-3 rounded-lg text-sm ${
+                    wispResult.ok ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive'
+                  }`}>
+                    {wispResult.ok ? <Check className="w-4 h-4 mt-0.5 shrink-0" /> : <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />}
+                    <span>{wispResult.message}</span>
+                  </div>
+                )}
+              </div>
+
+              <p className="text-sm text-muted-foreground pt-2">
                 Or paste your own Render-hosted proxy URL (Scramjet / Ultraviolet) below. Used only when the built-in proxy is off.
               </p>
               <Field label="Proxy server URL" hint="e.g. https://snoopy-proxy.onrender.com">

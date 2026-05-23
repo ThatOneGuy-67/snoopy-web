@@ -7,7 +7,28 @@ declare global {
   }
 }
 
-const WISP_URL = 'wss://wisp.mercurywork.shop/';
+export const WISP_URL = 'wss://wisp.mercurywork.shop/';
+
+export function testWispReachable(url = WISP_URL, timeoutMs = 5000): Promise<{ ok: boolean; message: string }> {
+  return new Promise(resolve => {
+    let done = false;
+    const finish = (ok: boolean, message: string) => {
+      if (done) return;
+      done = true;
+      try { ws.close(); } catch {}
+      resolve({ ok, message });
+    };
+    let ws: WebSocket;
+    try {
+      ws = new WebSocket(url);
+    } catch (e: any) {
+      return resolve({ ok: false, message: e?.message || 'Invalid WebSocket URL' });
+    }
+    const t = setTimeout(() => finish(false, `Timed out after ${timeoutMs}ms`), timeoutMs);
+    ws.onopen = () => { clearTimeout(t); finish(true, 'Wisp relay reachable'); };
+    ws.onerror = () => { clearTimeout(t); finish(false, 'Could not connect to Wisp relay'); };
+  });
+}
 
 let controllerPromise: Promise<any> | null = null;
 
@@ -29,9 +50,12 @@ async function init() {
     throw new Error('Service workers not supported in this browser');
   }
 
-  await loadScript('/scramjet/scramjet.bundle.js');
+  await loadScript('/scramjet/scramjet.all.js');
 
-  const { ScramjetController } = window.$scramjetLoadController!();
+  if (typeof window.$scramjetLoadController !== 'function') {
+    throw new Error('Scramjet failed to load (loader global missing)');
+  }
+  const { ScramjetController } = window.$scramjetLoadController();
   const controller = new ScramjetController({
     prefix: '/scramjet/service/',
     files: {
