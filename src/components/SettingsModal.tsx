@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Settings as SettingsIcon, X, Shield, Globe, Palette, KeyRound, Check, AlertCircle, Loader2, Image as ImageIcon } from 'lucide-react';
 import { AppSettings, testProxyReachable, BACKGROUND_PRESETS } from '@/lib/settings';
-import { testWispReachable } from '@/lib/scramjet';
+import { testWispReachable, DEFAULT_WISP_URL, clearCachedWispResult, resetController } from '@/lib/scramjet';
 
 interface Props {
   isOpen: boolean;
@@ -57,7 +57,9 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
   const runWispTest = async () => {
     setWispTesting(true);
     setWispResult(null);
-    const r = await testWispReachable();
+    clearCachedWispResult();
+    const url = settings.wispUrl?.trim() || DEFAULT_WISP_URL;
+    const r = await testWispReachable(url, { useCache: false });
     setWispResult(r);
     setWispTesting(false);
   };
@@ -136,6 +138,20 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
               <Toggle label="Use built-in Scramjet proxy"
                 hint="Bundled in-app proxy via public Wisp server. No server setup needed."
                 checked={settings.useScramjet} onChange={v => update('useScramjet', v)} />
+
+              <Field label="Wisp relay URL" hint={`Override the WebSocket relay used by Scramjet. Leave blank for default (${DEFAULT_WISP_URL}).`}>
+                <div className="flex gap-2">
+                  <input type="text" value={settings.wispUrl}
+                    onChange={e => { update('wispUrl', e.target.value); clearCachedWispResult(); resetController(); setWispResult(null); }}
+                    placeholder={DEFAULT_WISP_URL}
+                    className="flex-1 px-4 py-2 rounded-lg bg-input border border-border outline-none font-mono text-sm" />
+                  <button
+                    onClick={() => { update('wispUrl', ''); clearCachedWispResult(); resetController(); setWispResult(null); }}
+                    className="px-3 py-2 rounded-lg border border-border hover:border-primary/50 text-sm">
+                    Reset
+                  </button>
+                </div>
+              </Field>
 
               <div className="space-y-2">
                 <button
