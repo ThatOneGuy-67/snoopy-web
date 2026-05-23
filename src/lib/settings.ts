@@ -37,6 +37,7 @@ const DEFAULTS: AppSettings = {
   backgroundDim: 60,
   autoAccentFromBg: true,
   useScramjet: true,
+  wispUrl: '',
 };
 
 export async function extractDominantHue(url: string): Promise<number | null> {
