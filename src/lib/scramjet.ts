@@ -7,18 +7,29 @@ declare global {
   }
 }
 
-export const WISP_URL = 'wss://wisp.mercurywork.shop/';
+export const DEFAULT_WISP_URL = 'wss://wisp.mercurywork.shop/';
 
-export function testWispReachable(url = WISP_URL, timeoutMs = 5000): Promise<{ ok: boolean; message: string }> {
+export function getWispUrl(): string {
+  try {
+    const raw = localStorage.getItem('snoopy-settings-v1');
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (s?.wispUrl && typeof s.wispUrl === 'string' && s.wispUrl.trim()) return s.wispUrl.trim();
+    }
+  } catch {}
+  return DEFAULT_WISP_URL;
+}
+
+function rawTestWisp(url: string, timeoutMs: number): Promise<{ ok: boolean; message: string }> {
   return new Promise(resolve => {
     let done = false;
+    let ws: WebSocket;
     const finish = (ok: boolean, message: string) => {
       if (done) return;
       done = true;
-      try { ws.close(); } catch {}
+      try { ws?.close(); } catch {}
       resolve({ ok, message });
     };
-    let ws: WebSocket;
     try {
       ws = new WebSocket(url);
     } catch (e: any) {
@@ -30,7 +41,55 @@ export function testWispReachable(url = WISP_URL, timeoutMs = 5000): Promise<{ o
   });
 }
 
+// Session cache so we don't re-test on every proxy load.
+type CachedResult = { ok: boolean; message: string; at: number; url: string };
+let sessionResult: CachedResult | null = null;
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+export function getCachedWispResult(url = getWispUrl()): CachedResult | null {
+  if (!sessionResult) return null;
+  if (sessionResult.url !== url) return null;
+  if (Date.now() - sessionResult.at > CACHE_TTL_MS) return null;
+  return sessionResult;
+}
+
+export function clearCachedWispResult() { sessionResult = null; }
+
+/**
+ * Test Wisp reachability with exponential backoff retry.
+ * Honors session cache when useCache=true (default).
+ */
+export async function testWispReachable(
+  url = getWispUrl(),
+  opts: { useCache?: boolean; retries?: number; timeoutMs?: number } = {}
+): Promise<{ ok: boolean; message: string }> {
+  const { useCache = true, retries = 3, timeoutMs = 5000 } = opts;
+
+  if (useCache) {
+    const cached = getCachedWispResult(url);
+    if (cached?.ok) return { ok: cached.ok, message: cached.message + ' (cached)' };
+  }
+
+  let lastMsg = '';
+  for (let attempt = 0; attempt < retries; attempt++) {
+    const r = await rawTestWisp(url, timeoutMs);
+    if (r.ok) {
+      sessionResult = { ...r, at: Date.now(), url };
+      return r;
+    }
+    lastMsg = r.message;
+    if (attempt < retries - 1) {
+      const backoff = Math.min(4000, 500 * 2 ** attempt);
+      await new Promise(res => setTimeout(res, backoff));
+    }
+  }
+  const result = { ok: false, message: `${lastMsg} (after ${retries} attempts)` };
+  sessionResult = { ...result, at: Date.now(), url };
+  return result;
+}
+
 let controllerPromise: Promise<any> | null = null;
+let controllerWispUrl: string | null = null;
 
 function loadScript(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -45,7 +104,7 @@ function loadScript(src: string): Promise<void> {
   });
 }
 
-async function init() {
+async function init(wispUrl: string) {
   if (!('serviceWorker' in navigator)) {
     throw new Error('Service workers not supported in this browser');
   }
@@ -72,12 +131,22 @@ async function init() {
 
   const { BareMuxConnection } = await import('@mercuryworkshop/bare-mux');
   const conn = new BareMuxConnection('/baremux/worker.js');
-  await conn.setTransport('/epoxy/index.mjs', [{ wisp: WISP_URL }]);
+  await conn.setTransport('/epoxy/index.mjs', [{ wisp: wispUrl }]);
 
   return controller;
 }
 
 export function getController(): Promise<any> {
-  if (!controllerPromise) controllerPromise = init();
+  const wispUrl = getWispUrl();
+  if (!controllerPromise || controllerWispUrl !== wispUrl) {
+    controllerWispUrl = wispUrl;
+    controllerPromise = init(wispUrl);
+  }
   return controllerPromise;
+}
+
+export function resetController() {
+  controllerPromise = null;
+  controllerWispUrl = null;
+  clearCachedWispResult();
 }
