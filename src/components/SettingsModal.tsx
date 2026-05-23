@@ -139,6 +139,20 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
                 hint="Bundled in-app proxy via public Wisp server. No server setup needed."
                 checked={settings.useScramjet} onChange={v => update('useScramjet', v)} />
 
+              <Field label="Wisp relay URL" hint={`Override the WebSocket relay used by Scramjet. Leave blank for default (${DEFAULT_WISP_URL}).`}>
+                <div className="flex gap-2">
+                  <input type="text" value={settings.wispUrl}
+                    onChange={e => { update('wispUrl', e.target.value); clearCachedWispResult(); resetController(); setWispResult(null); }}
+                    placeholder={DEFAULT_WISP_URL}
+                    className="flex-1 px-4 py-2 rounded-lg bg-input border border-border outline-none font-mono text-sm" />
+                  <button
+                    onClick={() => { update('wispUrl', ''); clearCachedWispResult(); resetController(); setWispResult(null); }}
+                    className="px-3 py-2 rounded-lg border border-border hover:border-primary/50 text-sm">
+                    Reset
+                  </button>
+                </div>
+              </Field>
+
               <div className="space-y-2">
                 <button
                   onClick={runWispTest}
