@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Settings as SettingsIcon, X, Shield, Globe, Palette, KeyRound, Check, AlertCircle, Loader2, Image as ImageIcon } from 'lucide-react';
 import { AppSettings, testProxyReachable, BACKGROUND_PRESETS } from '@/lib/settings';
-import { testWispReachable } from '@/lib/scramjet';
+import { testWispReachable, DEFAULT_WISP_URL, clearCachedWispResult, resetController } from '@/lib/scramjet';
 
 interface Props {
   isOpen: boolean;
