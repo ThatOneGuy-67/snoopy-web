@@ -38,6 +38,8 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
   const [customFavicon, setCustomFavicon] = useState('');
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [wispTesting, setWispTesting] = useState(false);
+  const [wispResult, setWispResult] = useState<{ ok: boolean; message: string } | null>(null);
 
   if (!isOpen) return null;
 
@@ -50,6 +52,14 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
     const r = await testProxyReachable(settings.proxyUrl);
     setTestResult(r);
     setTesting(false);
+  };
+
+  const runWispTest = async () => {
+    setWispTesting(true);
+    setWispResult(null);
+    const r = await testWispReachable();
+    setWispResult(r);
+    setWispTesting(false);
   };
 
   return (
