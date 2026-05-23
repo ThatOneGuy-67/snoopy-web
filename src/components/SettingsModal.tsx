@@ -57,7 +57,9 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
   const runWispTest = async () => {
     setWispTesting(true);
     setWispResult(null);
-    const r = await testWispReachable();
+    clearCachedWispResult();
+    const url = settings.wispUrl?.trim() || DEFAULT_WISP_URL;
+    const r = await testWispReachable(url, { useCache: false });
     setWispResult(r);
     setWispTesting(false);
   };
