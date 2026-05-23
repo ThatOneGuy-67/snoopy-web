@@ -17,6 +17,7 @@ export interface AppSettings {
   backgroundDim: number;   // 0-100 overlay darkness
   autoAccentFromBg: boolean;
   useScramjet: boolean; // bundled in-app proxy
+  wispUrl: string; // custom Wisp relay URL (empty = default)
 }
 
 const DEFAULTS: AppSettings = {
