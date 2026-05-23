@@ -29,9 +29,12 @@ async function init() {
     throw new Error('Service workers not supported in this browser');
   }
 
-  await loadScript('/scramjet/scramjet.bundle.js');
+  await loadScript('/scramjet/scramjet.all.js');
 
-  const { ScramjetController } = window.$scramjetLoadController!();
+  if (typeof window.$scramjetLoadController !== 'function') {
+    throw new Error('Scramjet failed to load (loader global missing)');
+  }
+  const { ScramjetController } = window.$scramjetLoadController();
   const controller = new ScramjetController({
     prefix: '/scramjet/service/',
     files: {
