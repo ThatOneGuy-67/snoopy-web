@@ -101,11 +101,34 @@ const ScramjetFrame = ({ url }: Props) => {
         <iframe
           ref={ref}
           src={encoded}
-          onLoad={() => setStatus('ready')}
+          onLoad={() => {
+            // Detect Scramjet's built-in error page and surface our recovery UI
+            try {
+              const doc = ref.current?.contentDocument;
+              if (doc) {
+                const txt = (doc.body?.innerText || '').slice(0, 2000);
+                const title = (doc.title || '').toLowerCase();
+                const looksLikeScramjetError =
+                  /uh oh!/i.test(txt) &&
+                  /updating scramjet|wisp|verify the server|administrator/i.test(txt);
+                if (looksLikeScramjetError || title.includes('error')) {
+                  // Try to extract a more specific message
+                  const m = txt.match(/There was an error loading[^\n]*/i);
+                  setError(m ? m[0] : 'Scramjet failed to load the page');
+                  setStatus('error');
+                  return;
+                }
+              }
+            } catch {
+              // cross-origin (shouldn't happen via SW) — ignore
+            }
+            setStatus('ready');
+          }}
           className="w-full h-full border-none bg-background"
           title="Proxy Content"
         />
       )}
+
     </div>
   );
 };
