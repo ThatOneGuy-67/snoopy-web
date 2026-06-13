@@ -219,12 +219,12 @@ const Index = () => {
               <section className="text-center py-16 px-4">
                 <div className="flex items-center justify-center gap-3 mb-4">
                   <Layers className="w-10 h-10 text-primary" />
-                  <h1 className="text-5xl md:text-6xl font-bold tracking-tight glow-text">
-                    Snoopy's Web
+                  <h1 className="text-5xl md:text-6xl font-bold tracking-tight glow-text min-h-[1.2em]">
+                    <Typewriter text="Snoopy's Web" speed={110} />
                   </h1>
                 </div>
-                <p className="text-muted-foreground text-lg font-mono mb-12">
-                  // Secure • Fast • Unrestricted
+                <p className="text-muted-foreground text-lg font-mono mb-10">
+                  // Access the web without limits
                 </p>
                 <SearchBar onSearch={handleSearch} />
                 {!settings.proxyUrl && (
@@ -232,6 +232,7 @@ const Index = () => {
                     Tip: configure a proxy in <button onClick={() => setShowSettings(true)} className="underline text-primary">Settings → Proxy</button> to browse inside the app.
                   </p>
                 )}
+                <RotatingFacts />
               </section>
 
               <section className="max-w-5xl mx-auto mb-12">
