@@ -256,7 +256,7 @@ const Index = () => {
               </section>
 
               <footer className="text-center py-8 text-muted-foreground text-sm">
-                <p className="font-mono">// For educational purposes only</p>
+                <p className="font-mono">// stay curious, stay sneaky</p>
               </footer>
             </div>
           )}
