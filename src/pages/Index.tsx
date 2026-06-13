@@ -1,5 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Shield, Layers, Settings as SettingsIcon } from 'lucide-react';
+import {
+  Layers, Settings as SettingsIcon,
+  Music2, Ghost, Instagram, MessagesSquare, Youtube, Flame,
+  Gamepad2, Pickaxe, Mountain, Crosshair, Trophy, Footprints,
+} from 'lucide-react';
 import StarField from '@/components/StarField';
 import SearchBar from '@/components/SearchBar';
 import AppCard from '@/components/AppCard';
@@ -8,6 +12,8 @@ import ProxyFrame from '@/components/ProxyFrame';
 import BrowserChrome from '@/components/BrowserChrome';
 import SettingsModal from '@/components/SettingsModal';
 import SectionTitle from '@/components/SectionTitle';
+import Typewriter from '@/components/Typewriter';
+import RotatingFacts from '@/components/RotatingFacts';
 import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank, extractDominantHue } from '@/lib/settings';
 
 interface Tab {
@@ -19,21 +25,21 @@ interface Tab {
 }
 
 const apps = [
-  { name: 'TikTok', icon: '🎵', color: '#ff0050', url: 'https://www.tiktok.com' },
-  { name: 'Snapchat', icon: '👻', color: '#fffc00', url: 'https://web.snapchat.com' },
-  { name: 'Instagram', icon: '📷', color: '#e4405f', url: 'https://www.instagram.com' },
-  { name: 'Discord', icon: '💬', color: '#5865f2', url: 'https://discord.com/app' },
-  { name: 'YouTube', icon: '▶️', color: '#ff0000', url: 'https://www.youtube.com' },
-  { name: 'Reddit', icon: '🔶', color: '#ff4500', url: 'https://www.reddit.com' },
+  { name: 'TikTok', icon: Music2, color: '#ff0050', url: 'https://www.tiktok.com' },
+  { name: 'Snapchat', icon: Ghost, color: '#fffc00', url: 'https://web.snapchat.com' },
+  { name: 'Instagram', icon: Instagram, color: '#e4405f', url: 'https://www.instagram.com' },
+  { name: 'Discord', icon: MessagesSquare, color: '#5865f2', url: 'https://discord.com/app' },
+  { name: 'YouTube', icon: Youtube, color: '#ff0000', url: 'https://www.youtube.com' },
+  { name: 'Reddit', icon: Flame, color: '#ff4500', url: 'https://www.reddit.com' },
 ];
 
 const games = [
-  { name: 'Roblox', icon: '🎮', color: '#ff0000', url: 'https://www.roblox.com' },
-  { name: 'Minecraft', icon: '⛏️', color: '#62b47a', url: 'https://classic.minecraft.net' },
-  { name: 'Slope', icon: '🔴', color: '#00ff00', url: 'https://slope-game.github.io' },
-  { name: '1v1.LOL', icon: '🔫', color: '#ff6b00', url: 'https://1v1.lol' },
-  { name: 'Retro Bowl', icon: '🏈', color: '#8b4513', url: 'https://retrobowl.app' },
-  { name: 'Subway Surfers', icon: '🏃', color: '#ffd700', url: 'https://subwaysurf.io' },
+  { name: 'Roblox', icon: Gamepad2, color: '#ff4444', url: 'https://www.roblox.com' },
+  { name: 'Minecraft', icon: Pickaxe, color: '#62b47a', url: 'https://classic.minecraft.net' },
+  { name: 'Slope', icon: Mountain, color: '#22d3ee', url: 'https://slope-game.github.io' },
+  { name: '1v1.LOL', icon: Crosshair, color: '#ff6b00', url: 'https://1v1.lol' },
+  { name: 'Retro Bowl', icon: Trophy, color: '#f59e0b', url: 'https://retrobowl.app' },
+  { name: 'Subway Surfers', icon: Footprints, color: '#ffd700', url: 'https://subwaysurf.io' },
 ];
 
 const Index = () => {
@@ -213,12 +219,12 @@ const Index = () => {
               <section className="text-center py-16 px-4">
                 <div className="flex items-center justify-center gap-3 mb-4">
                   <Layers className="w-10 h-10 text-primary" />
-                  <h1 className="text-5xl md:text-6xl font-bold tracking-tight glow-text">
-                    Snoopy's Web
+                  <h1 className="text-5xl md:text-6xl font-bold tracking-tight glow-text min-h-[1.2em]">
+                    <Typewriter text="Snoopy's Web" speed={110} />
                   </h1>
                 </div>
-                <p className="text-muted-foreground text-lg font-mono mb-12">
-                  // Secure • Fast • Unrestricted
+                <p className="text-muted-foreground text-lg font-mono mb-10">
+                  // Access the web without limits
                 </p>
                 <SearchBar onSearch={handleSearch} />
                 {!settings.proxyUrl && (
@@ -226,6 +232,7 @@ const Index = () => {
                     Tip: configure a proxy in <button onClick={() => setShowSettings(true)} className="underline text-primary">Settings → Proxy</button> to browse inside the app.
                   </p>
                 )}
+                <RotatingFacts />
               </section>
 
               <section className="max-w-5xl mx-auto mb-12">
@@ -249,7 +256,7 @@ const Index = () => {
               </section>
 
               <footer className="text-center py-8 text-muted-foreground text-sm">
-                <p className="font-mono">// For educational purposes only</p>
+                <p className="font-mono">// stay curious, stay sneaky</p>
               </footer>
             </div>
           )}
