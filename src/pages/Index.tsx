@@ -1,45 +1,39 @@
 import { useState, useEffect, useCallback } from 'react';
-import {
-  Layers, Settings as SettingsIcon,
-  Music2, Ghost, Instagram, MessagesSquare, Youtube, Flame,
-} from 'lucide-react';
+import { Layers, Settings as SettingsIcon, Command as CommandIcon, BookmarkPlus, Construction, X } from 'lucide-react';
 import StarField from '@/components/StarField';
 import SearchBar from '@/components/SearchBar';
-import AppCard from '@/components/AppCard';
 import TabBar from '@/components/TabBar';
 import ProxyFrame from '@/components/ProxyFrame';
 import BrowserChrome from '@/components/BrowserChrome';
 import SettingsModal from '@/components/SettingsModal';
-import SectionTitle from '@/components/SectionTitle';
 import Typewriter from '@/components/Typewriter';
 import RotatingFacts from '@/components/RotatingFacts';
+import SideNav, { SidebarView } from '@/components/SideNav';
+import CommandPalette from '@/components/CommandPalette';
+import Dashboard from '@/components/dashboard/Dashboard';
+import AppsHub from '@/components/AppsHub';
+import ListView from '@/components/ListView';
+import {
+  useBookmarks, useHistory, usePinnedApps, useFavoriteApps, useActivity, useClosedTabs,
+} from '@/lib/browserData';
 import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank, extractDominantHue } from '@/lib/settings';
 
-interface Tab {
-  id: string;
-  history: string[];
-  index: number; // current position in history
-  title: string;
-  reloadKey: number;
-}
-
-const apps = [
-  { name: 'TikTok', icon: Music2, color: '#ff0050', url: 'https://www.tiktok.com' },
-  { name: 'Snapchat', icon: Ghost, color: '#fffc00', url: 'https://web.snapchat.com' },
-  { name: 'Instagram', icon: Instagram, color: '#e4405f', url: 'https://www.instagram.com' },
-  { name: 'Discord', icon: MessagesSquare, color: '#5865f2', url: 'https://discord.com/app' },
-  { name: 'YouTube', icon: Youtube, color: '#ff0000', url: 'https://www.youtube.com' },
-  { name: 'Reddit', icon: Flame, color: '#ff4500', url: 'https://www.reddit.com' },
-];
-
-
-
+interface Tab { id: string; history: string[]; index: number; title: string; reloadKey: number; }
 
 const Index = () => {
   const [settings, setSettings] = useSettings();
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [view, setView] = useState<SidebarView>('home');
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  const bookmarks  = useBookmarks();
+  const history    = useHistory();
+  const pinned     = usePinnedApps();
+  const favorites  = useFavoriteApps();
+  const activity   = useActivity();
+  const closedTabs = useClosedTabs();
 
   const activeTab = tabs.find(t => t.id === activeTabId) || null;
   const currentUrl = activeTab ? activeTab.history[activeTab.index] : '';
@@ -50,7 +44,6 @@ const Index = () => {
     if (link && favicon) link.href = favicon;
   }, []);
 
-  // Initial title + auto-cloak
   useEffect(() => {
     if (settings.autoCloakOnLoad && settings.defaultCloakTitle) {
       applyCloak(settings.defaultCloakTitle, settings.defaultCloakFavicon);
@@ -61,25 +54,33 @@ const Index = () => {
 
   // Panic key
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
-      if (e.key === settings.panicKey) {
-        window.location.replace(settings.panicUrl);
-      }
+    const h = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+      if (e.key === settings.panicKey) window.location.replace(settings.panicUrl);
     };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
   }, [settings.panicKey, settings.panicUrl]);
 
-  // Auto-match accent to wallpaper
+  // Ctrl/Cmd+K palette
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setPaletteOpen(p => !p);
+      }
+    };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, []);
+
+  // Auto accent
   useEffect(() => {
     if (!settings.autoAccentFromBg || !settings.backgroundImage) return;
     let cancelled = false;
     extractDominantHue(settings.backgroundImage).then(h => {
-      if (!cancelled && h !== null && h !== settings.accentHue) {
-        setSettings({ ...settings, accentHue: h });
-      }
+      if (!cancelled && h !== null && h !== settings.accentHue) setSettings({ ...settings, accentHue: h });
     });
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,162 +91,238 @@ const Index = () => {
     else window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  const createTab = (url: string, title?: string) => {
-    // Only pop out to a new browser tab if the user explicitly opted in
-    if (settings.openInNewTab) {
-      openExternal(url);
-      return;
-    }
-    const id = crypto.randomUUID();
-    let displayTitle = title;
-    try {
-      displayTitle = title || new URL(url).hostname.replace(/^www\./, '');
-    } catch {
-      displayTitle = title || url;
-    }
-    setTabs(prev => [...prev, { id, history: [url], index: 0, title: displayTitle!, reloadKey: 0 }]);
-    setActiveTabId(id);
+  const titleFor = (url: string, fallback?: string) => {
+    if (fallback) return fallback;
+    try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; }
   };
+
+  const createTab = useCallback((url: string, title?: string) => {
+    if (settings.openInNewTab) { openExternal(url); return; }
+    const id = crypto.randomUUID();
+    const display = titleFor(url, title);
+    setTabs(prev => [...prev, { id, history: [url], index: 0, title: display, reloadKey: 0 }]);
+    setActiveTabId(id);
+    setView('home');
+    history.push({ url, title: display });
+    activity.log({ kind: 'open', label: `Opened ${display}` });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings.openInNewTab, settings.aboutBlankCloak]);
 
   const handleSearch = (query: string) => {
     const isUrl = query.includes('.') && !query.includes(' ');
-    const url = isUrl
-      ? (query.startsWith('http') ? query : `https://${query}`)
-      : buildSearchUrl(query, settings.searchEngine);
+    const url = isUrl ? (query.startsWith('http') ? query : `https://${query}`) : buildSearchUrl(query, settings.searchEngine);
+    activity.log({ kind: 'search', label: isUrl ? `Visit ${query}` : `Search "${query}"` });
     createTab(url, isUrl ? undefined : `Search: ${query}`);
   };
 
-  const handleAppClick = (url: string) => createTab(url);
-
   const closeTab = (id: string) => {
+    const t = tabs.find(x => x.id === id);
+    if (t) closedTabs.push({ url: t.history[t.index], title: t.title });
     setTabs(prev => prev.filter(t => t.id !== id));
     if (activeTabId === id) {
-      setActiveTabId(prev => {
-        const remaining = tabs.filter(t => t.id !== id);
-        return remaining[remaining.length - 1]?.id || null;
-      });
+      const remaining = tabs.filter(t => t.id !== id);
+      setActiveTabId(remaining[remaining.length - 1]?.id || null);
     }
   };
 
-  const updateActiveTab = (mut: (t: Tab) => Tab) => {
+  const updateActiveTab = (mut: (t: Tab) => Tab) =>
     setTabs(prev => prev.map(t => (t.id === activeTabId ? mut(t) : t)));
-  };
 
   const navigate = (url: string) => {
     if (!activeTab) return;
     updateActiveTab(t => {
-      const newHistory = [...t.history.slice(0, t.index + 1), url];
-      return { ...t, history: newHistory, index: newHistory.length - 1 };
+      const nh = [...t.history.slice(0, t.index + 1), url];
+      return { ...t, history: nh, index: nh.length - 1, title: titleFor(url, t.title) };
     });
+    history.push({ url, title: titleFor(url) });
   };
 
-  const goBack = () => activeTab && activeTab.index > 0 &&
-    updateActiveTab(t => ({ ...t, index: t.index - 1 }));
-  const goForward = () => activeTab && activeTab.index < activeTab.history.length - 1 &&
-    updateActiveTab(t => ({ ...t, index: t.index + 1 }));
-  const reload = () => updateActiveTab(t => ({ ...t, reloadKey: t.reloadKey + 1 }));
+  const goBack    = () => activeTab && activeTab.index > 0 && updateActiveTab(t => ({ ...t, index: t.index - 1 }));
+  const goForward = () => activeTab && activeTab.index < activeTab.history.length - 1 && updateActiveTab(t => ({ ...t, index: t.index + 1 }));
+  const reload    = () => updateActiveTab(t => ({ ...t, reloadKey: t.reloadKey + 1 }));
+
+  const bookmarkCurrent = () => {
+    if (!activeTab) return;
+    bookmarks.toggle({ url: currentUrl, title: activeTab.title });
+    activity.log({ kind: 'bookmark', label: `Bookmarked ${activeTab.title}` });
+  };
 
   const proxyResolved = currentUrl ? buildProxyUrl(currentUrl, settings) : null;
+  const currentBookmarked = !!activeTab && bookmarks.items.some(b => b.url === currentUrl);
 
   return (
     <div id="snoopy-root" className="min-h-screen relative">
       {settings.backgroundImage && (
         <>
-          <div
-            className="fixed inset-0 z-0 bg-cover bg-center transition-all duration-500"
-            style={{ backgroundImage: `url(${settings.backgroundImage})` }}
-          />
-          <div
-            className="fixed inset-0 z-0"
-            style={{ background: `hsl(var(--background) / ${settings.backgroundDim / 100})` }}
-          />
+          <div className="fixed inset-0 z-0 bg-cover bg-center transition-all duration-500" style={{ backgroundImage: `url(${settings.backgroundImage})` }} />
+          <div className="fixed inset-0 z-0" style={{ background: `hsl(var(--background) / ${settings.backgroundDim / 100})` }} />
         </>
       )}
       {settings.showParticles && <StarField />}
       <div className="noise-overlay" />
 
-      <div className="relative z-10 flex flex-col h-screen">
-        <header className="p-4 space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <TabBar
-                tabs={tabs.map(t => ({ id: t.id, title: t.title, url: t.history[t.index] }))}
-                activeTabId={activeTabId}
-                onTabClick={setActiveTabId}
-                onTabClose={closeTab}
-                onNewTab={() => setActiveTabId(null)}
-                onHomeClick={() => setActiveTabId(null)}
-              />
-            </div>
-            <button
-              onClick={() => setShowSettings(true)}
-              className="glass-card !p-3 hover:border-primary/50 shrink-0"
-              title="Settings & Cloak">
-              <SettingsIcon className="w-5 h-5 text-primary" />
-            </button>
-          </div>
+      <div className="relative z-10 flex h-screen">
+        <SideNav
+          active={view}
+          onSelect={v => { setView(v); setActiveTabId(null); }}
+          onOpenSettings={() => setShowSettings(true)}
+          onOpenPalette={() => setPaletteOpen(true)}
+        />
 
-          {activeTab && (
-            <BrowserChrome
-              url={currentUrl}
-              onNavigate={navigate}
-              onBack={goBack}
-              onForward={goForward}
-              onReload={reload}
-              onHome={() => setActiveTabId(null)}
-              onCloseTab={() => closeTab(activeTab.id)}
-              canBack={activeTab.index > 0}
-              canForward={activeTab.index < activeTab.history.length - 1}
-              fullscreenTargetId="snoopy-root"
-            />
-          )}
-        </header>
-
-        <main className="flex-1 overflow-hidden">
-          {activeTab ? (
-            <div className="h-full p-4 pt-0">
-              <ProxyFrame key={`${activeTab.id}-${activeTab.index}-${activeTab.reloadKey}`}
-                url={currentUrl} proxyResolvedUrl={proxyResolved} />
+        <div className="flex-1 flex flex-col min-w-0">
+          <header className="p-3 space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="flex-1 min-w-0">
+                <TabBar
+                  tabs={tabs.map(t => ({ id: t.id, title: t.title, url: t.history[t.index] }))}
+                  activeTabId={activeTabId}
+                  onTabClick={id => { setActiveTabId(id); setView('home'); }}
+                  onTabClose={closeTab}
+                  onNewTab={() => { setActiveTabId(null); setView('home'); }}
+                  onHomeClick={() => { setActiveTabId(null); setView('home'); }}
+                />
+              </div>
+              <button onClick={() => setPaletteOpen(true)} className="glass-card !p-2.5 hover:border-primary/50 shrink-0" title="Command palette (Ctrl+K)">
+                <CommandIcon className="w-4 h-4 text-primary" />
+              </button>
+              <button onClick={() => setShowSettings(true)} className="glass-card !p-2.5 hover:border-primary/50 shrink-0" title="Settings">
+                <SettingsIcon className="w-4 h-4 text-primary" />
+              </button>
             </div>
-          ) : (
-            <div className="h-full overflow-y-auto px-4 pb-8">
-              <section className="text-center py-16 px-4">
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <Layers className="w-10 h-10 text-primary" />
-                  <h1 className="text-5xl md:text-6xl font-bold tracking-tight glow-text min-h-[1.2em]">
-                    <Typewriter text="Snoopy's Web" speed={110} />
-                  </h1>
+
+            {activeTab && (
+              <div className="flex items-center gap-2">
+                <div className="flex-1 min-w-0">
+                  <BrowserChrome
+                    url={currentUrl}
+                    onNavigate={navigate}
+                    onBack={goBack}
+                    onForward={goForward}
+                    onReload={reload}
+                    onHome={() => setActiveTabId(null)}
+                    onCloseTab={() => closeTab(activeTab.id)}
+                    canBack={activeTab.index > 0}
+                    canForward={activeTab.index < activeTab.history.length - 1}
+                    fullscreenTargetId="snoopy-root"
+                  />
                 </div>
-                <p className="text-muted-foreground text-lg font-mono mb-10">
-                  // Access the web without limits
-                </p>
-                <SearchBar onSearch={handleSearch} />
-                {!settings.proxyUrl && (
-                  <p className="text-xs text-muted-foreground mt-4">
-                    Tip: configure a proxy in <button onClick={() => setShowSettings(true)} className="underline text-primary">Settings → Proxy</button> to browse inside the app.
-                  </p>
+                <button onClick={bookmarkCurrent}
+                  className={`glass-card !p-2.5 shrink-0 ${currentBookmarked ? 'border-primary/60 text-primary' : ''}`}
+                  title={currentBookmarked ? 'Bookmarked' : 'Add bookmark'}>
+                  <BookmarkPlus className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </header>
+
+          <main className="flex-1 overflow-hidden">
+            {activeTab ? (
+              <div className="h-full p-3 pt-0">
+                <ProxyFrame key={`${activeTab.id}-${activeTab.index}-${activeTab.reloadKey}`} url={currentUrl} proxyResolvedUrl={proxyResolved} />
+              </div>
+            ) : (
+              <div className="h-full overflow-y-auto px-4 pb-8">
+                {view === 'home' && (
+                  <>
+                    <section className="text-center pt-8 pb-6 px-4">
+                      <div className="flex items-center justify-center gap-3 mb-3">
+                        <Layers className="w-8 h-8 text-primary" />
+                        <h1 className="text-4xl md:text-5xl font-bold tracking-tight glow-text min-h-[1.2em]">
+                          <Typewriter text="Snoopy's Web" speed={110} />
+                        </h1>
+                      </div>
+                      <p className="text-muted-foreground text-sm font-mono mb-6">// access the web without limits</p>
+                      <SearchBar onSearch={handleSearch} />
+                      <RotatingFacts />
+                    </section>
+                    <Dashboard
+                      tabs={tabs.map(t => ({ id: t.id, title: t.title, url: t.history[t.index] }))}
+                      recentlyClosed={closedTabs.items}
+                      bookmarks={bookmarks.items}
+                      history={history.items}
+                      activity={activity.items}
+                      pinnedIds={pinned.ids}
+                      settings={settings}
+                      onOpenUrl={(u, t) => createTab(u, t)}
+                      onActivateTab={(id) => setActiveTabId(id)}
+                      onRemoveBookmark={bookmarks.remove}
+                      onTogglePin={pinned.toggle}
+                      onOpenPalette={() => setPaletteOpen(true)}
+                      onOpenSettings={() => setShowSettings(true)}
+                      onOpenView={(v) => setView(v as SidebarView)}
+                    />
+                    <footer className="text-center py-6 mt-6 text-muted-foreground text-xs font-mono">// stay curious, stay sneaky</footer>
+                  </>
                 )}
-                <RotatingFacts />
-              </section>
 
-              <section className="max-w-3xl mx-auto mb-12">
-                <SectionTitle title="Apps Hub" subtitle="Quick access to your favorite platforms" />
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
-                  {apps.map((app) => (
-                    <AppCard key={app.name} name={app.name} icon={app.icon} color={app.color}
-                      onClick={() => handleAppClick(app.url)} />
-                  ))}
-                </div>
-              </section>
+                {view === 'apps' && (
+                  <section className="py-6">
+                    <AppsHub
+                      onOpen={(u, n) => createTab(u, n)}
+                      pinnedIds={pinned.ids}
+                      favIds={favorites.ids}
+                      onTogglePin={pinned.toggle}
+                      onToggleFav={favorites.toggle}
+                    />
+                  </section>
+                )}
 
+                {view === 'bookmarks' && (
+                  <section className="py-6">
+                    <ListView
+                      title="Bookmarks"
+                      subtitle={`${bookmarks.items.length} saved`}
+                      empty="No bookmarks yet. Open a tab and tap the bookmark icon."
+                      items={bookmarks.items.map(b => ({
+                        id: b.id, title: b.title, sub: b.url,
+                        onClick: () => createTab(b.url, b.title),
+                        right: (
+                          <button onClick={() => bookmarks.remove(b.id)} className="text-muted-foreground hover:text-destructive p-1" title="Remove">
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        ),
+                      }))}
+                    />
+                  </section>
+                )}
 
-              <footer className="text-center py-8 text-muted-foreground text-sm">
-                <p className="font-mono">// stay curious, stay sneaky</p>
-              </footer>
-            </div>
-          )}
-        </main>
+                {view === 'history' && (
+                  <section className="py-6">
+                    <ListView
+                      title="History"
+                      subtitle={`${history.items.length} entries`}
+                      onClear={history.clear}
+                      empty="No history yet."
+                      items={history.items.map((h, i) => ({
+                        id: `${i}-${h.url}`, title: h.title || h.url, sub: h.url,
+                        onClick: () => createTab(h.url, h.title),
+                      }))}
+                    />
+                  </section>
+                )}
+
+                {view === 'downloads' && (
+                  <ComingSoon title="Downloads" />
+                )}
+                {view === 'workspaces' && (
+                  <ComingSoon title="Workspaces" hint="School, Gaming, Social, Work, Custom — coming next." />
+                )}
+              </div>
+            )}
+          </main>
+        </div>
       </div>
+
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        bookmarks={bookmarks.items}
+        history={history.items}
+        onOpenUrl={(u, t) => createTab(u, t)}
+        onSearch={handleSearch}
+        onOpenSettings={() => setShowSettings(true)}
+        onSelectView={(v) => { setView(v as SidebarView); setActiveTabId(null); }}
+      />
 
       <SettingsModal
         isOpen={showSettings}
@@ -257,5 +334,13 @@ const Index = () => {
     </div>
   );
 };
+
+const ComingSoon = ({ title, hint }: { title: string; hint?: string }) => (
+  <div className="max-w-2xl mx-auto py-16 text-center">
+    <Construction className="w-10 h-10 text-primary mx-auto mb-3" />
+    <h2 className="text-2xl font-semibold">{title}</h2>
+    <p className="text-sm text-muted-foreground mt-2">{hint || 'Coming in the next update.'}</p>
+  </div>
+);
 
 export default Index;
