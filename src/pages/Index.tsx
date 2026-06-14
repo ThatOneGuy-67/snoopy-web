@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Layers, Settings as SettingsIcon,
   Music2, Ghost, Instagram, MessagesSquare, Youtube, Flame,
-  Gamepad2, Pickaxe, Mountain, Crosshair, Trophy, Footprints,
 } from 'lucide-react';
 import StarField from '@/components/StarField';
 import SearchBar from '@/components/SearchBar';
@@ -33,14 +32,8 @@ const apps = [
   { name: 'Reddit', icon: Flame, color: '#ff4500', url: 'https://www.reddit.com' },
 ];
 
-const games = [
-  { name: 'Roblox', icon: Gamepad2, color: '#ff4444', url: 'https://www.roblox.com' },
-  { name: 'Minecraft', icon: Pickaxe, color: '#62b47a', url: 'https://classic.minecraft.net' },
-  { name: 'Slope', icon: Mountain, color: '#22d3ee', url: 'https://slope-game.github.io' },
-  { name: '1v1.LOL', icon: Crosshair, color: '#ff6b00', url: 'https://1v1.lol' },
-  { name: 'Retro Bowl', icon: Trophy, color: '#f59e0b', url: 'https://retrobowl.app' },
-  { name: 'Subway Surfers', icon: Footprints, color: '#ffd700', url: 'https://subwaysurf.io' },
-];
+
+
 
 const Index = () => {
   const [settings, setSettings] = useSettings();
@@ -235,9 +228,9 @@ const Index = () => {
                 <RotatingFacts />
               </section>
 
-              <section className="max-w-5xl mx-auto mb-12">
+              <section className="max-w-3xl mx-auto mb-12">
                 <SectionTitle title="Apps Hub" subtitle="Quick access to your favorite platforms" />
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
                   {apps.map((app) => (
                     <AppCard key={app.name} name={app.name} icon={app.icon} color={app.color}
                       onClick={() => handleAppClick(app.url)} />
@@ -245,15 +238,6 @@ const Index = () => {
                 </div>
               </section>
 
-              <section className="max-w-5xl mx-auto mb-12">
-                <SectionTitle title="Games Hub" subtitle="Play your favorite games unblocked" />
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-                  {games.map((game) => (
-                    <AppCard key={game.name} name={game.name} icon={game.icon} color={game.color}
-                      onClick={() => handleAppClick(game.url)} />
-                  ))}
-                </div>
-              </section>
 
               <footer className="text-center py-8 text-muted-foreground text-sm">
                 <p className="font-mono">// stay curious, stay sneaky</p>
