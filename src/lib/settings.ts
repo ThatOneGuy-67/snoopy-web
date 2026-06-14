@@ -32,7 +32,7 @@ const DEFAULTS: AppSettings = {
   panicUrl: 'https://classroom.google.com',
   showParticles: true,
   searchEngine: 'duckduckgo',
-  accentHue: 200,
+  accentHue: 140,
   backgroundImage: '',
   backgroundDim: 60,
   autoAccentFromBg: true,
