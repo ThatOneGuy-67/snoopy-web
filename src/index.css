@@ -13,7 +13,7 @@
     --popover: 220 15% 10%;
     --popover-foreground: 220 10% 95%;
 
-    --primary: 200 80% 60%;
+    --primary: 140 80% 55%;
     --primary-foreground: 220 15% 8%;
 
     --secondary: 220 15% 18%;
@@ -22,7 +22,7 @@
     --muted: 220 15% 15%;
     --muted-foreground: 220 10% 60%;
 
-    --accent: 200 80% 50%;
+    --accent: 140 80% 50%;
     --accent-foreground: 220 15% 8%;
 
     --destructive: 0 84% 60%;
@@ -30,14 +30,14 @@
 
     --border: 220 15% 20%;
     --input: 220 15% 15%;
-    --ring: 200 80% 60%;
+    --ring: 140 80% 55%;
 
     --radius: 0.75rem;
 
     --glass-bg: 220 15% 15%;
     --glass-border: 220 15% 25%;
-    --glow-primary: 200 80% 60%;
-    --glow-secondary: 270 60% 60%;
+    --glow-primary: 140 80% 55%;
+    --glow-secondary: 160 60% 50%;
   }
 
   .dark {
