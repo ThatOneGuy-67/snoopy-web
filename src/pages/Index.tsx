@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Layers, Settings as SettingsIcon, Command as CommandIcon, BookmarkPlus, Construction, X } from 'lucide-react';
+import { Layers, Settings as SettingsIcon, Command as CommandIcon, BookmarkPlus, X } from 'lucide-react';
 import StarField from '@/components/StarField';
 import SearchBar from '@/components/SearchBar';
 import TabBar from '@/components/TabBar';
@@ -13,9 +13,13 @@ import CommandPalette from '@/components/CommandPalette';
 import Dashboard from '@/components/dashboard/Dashboard';
 import AppsHub from '@/components/AppsHub';
 import ListView from '@/components/ListView';
+import DownloadsView from '@/components/DownloadsView';
+import WorkspacesView from '@/components/WorkspacesView';
+import DiagnosticsModal from '@/components/DiagnosticsModal';
 import {
-  useBookmarks, useHistory, usePinnedApps, useFavoriteApps, useActivity, useClosedTabs,
+  useBookmarks, useHistory, useFavoriteApps, useActivity, useClosedTabs,
 } from '@/lib/browserData';
+import { useWorkspaces } from '@/lib/workspaces';
 import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank, extractDominantHue } from '@/lib/settings';
 
 interface Tab { id: string; history: string[]; index: number; title: string; reloadKey: number; }
@@ -25,15 +29,35 @@ const Index = () => {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showDiag, setShowDiag] = useState(false);
   const [view, setView] = useState<SidebarView>('home');
   const [paletteOpen, setPaletteOpen] = useState(false);
 
   const bookmarks  = useBookmarks();
   const history    = useHistory();
-  const pinned     = usePinnedApps();
   const favorites  = useFavoriteApps();
   const activity   = useActivity();
   const closedTabs = useClosedTabs();
+  const workspaces = useWorkspaces();
+
+  // Active workspace drives pinned apps + theme
+  const pinned = {
+    ids: workspaces.active?.pinnedAppIds || [],
+    toggle: (id: string) => {
+      if (!workspaces.active) return;
+      const cur = workspaces.active.pinnedAppIds;
+      const next = cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id];
+      workspaces.update(workspaces.active.id, { pinnedAppIds: next });
+    },
+  };
+
+  // Sync workspace theme into settings on switch
+  useEffect(() => {
+    if (workspaces.active && workspaces.active.themeId !== settings.themeId) {
+      setSettings({ ...settings, themeId: workspaces.active.themeId });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspaces.activeId]);
 
   const activeTab = tabs.find(t => t.id === activeTabId) || null;
   const currentUrl = activeTab ? activeTab.history[activeTab.index] : '';
