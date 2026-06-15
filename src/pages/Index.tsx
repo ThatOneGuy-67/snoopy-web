@@ -191,6 +191,8 @@ const Index = () => {
           onSelect={v => { setView(v); setActiveTabId(null); }}
           onOpenSettings={() => setShowSettings(true)}
           onOpenPalette={() => setPaletteOpen(true)}
+          workspaceName={workspaces.active?.name}
+          workspaceEmoji={workspaces.active?.emoji}
         />
 
         <div className="flex-1 flex flex-col min-w-0">
@@ -274,6 +276,7 @@ const Index = () => {
                       onOpenPalette={() => setPaletteOpen(true)}
                       onOpenSettings={() => setShowSettings(true)}
                       onOpenView={(v) => setView(v as SidebarView)}
+                      onOpenDiagnostics={() => setShowDiag(true)}
                     />
                     <footer className="text-center py-6 mt-6 text-muted-foreground text-xs font-mono">// stay curious, stay sneaky</footer>
                   </>
@@ -326,16 +329,25 @@ const Index = () => {
                 )}
 
                 {view === 'downloads' && (
-                  <ComingSoon title="Downloads" />
+                  <DownloadsView history={history.items} onOpen={createTab} />
                 )}
                 {view === 'workspaces' && (
-                  <ComingSoon title="Workspaces" hint="School, Gaming, Social, Work, Custom — coming next." />
+                  <WorkspacesView
+                    list={workspaces.list}
+                    activeId={workspaces.activeId}
+                    onActivate={workspaces.setActiveId}
+                    onCreate={workspaces.create}
+                    onUpdate={workspaces.update}
+                    onRemove={workspaces.remove}
+                  />
                 )}
               </div>
             )}
           </main>
         </div>
       </div>
+
+      <DiagnosticsModal open={showDiag} onClose={() => setShowDiag(false)} settings={settings} />
 
       <CommandPalette
         open={paletteOpen}
@@ -358,13 +370,5 @@ const Index = () => {
     </div>
   );
 };
-
-const ComingSoon = ({ title, hint }: { title: string; hint?: string }) => (
-  <div className="max-w-2xl mx-auto py-16 text-center">
-    <Construction className="w-10 h-10 text-primary mx-auto mb-3" />
-    <h2 className="text-2xl font-semibold">{title}</h2>
-    <p className="text-sm text-muted-foreground mt-2">{hint || 'Coming in the next update.'}</p>
-  </div>
-);
 
 export default Index;
