@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Layers, Settings as SettingsIcon, Command as CommandIcon, BookmarkPlus, Construction, X } from 'lucide-react';
+import { Layers, Settings as SettingsIcon, Command as CommandIcon, BookmarkPlus, X } from 'lucide-react';
 import StarField from '@/components/StarField';
 import SearchBar from '@/components/SearchBar';
 import TabBar from '@/components/TabBar';
@@ -13,9 +13,13 @@ import CommandPalette from '@/components/CommandPalette';
 import Dashboard from '@/components/dashboard/Dashboard';
 import AppsHub from '@/components/AppsHub';
 import ListView from '@/components/ListView';
+import DownloadsView from '@/components/DownloadsView';
+import WorkspacesView from '@/components/WorkspacesView';
+import DiagnosticsModal from '@/components/DiagnosticsModal';
 import {
-  useBookmarks, useHistory, usePinnedApps, useFavoriteApps, useActivity, useClosedTabs,
+  useBookmarks, useHistory, useFavoriteApps, useActivity, useClosedTabs,
 } from '@/lib/browserData';
+import { useWorkspaces } from '@/lib/workspaces';
 import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank, extractDominantHue } from '@/lib/settings';
 
 interface Tab { id: string; history: string[]; index: number; title: string; reloadKey: number; }
@@ -25,15 +29,35 @@ const Index = () => {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showDiag, setShowDiag] = useState(false);
   const [view, setView] = useState<SidebarView>('home');
   const [paletteOpen, setPaletteOpen] = useState(false);
 
   const bookmarks  = useBookmarks();
   const history    = useHistory();
-  const pinned     = usePinnedApps();
   const favorites  = useFavoriteApps();
   const activity   = useActivity();
   const closedTabs = useClosedTabs();
+  const workspaces = useWorkspaces();
+
+  // Active workspace drives pinned apps + theme
+  const pinned = {
+    ids: workspaces.active?.pinnedAppIds || [],
+    toggle: (id: string) => {
+      if (!workspaces.active) return;
+      const cur = workspaces.active.pinnedAppIds;
+      const next = cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id];
+      workspaces.update(workspaces.active.id, { pinnedAppIds: next });
+    },
+  };
+
+  // Sync workspace theme into settings on switch
+  useEffect(() => {
+    if (workspaces.active && workspaces.active.themeId !== settings.themeId) {
+      setSettings({ ...settings, themeId: workspaces.active.themeId });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspaces.activeId]);
 
   const activeTab = tabs.find(t => t.id === activeTabId) || null;
   const currentUrl = activeTab ? activeTab.history[activeTab.index] : '';
@@ -167,6 +191,8 @@ const Index = () => {
           onSelect={v => { setView(v); setActiveTabId(null); }}
           onOpenSettings={() => setShowSettings(true)}
           onOpenPalette={() => setPaletteOpen(true)}
+          workspaceName={workspaces.active?.name}
+          workspaceEmoji={workspaces.active?.emoji}
         />
 
         <div className="flex-1 flex flex-col min-w-0">
@@ -250,6 +276,7 @@ const Index = () => {
                       onOpenPalette={() => setPaletteOpen(true)}
                       onOpenSettings={() => setShowSettings(true)}
                       onOpenView={(v) => setView(v as SidebarView)}
+                      onOpenDiagnostics={() => setShowDiag(true)}
                     />
                     <footer className="text-center py-6 mt-6 text-muted-foreground text-xs font-mono">// stay curious, stay sneaky</footer>
                   </>
@@ -302,16 +329,25 @@ const Index = () => {
                 )}
 
                 {view === 'downloads' && (
-                  <ComingSoon title="Downloads" />
+                  <DownloadsView history={history.items} onOpen={createTab} />
                 )}
                 {view === 'workspaces' && (
-                  <ComingSoon title="Workspaces" hint="School, Gaming, Social, Work, Custom — coming next." />
+                  <WorkspacesView
+                    list={workspaces.list}
+                    activeId={workspaces.activeId}
+                    onActivate={workspaces.setActiveId}
+                    onCreate={workspaces.create}
+                    onUpdate={workspaces.update}
+                    onRemove={workspaces.remove}
+                  />
                 )}
               </div>
             )}
           </main>
         </div>
       </div>
+
+      <DiagnosticsModal open={showDiag} onClose={() => setShowDiag(false)} settings={settings} />
 
       <CommandPalette
         open={paletteOpen}
@@ -334,13 +370,5 @@ const Index = () => {
     </div>
   );
 };
-
-const ComingSoon = ({ title, hint }: { title: string; hint?: string }) => (
-  <div className="max-w-2xl mx-auto py-16 text-center">
-    <Construction className="w-10 h-10 text-primary mx-auto mb-3" />
-    <h2 className="text-2xl font-semibold">{title}</h2>
-    <p className="text-sm text-muted-foreground mt-2">{hint || 'Coming in the next update.'}</p>
-  </div>
-);
 
 export default Index;

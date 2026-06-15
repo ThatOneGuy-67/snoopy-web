@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Settings as SettingsIcon, X, Shield, Globe, Palette, KeyRound, Check, AlertCircle, Loader2, Image as ImageIcon } from 'lucide-react';
 import { AppSettings, testProxyReachable, BACKGROUND_PRESETS } from '@/lib/settings';
+import { THEMES } from '@/lib/themes';
 import { testWispReachable, DEFAULT_WISP_URL, clearCachedWispResult, resetController } from '@/lib/scramjet';
 
 interface Props {
@@ -269,9 +270,33 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
 
           {tab === 'theme' && (
             <>
+              <Field label="Theme preset" hint="Sets background, surfaces, and accent glow in one go.">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {THEMES.map(t => {
+                    const active = settings.themeId === t.id;
+                    return (
+                      <button key={t.id} onClick={() => update('themeId', t.id)}
+                        className={`relative p-3 rounded-lg text-left transition-all border-2 ${active ? 'border-primary shadow-[0_0_18px_hsl(var(--glow-primary)/0.35)]' : 'border-border hover:border-primary/40'}`}
+                        style={{ background: `linear-gradient(135deg, ${t.swatches[0]}, ${t.swatches[1]})` }}>
+                        <div className="flex gap-1 mb-2">
+                          {t.swatches.map((c, i) => (
+                            <span key={i} className="w-3 h-3 rounded-full border border-white/20" style={{ background: c }} />
+                          ))}
+                          {active && <Check className="w-3.5 h-3.5 text-primary ml-auto" />}
+                        </div>
+                        <div className="text-sm font-semibold text-white">{t.name}</div>
+                        <div className="text-[10px] text-white/70">{t.description}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </Field>
+
+              <div className="border-t border-border pt-4">
               <Toggle label="Match accent to wallpaper"
-                hint="Automatically picks a hue from your background image."
+                hint="Overrides theme accent with a hue picked from your background image."
                 checked={settings.autoAccentFromBg} onChange={v => update('autoAccentFromBg', v)} />
+              </div>
               <Field label={`Accent hue (${settings.accentHue}°)`}>
                 <input type="range" min={0} max={360} value={settings.accentHue}
                   onChange={e => update('accentHue', Number(e.target.value))}

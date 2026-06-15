@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { applyTheme } from './themes';
 
 export interface AppSettings {
+  themeId: string;
   proxyUrl: string;
   proxyPrefix: string;
   openInNewTab: boolean;
@@ -21,6 +23,7 @@ export interface AppSettings {
 }
 
 const DEFAULTS: AppSettings = {
+  themeId: 'matrix',
   proxyUrl: '',
   proxyPrefix: '/service/',
   openInNewTab: false,
@@ -35,7 +38,7 @@ const DEFAULTS: AppSettings = {
   accentHue: 140,
   backgroundImage: '',
   backgroundDim: 60,
-  autoAccentFromBg: true,
+  autoAccentFromBg: false,
   useScramjet: true,
   wispUrl: '',
 };
@@ -99,10 +102,15 @@ export function useSettings() {
 
   useEffect(() => {
     saveSettings(settings);
-    document.documentElement.style.setProperty('--primary', `${settings.accentHue} 80% 60%`);
-    document.documentElement.style.setProperty('--ring', `${settings.accentHue} 80% 60%`);
-    document.documentElement.style.setProperty('--accent', `${settings.accentHue} 80% 50%`);
-    document.documentElement.style.setProperty('--glow-primary', `${settings.accentHue} 80% 60%`);
+    // Apply theme preset (sets background, card, border, primary, glow, etc.)
+    applyTheme(settings.themeId);
+    // Optional per-user hue override on top of theme
+    if (settings.autoAccentFromBg && settings.backgroundImage) {
+      document.documentElement.style.setProperty('--primary', `${settings.accentHue} 80% 60%`);
+      document.documentElement.style.setProperty('--ring', `${settings.accentHue} 80% 60%`);
+      document.documentElement.style.setProperty('--accent', `${settings.accentHue} 80% 50%`);
+      document.documentElement.style.setProperty('--glow-primary', `${settings.accentHue} 80% 60%`);
+    }
   }, [settings]);
 
   return [settings, setSettings] as const;

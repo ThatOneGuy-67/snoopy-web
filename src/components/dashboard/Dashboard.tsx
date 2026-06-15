@@ -25,6 +25,7 @@ interface DashboardProps {
   onOpenPalette: () => void;
   onOpenSettings: () => void;
   onOpenView: (v: 'bookmarks' | 'history' | 'apps') => void;
+  onOpenDiagnostics?: () => void;
 }
 
 const timeAgo = (ts: number) => {
@@ -120,7 +121,7 @@ const Dashboard = (p: DashboardProps) => {
           <StatRow label="Status"  value={<span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--glow-primary))]" /> Online</span>} />
           <StatRow label="Search"  value={p.settings.searchEngine} />
           <StatRow label="Cloak"   value={p.settings.autoCloakOnLoad ? 'Auto' : 'Off'} />
-          <button onClick={p.onOpenSettings} className="mt-2 w-full text-[11px] flex items-center justify-center gap-1.5 py-1.5 rounded-md border border-border/60 hover:border-primary/50 hover:text-primary text-muted-foreground transition-colors">
+          <button onClick={p.onOpenDiagnostics || p.onOpenSettings} className="mt-2 w-full text-[11px] flex items-center justify-center gap-1.5 py-1.5 rounded-md border border-border/60 hover:border-primary/50 hover:text-primary text-muted-foreground transition-colors">
             <RotateCw className="w-3 h-3" /> Diagnostics
           </button>
         </div>
