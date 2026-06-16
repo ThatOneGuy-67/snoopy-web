@@ -77,6 +77,28 @@ export const THEMES: ThemePreset[] = [
     description: 'Warm amber dusk.',
     swatches: ['#1a0f0a', '#2e1a10', '#ff8c2b'],
   },
+  {
+    id: 'winxp',
+    name: 'Windows XP',
+    hue: 210,
+    background: '210 60% 35%',
+    card: '210 50% 28%',
+    border: '210 60% 45%',
+    accent: '95 70% 50%',
+    description: 'Bliss blue + Start-button green.',
+    swatches: ['#245edb', '#3a6ea5', '#7fbf3f'],
+  },
+  {
+    id: 'macos',
+    name: 'macOS',
+    hue: 220,
+    background: '220 15% 14%',
+    card: '220 12% 20%',
+    border: '220 10% 30%',
+    accent: '212 100% 60%',
+    description: 'Graphite + signature blue.',
+    swatches: ['#1e1f23', '#2a2c32', '#0a84ff'],
+  },
 ];
 
 export function applyTheme(id: string) {
