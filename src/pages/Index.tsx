@@ -14,12 +14,10 @@ import Dashboard from '@/components/dashboard/Dashboard';
 import AppsHub from '@/components/AppsHub';
 import ListView from '@/components/ListView';
 import DownloadsView from '@/components/DownloadsView';
-import WorkspacesView from '@/components/WorkspacesView';
 import DiagnosticsModal from '@/components/DiagnosticsModal';
 import {
-  useBookmarks, useHistory, useFavoriteApps, useActivity, useClosedTabs,
+  useBookmarks, useHistory, useFavoriteApps, useActivity, useClosedTabs, usePinnedApps,
 } from '@/lib/browserData';
-import { useWorkspaces } from '@/lib/workspaces';
 import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank, extractDominantHue } from '@/lib/settings';
 
 interface Tab { id: string; history: string[]; index: number; title: string; reloadKey: number; }
@@ -38,26 +36,8 @@ const Index = () => {
   const favorites  = useFavoriteApps();
   const activity   = useActivity();
   const closedTabs = useClosedTabs();
-  const workspaces = useWorkspaces();
+  const pinned     = usePinnedApps();
 
-  // Active workspace drives pinned apps + theme
-  const pinned = {
-    ids: workspaces.active?.pinnedAppIds || [],
-    toggle: (id: string) => {
-      if (!workspaces.active) return;
-      const cur = workspaces.active.pinnedAppIds;
-      const next = cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id];
-      workspaces.update(workspaces.active.id, { pinnedAppIds: next });
-    },
-  };
-
-  // Sync workspace theme into settings on switch
-  useEffect(() => {
-    if (workspaces.active && workspaces.active.themeId !== settings.themeId) {
-      setSettings({ ...settings, themeId: workspaces.active.themeId });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workspaces.activeId]);
 
   const activeTab = tabs.find(t => t.id === activeTabId) || null;
   const currentUrl = activeTab ? activeTab.history[activeTab.index] : '';
@@ -191,9 +171,8 @@ const Index = () => {
           onSelect={v => { setView(v); setActiveTabId(null); }}
           onOpenSettings={() => setShowSettings(true)}
           onOpenPalette={() => setPaletteOpen(true)}
-          workspaceName={workspaces.active?.name}
-          workspaceEmoji={workspaces.active?.emoji}
         />
+
 
         <div className="flex-1 flex flex-col min-w-0">
           <header className="p-3 space-y-2">
@@ -330,16 +309,6 @@ const Index = () => {
 
                 {view === 'downloads' && (
                   <DownloadsView history={history.items} onOpen={createTab} />
-                )}
-                {view === 'workspaces' && (
-                  <WorkspacesView
-                    list={workspaces.list}
-                    activeId={workspaces.activeId}
-                    onActivate={workspaces.setActiveId}
-                    onCreate={workspaces.create}
-                    onUpdate={workspaces.update}
-                    onRemove={workspaces.remove}
-                  />
                 )}
               </div>
             )}

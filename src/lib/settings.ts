@@ -20,6 +20,9 @@ export interface AppSettings {
   autoAccentFromBg: boolean;
   useScramjet: boolean; // bundled in-app proxy
   wispUrl: string; // custom Wisp relay URL (empty = default)
+  accentOverride: boolean; // when true, accentHue overrides theme accent
+  glassOpacity: number; // 10-100, transparency of glass surfaces
+  uiAnimations: boolean; // master toggle for hover/transition animations
 }
 
 const DEFAULTS: AppSettings = {
@@ -41,6 +44,9 @@ const DEFAULTS: AppSettings = {
   autoAccentFromBg: false,
   useScramjet: true,
   wispUrl: '',
+  accentOverride: false,
+  glassOpacity: 60,
+  uiAnimations: true,
 };
 
 export async function extractDominantHue(url: string): Promise<number | null> {
@@ -104,12 +110,19 @@ export function useSettings() {
     saveSettings(settings);
     // Apply theme preset (sets background, card, border, primary, glow, etc.)
     applyTheme(settings.themeId);
-    // Optional per-user hue override on top of theme
-    if (settings.autoAccentFromBg && settings.backgroundImage) {
-      document.documentElement.style.setProperty('--primary', `${settings.accentHue} 80% 60%`);
-      document.documentElement.style.setProperty('--ring', `${settings.accentHue} 80% 60%`);
-      document.documentElement.style.setProperty('--accent', `${settings.accentHue} 80% 50%`);
-      document.documentElement.style.setProperty('--glow-primary', `${settings.accentHue} 80% 60%`);
+    const root = document.documentElement;
+    // Glass transparency
+    root.style.setProperty('--glass-alpha', String(Math.max(0.1, Math.min(1, settings.glassOpacity / 100))));
+    // Animations master switch
+    root.dataset.anim = settings.uiAnimations ? 'on' : 'off';
+    // Accent override (manual or auto-from-bg)
+    const useOverride = settings.accentOverride || (settings.autoAccentFromBg && !!settings.backgroundImage);
+    if (useOverride) {
+      const hue = `${settings.accentHue} 80% 60%`;
+      root.style.setProperty('--primary', hue);
+      root.style.setProperty('--ring', hue);
+      root.style.setProperty('--accent', `${settings.accentHue} 80% 50%`);
+      root.style.setProperty('--glow-primary', hue);
     }
   }, [settings]);
 
