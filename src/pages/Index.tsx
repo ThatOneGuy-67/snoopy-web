@@ -171,9 +171,8 @@ const Index = () => {
           onSelect={v => { setView(v); setActiveTabId(null); }}
           onOpenSettings={() => setShowSettings(true)}
           onOpenPalette={() => setPaletteOpen(true)}
-          workspaceName={workspaces.active?.name}
-          workspaceEmoji={workspaces.active?.emoji}
         />
+
 
         <div className="flex-1 flex flex-col min-w-0">
           <header className="p-3 space-y-2">
@@ -310,16 +309,6 @@ const Index = () => {
 
                 {view === 'downloads' && (
                   <DownloadsView history={history.items} onOpen={createTab} />
-                )}
-                {view === 'workspaces' && (
-                  <WorkspacesView
-                    list={workspaces.list}
-                    activeId={workspaces.activeId}
-                    onActivate={workspaces.setActiveId}
-                    onCreate={workspaces.create}
-                    onUpdate={workspaces.update}
-                    onRemove={workspaces.remove}
-                  />
                 )}
               </div>
             )}
