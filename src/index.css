@@ -66,8 +66,8 @@
     @apply relative overflow-hidden rounded-xl;
     background: linear-gradient(
       135deg,
-      hsl(var(--glass-bg) / 0.6) 0%,
-      hsl(var(--glass-bg) / 0.3) 100%
+      hsl(var(--glass-bg) / calc(var(--glass-alpha, 0.6))) 0%,
+      hsl(var(--glass-bg) / calc(var(--glass-alpha, 0.6) * 0.5)) 100%
     );
     backdrop-filter: blur(20px);
     border: 1px solid hsl(var(--glass-border) / 0.5);
@@ -96,6 +96,15 @@
   .glow-border {
     box-shadow: 0 0 20px hsl(var(--glow-primary) / 0.3);
   }
+}
+
+/* Master animation kill-switch */
+html[data-anim="off"] *,
+html[data-anim="off"] *::before,
+html[data-anim="off"] *::after {
+  animation-duration: 0ms !important;
+  animation-delay: 0ms !important;
+  transition-duration: 0ms !important;
 }
 
 /* Animated stars background */
