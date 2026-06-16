@@ -20,6 +20,9 @@ export interface AppSettings {
   autoAccentFromBg: boolean;
   useScramjet: boolean; // bundled in-app proxy
   wispUrl: string; // custom Wisp relay URL (empty = default)
+  accentOverride: boolean; // when true, accentHue overrides theme accent
+  glassOpacity: number; // 10-100, transparency of glass surfaces
+  uiAnimations: boolean; // master toggle for hover/transition animations
 }
 
 const DEFAULTS: AppSettings = {
