@@ -1,15 +1,13 @@
-import { Home, AppWindow, Bookmark, History, Download, LayoutGrid, Settings, ChevronLeft, Command } from 'lucide-react';
+import { Home, AppWindow, Bookmark, History, Download, Settings, ChevronLeft, Command } from 'lucide-react';
 import { useState } from 'react';
 
-export type SidebarView = 'home' | 'apps' | 'bookmarks' | 'history' | 'downloads' | 'workspaces';
+export type SidebarView = 'home' | 'apps' | 'bookmarks' | 'history' | 'downloads';
 
 interface SideNavProps {
   active: SidebarView;
   onSelect: (v: SidebarView) => void;
   onOpenSettings: () => void;
   onOpenPalette: () => void;
-  workspaceName?: string;
-  workspaceEmoji?: string;
 }
 
 const items: { id: SidebarView; label: string; icon: typeof Home }[] = [
@@ -18,10 +16,9 @@ const items: { id: SidebarView; label: string; icon: typeof Home }[] = [
   { id: 'bookmarks',  label: 'Bookmarks',  icon: Bookmark },
   { id: 'history',    label: 'History',    icon: History },
   { id: 'downloads',  label: 'Downloads',  icon: Download },
-  { id: 'workspaces', label: 'Workspaces', icon: LayoutGrid },
 ];
 
-const SideNav = ({ active, onSelect, onOpenSettings, onOpenPalette, workspaceName, workspaceEmoji }: SideNavProps) => {
+const SideNav = ({ active, onSelect, onOpenSettings, onOpenPalette }: SideNavProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const w = collapsed ? 'w-14' : 'w-52';
 
@@ -34,22 +31,6 @@ const SideNav = ({ active, onSelect, onOpenSettings, onOpenPalette, workspaceNam
       >
         <ChevronLeft className={`w-4 h-4 transition-transform ${collapsed ? 'rotate-180' : ''}`} />
       </button>
-
-      {workspaceName && (
-        <button
-          onClick={() => onSelect('workspaces')}
-          className="flex items-center gap-2 px-2 py-1.5 rounded-lg border border-primary/20 bg-primary/5 hover:border-primary/50 text-left transition-all"
-          title={`Workspace: ${workspaceName}`}
-        >
-          <span className="text-lg shrink-0">{workspaceEmoji}</span>
-          {!collapsed && (
-            <div className="min-w-0">
-              <div className="text-[10px] uppercase font-mono text-muted-foreground">Workspace</div>
-              <div className="text-xs font-semibold truncate text-primary">{workspaceName}</div>
-            </div>
-          )}
-        </button>
-      )}
 
       <button
         onClick={onOpenPalette}
