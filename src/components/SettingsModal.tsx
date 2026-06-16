@@ -270,19 +270,27 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
 
           {tab === 'theme' && (
             <>
-              <Field label="Theme preset" hint="Sets background, surfaces, and accent glow in one go.">
+              <Field label="Theme preset" hint="Click to apply instantly. Hover a tile to live-preview before committing.">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {THEMES.map(t => {
                     const active = settings.themeId === t.id;
                     return (
-                      <button key={t.id} onClick={() => update('themeId', t.id)}
+                      <button key={t.id}
+                        onClick={() => update('themeId', t.id)}
+                        onMouseEnter={() => {
+                          // live preview: temporarily apply without persisting
+                          import('@/lib/themes').then(m => m.applyTheme(t.id));
+                        }}
+                        onMouseLeave={() => {
+                          import('@/lib/themes').then(m => m.applyTheme(settings.themeId));
+                        }}
                         className={`relative p-3 rounded-lg text-left transition-all border-2 ${active ? 'border-primary shadow-[0_0_18px_hsl(var(--glow-primary)/0.35)]' : 'border-border hover:border-primary/40'}`}
                         style={{ background: `linear-gradient(135deg, ${t.swatches[0]}, ${t.swatches[1]})` }}>
                         <div className="flex gap-1 mb-2">
                           {t.swatches.map((c, i) => (
                             <span key={i} className="w-3 h-3 rounded-full border border-white/20" style={{ background: c }} />
                           ))}
-                          {active && <Check className="w-3.5 h-3.5 text-primary ml-auto" />}
+                          {active && <Check className="w-3.5 h-3.5 text-white ml-auto" />}
                         </div>
                         <div className="text-sm font-semibold text-white">{t.name}</div>
                         <div className="text-[10px] text-white/70">{t.description}</div>
@@ -292,25 +300,42 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
                 </div>
               </Field>
 
-              <div className="border-t border-border pt-4">
-              <Toggle label="Match accent to wallpaper"
-                hint="Overrides theme accent with a hue picked from your background image."
-                checked={settings.autoAccentFromBg} onChange={v => update('autoAccentFromBg', v)} />
+              <div className="border-t border-border pt-4 space-y-4">
+                <Toggle label="Override theme accent"
+                  hint="Use the custom accent hue below instead of the theme's default."
+                  checked={settings.accentOverride} onChange={v => update('accentOverride', v)} />
+                <Toggle label="Match accent to wallpaper"
+                  hint="Pick the hue automatically from the background image."
+                  checked={settings.autoAccentFromBg} onChange={v => update('autoAccentFromBg', v)} />
+                <Field label={`Accent hue (${settings.accentHue}°)`}>
+                  <input type="range" min={0} max={360} value={settings.accentHue}
+                    onChange={e => update('accentHue', Number(e.target.value))}
+                    className="w-full" />
+                  <div className="h-3 rounded-full mt-2"
+                    style={{ background: `linear-gradient(to right, hsl(0 80% 60%), hsl(60 80% 60%), hsl(120 80% 60%), hsl(180 80% 60%), hsl(240 80% 60%), hsl(300 80% 60%), hsl(360 80% 60%))` }} />
+                  <div className="flex gap-2 flex-wrap mt-2">
+                    {[200, 270, 320, 0, 30, 140, 180].map(h => (
+                      <button key={h} onClick={() => update('accentHue', h)}
+                        className="w-8 h-8 rounded-full border-2 border-border hover:border-primary"
+                        style={{ background: `hsl(${h} 80% 60%)` }} />
+                    ))}
+                  </div>
+                </Field>
               </div>
-              <Field label={`Accent hue (${settings.accentHue}°)`}>
-                <input type="range" min={0} max={360} value={settings.accentHue}
-                  onChange={e => update('accentHue', Number(e.target.value))}
-                  className="w-full" />
-                <div className="h-3 rounded-full mt-2"
-                  style={{ background: `linear-gradient(to right, hsl(0 80% 60%), hsl(60 80% 60%), hsl(120 80% 60%), hsl(180 80% 60%), hsl(240 80% 60%), hsl(300 80% 60%), hsl(360 80% 60%))` }} />
-              </Field>
-              <div className="flex gap-2 flex-wrap">
-                {[200, 270, 320, 0, 30, 140, 180].map(h => (
-                  <button key={h} onClick={() => update('accentHue', h)}
-                    className="w-10 h-10 rounded-full border-2 border-border hover:border-primary"
-                    style={{ background: `hsl(${h} 80% 60%)` }} />
-                ))}
+
+              <div className="border-t border-border pt-4 space-y-4">
+                <Field label={`Surface transparency (${settings.glassOpacity}%)`} hint="Controls how see-through glass panels and cards are.">
+                  <input type="range" min={10} max={100} value={settings.glassOpacity}
+                    onChange={e => update('glassOpacity', Number(e.target.value))}
+                    className="w-full" />
+                </Field>
+                <Toggle label="UI animations"
+                  hint="Hover effects, transitions, and motion. Turn off for max performance."
+                  checked={settings.uiAnimations} onChange={v => update('uiAnimations', v)} />
+                <Toggle label="Animated star background"
+                  checked={settings.showParticles} onChange={v => update('showParticles', v)} />
               </div>
+
 
               <div className="border-t border-border pt-4 space-y-3">
                 <Field label="Background image">
