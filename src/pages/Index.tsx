@@ -82,6 +82,57 @@ const Index = () => {
     return () => window.removeEventListener('keydown', h);
   }, []);
 
+  // Theme cycle with live preview (Ctrl+Shift+T)
+  const [previewTheme, setPreviewTheme] = useState<{ id: string; committedId: string } | null>(null);
+  const previewTimer = useRef<number | null>(null);
+
+  const cycleThemePreview = useCallback(() => {
+    setPreviewTheme(prev => {
+      const committed = prev?.committedId ?? settings.themeId;
+      const currentId = prev?.id ?? settings.themeId;
+      const i = THEMES.findIndex(t => t.id === currentId);
+      const next = THEMES[(i + 1) % THEMES.length];
+      applyTheme(next.id);
+      if (previewTimer.current) window.clearTimeout(previewTimer.current);
+      previewTimer.current = window.setTimeout(() => {
+        setSettings(s => ({ ...s, themeId: next.id }));
+        setPreviewTheme(null);
+      }, 3500) as unknown as number;
+      return { id: next.id, committedId: committed };
+    });
+  }, [settings.themeId, setSettings]);
+
+  const commitPreview = useCallback(() => {
+    if (!previewTheme) return;
+    if (previewTimer.current) window.clearTimeout(previewTimer.current);
+    setSettings(s => ({ ...s, themeId: previewTheme.id }));
+    setPreviewTheme(null);
+  }, [previewTheme, setSettings]);
+
+  const revertPreview = useCallback(() => {
+    if (!previewTheme) return;
+    if (previewTimer.current) window.clearTimeout(previewTimer.current);
+    applyTheme(previewTheme.committedId);
+    setPreviewTheme(null);
+  }, [previewTheme]);
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 't') {
+        e.preventDefault();
+        cycleThemePreview();
+        return;
+      }
+      if (previewTheme) {
+        if (e.key === 'Enter') { e.preventDefault(); commitPreview(); }
+        else if (e.key === 'Escape') { e.preventDefault(); revertPreview(); }
+      }
+    };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [cycleThemePreview, commitPreview, revertPreview, previewTheme]);
+
+
   // Auto accent
   useEffect(() => {
     if (!settings.autoAccentFromBg || !settings.backgroundImage) return;
