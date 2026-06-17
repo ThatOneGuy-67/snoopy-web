@@ -281,7 +281,15 @@ const Index = () => {
               </div>
             ) : (
               <div className="h-full overflow-y-auto px-4 pb-8">
-                {view === 'home' && (
+                {view === 'home' && settings.layoutStyle === 'hub' && (
+                  <HubLauncher
+                    pinnedIds={pinned.ids}
+                    onSearch={handleSearch}
+                    onOpen={(u, t) => createTab(u, t)}
+                    onOpenApps={() => setView('apps')}
+                  />
+                )}
+                {view === 'home' && settings.layoutStyle !== 'hub' && (
                   <>
                     <section className="text-center pt-8 pb-6 px-4">
                       <div className="flex items-center justify-center gap-3 mb-3">
@@ -314,6 +322,7 @@ const Index = () => {
                     <footer className="text-center py-6 mt-6 text-muted-foreground text-xs font-mono">// stay curious, stay sneaky</footer>
                   </>
                 )}
+
 
                 {view === 'apps' && (
                   <section className="py-6">
