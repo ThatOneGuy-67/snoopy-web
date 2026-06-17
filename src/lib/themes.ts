@@ -99,6 +99,17 @@ export const THEMES: ThemePreset[] = [
     description: 'Graphite + signature blue.',
     swatches: ['#1e1f23', '#2a2c32', '#0a84ff'],
   },
+  {
+    id: 'contrast',
+    name: 'High Contrast',
+    hue: 140,
+    background: '0 0% 0%',
+    card: '0 0% 8%',
+    border: '140 100% 50%',
+    accent: '140 100% 55%',
+    description: 'Max contrast, neon kept.',
+    swatches: ['#000000', '#0a0a0a', '#00ff66'],
+  },
 ];
 
 export function applyTheme(id: string) {
@@ -117,6 +128,14 @@ export function applyTheme(id: string) {
   r.setProperty('--glow-primary', t.accent);
   r.setProperty('--glass-bg', t.card);
   r.setProperty('--glass-border', t.border);
+  if (t.id === 'contrast') {
+    r.setProperty('--foreground', '0 0% 100%');
+    r.setProperty('--muted-foreground', '0 0% 90%');
+    r.setProperty('--glass-alpha', '0.95');
+  } else {
+    r.removeProperty('--foreground');
+    r.removeProperty('--muted-foreground');
+  }
   return t;
 }
 

@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Settings as SettingsIcon, X, Shield, Globe, Palette, KeyRound, Check, AlertCircle, Loader2, Image as ImageIcon } from 'lucide-react';
-import { AppSettings, testProxyReachable, BACKGROUND_PRESETS } from '@/lib/settings';
+import { useRef, useState } from 'react';
+import { Settings as SettingsIcon, X, Shield, Globe, Palette, KeyRound, Check, AlertCircle, Loader2, Image as ImageIcon, Download, Upload, Film } from 'lucide-react';
+import { AppSettings, testProxyReachable, BACKGROUND_PRESETS, LIVE_WALLPAPERS, downloadExport, applyImport } from '@/lib/settings';
 import { THEMES } from '@/lib/themes';
 import { testWispReachable, DEFAULT_WISP_URL, clearCachedWispResult, resetController } from '@/lib/scramjet';
 
@@ -41,6 +41,8 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [wispTesting, setWispTesting] = useState(false);
   const [wispResult, setWispResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [importResult, setImportResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const importRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
 
@@ -131,8 +133,61 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
                   <option value="bing">Bing</option>
                 </select>
               </Field>
+
+              <div className="border-t border-border pt-4 space-y-3">
+                <Field label="Layout style" hint="Browser is the full dashboard. Hub is a minimal launcher.">
+                  <div className="grid grid-cols-2 gap-2">
+                    <SegBtn active={settings.layoutStyle === 'browser'} onClick={() => update('layoutStyle', 'browser')}>
+                      Browser
+                    </SegBtn>
+                    <SegBtn active={settings.layoutStyle === 'hub'} onClick={() => update('layoutStyle', 'hub')}>
+                      Hub
+                    </SegBtn>
+                  </div>
+                </Field>
+              </div>
+
+              <div className="border-t border-border pt-4 space-y-3">
+                <Field label="Sync between devices" hint="Export your settings, bookmarks, pinned apps and history as a JSON file. Import it on any other device.">
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => downloadExport()}
+                      className="flex items-center justify-center gap-2 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90">
+                      <Download className="w-4 h-4" /> Export
+                    </button>
+                    <button
+                      onClick={() => importRef.current?.click()}
+                      className="flex items-center justify-center gap-2 py-2 rounded-lg border border-border hover:border-primary/50">
+                      <Upload className="w-4 h-4" /> Import
+                    </button>
+                    <input
+                      ref={importRef}
+                      type="file"
+                      accept="application/json"
+                      className="hidden"
+                      onChange={async e => {
+                        const f = e.target.files?.[0];
+                        if (!f) return;
+                        const txt = await f.text();
+                        const r = applyImport(txt);
+                        setImportResult(r);
+                        if (r.ok) setTimeout(() => window.location.reload(), 800);
+                        e.target.value = '';
+                      }} />
+                  </div>
+                  {importResult && (
+                    <div className={`flex items-start gap-2 p-3 rounded-lg text-sm mt-2 ${
+                      importResult.ok ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive'
+                    }`}>
+                      {importResult.ok ? <Check className="w-4 h-4 mt-0.5 shrink-0" /> : <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />}
+                      <span>{importResult.message}</span>
+                    </div>
+                  )}
+                </Field>
+              </div>
             </>
           )}
+
 
           {tab === 'proxy' && (
             <>
@@ -362,12 +417,35 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
                     ))}
                   </div>
                 </Field>
-                <Field label="Custom background URL">
+                <Field label="Live wallpapers" hint="Animated GIF backgrounds. May be heavier on slow devices.">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {LIVE_WALLPAPERS.map(b => (
+                      <button key={b.name} onClick={() => update('backgroundImage', b.url)}
+                        className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all ${
+                          settings.backgroundImage === b.url ? 'border-primary' : 'border-border hover:border-primary/50'
+                        }`}
+                        style={{
+                          backgroundImage: `url(${b.url})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        }}>
+                        <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-primary/80 text-[9px] font-mono text-primary-foreground flex items-center gap-1">
+                          <Film className="w-2.5 h-2.5" /> GIF
+                        </div>
+                        <div className="absolute bottom-0 inset-x-0 bg-background/70 text-[10px] py-0.5 text-center">
+                          {b.name}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </Field>
+                <Field label="Custom background URL" hint="Any image, GIF, or animated URL works.">
                   <input type="text" value={settings.backgroundImage}
                     onChange={e => update('backgroundImage', e.target.value)}
-                    placeholder="https://…"
+                    placeholder="https://… (.jpg, .png, .gif)"
                     className="w-full px-4 py-2 rounded-lg bg-input border border-border outline-none" />
                 </Field>
+
                 <Field label={`Background dim (${settings.backgroundDim}%)`}>
                   <input type="range" min={0} max={95} value={settings.backgroundDim}
                     onChange={e => update('backgroundDim', Number(e.target.value))}

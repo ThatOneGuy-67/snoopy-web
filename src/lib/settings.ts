@@ -23,6 +23,7 @@ export interface AppSettings {
   accentOverride: boolean; // when true, accentHue overrides theme accent
   glassOpacity: number; // 10-100, transparency of glass surfaces
   uiAnimations: boolean; // master toggle for hover/transition animations
+  layoutStyle: 'browser' | 'hub'; // home layout: full browser dashboard vs minimal hub launcher
 }
 
 const DEFAULTS: AppSettings = {
@@ -47,6 +48,7 @@ const DEFAULTS: AppSettings = {
   accentOverride: false,
   glassOpacity: 60,
   uiAnimations: true,
+  layoutStyle: 'browser',
 };
 
 export async function extractDominantHue(url: string): Promise<number | null> {
@@ -186,3 +188,74 @@ export const BACKGROUND_PRESETS: { name: string; url: string }[] = [
   { name: 'Galaxy', url: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80' },
   { name: 'Sunset', url: 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=80' },
 ];
+
+// Live (animated) wallpaper presets — direct GIF / MP4 URLs are supported.
+export const LIVE_WALLPAPERS: { name: string; url: string }[] = [
+  { name: 'Matrix Rain', url: 'https://media.tenor.com/qWgkXbgVcq8AAAAC/matrix-code.gif' },
+  { name: 'Neon City', url: 'https://media.tenor.com/Sb4qV6Q1H1AAAAAC/cyberpunk-cyber.gif' },
+  { name: 'Space Drift', url: 'https://media.tenor.com/tcCDIPS3legAAAAC/stars-space.gif' },
+  { name: 'Lo-fi Room', url: 'https://media.tenor.com/J3jJpVK0nbAAAAAC/lofi-anime.gif' },
+  { name: 'Synthwave', url: 'https://media.tenor.com/zlF8j0sHrtkAAAAC/synthwave-retro.gif' },
+  { name: 'Aurora Loop', url: 'https://media.tenor.com/RWE99hHbADQAAAAC/aurora-northern-lights.gif' },
+];
+
+// Export the full snapshot a user can sync between devices.
+export interface SettingsExport {
+  app: 'snoopy-web';
+  version: 1;
+  exportedAt: number;
+  settings: AppSettings;
+  bookmarks: unknown;
+  pinned: unknown;
+  favorites: unknown;
+  history: unknown;
+}
+
+const STORAGE_KEYS = {
+  settings: 'snoopy-settings-v1',
+  bookmarks: 'snoopy-bookmarks-v1',
+  pinned: 'snoopy-pinned-apps-v1',
+  favorites: 'snoopy-fav-apps-v1',
+  history: 'snoopy-history-v1',
+} as const;
+
+function safeRead(k: string) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } }
+
+export function buildExport(): SettingsExport {
+  return {
+    app: 'snoopy-web',
+    version: 1,
+    exportedAt: Date.now(),
+    settings: loadSettings(),
+    bookmarks: safeRead(STORAGE_KEYS.bookmarks) ?? [],
+    pinned: safeRead(STORAGE_KEYS.pinned) ?? [],
+    favorites: safeRead(STORAGE_KEYS.favorites) ?? [],
+    history: safeRead(STORAGE_KEYS.history) ?? [],
+  };
+}
+
+export function downloadExport() {
+  const blob = new Blob([JSON.stringify(buildExport(), null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `snoopy-web-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export function applyImport(raw: string): { ok: boolean; message: string } {
+  try {
+    const parsed = JSON.parse(raw) as Partial<SettingsExport>;
+    if (parsed?.app !== 'snoopy-web') return { ok: false, message: 'Not a Snoopy Web export file.' };
+    if (parsed.settings) saveSettings({ ...loadSettings(), ...parsed.settings });
+    if (parsed.bookmarks) localStorage.setItem(STORAGE_KEYS.bookmarks, JSON.stringify(parsed.bookmarks));
+    if (parsed.pinned)    localStorage.setItem(STORAGE_KEYS.pinned, JSON.stringify(parsed.pinned));
+    if (parsed.favorites) localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(parsed.favorites));
+    if (parsed.history)   localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(parsed.history));
+    return { ok: true, message: 'Imported. Reloading…' };
+  } catch (e: any) {
+    return { ok: false, message: e?.message || 'Invalid JSON' };
+  }
+}
+

@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Layers, Settings as SettingsIcon, Command as CommandIcon, BookmarkPlus, X } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Layers, Command as CommandIcon, BookmarkPlus, X, Palette } from 'lucide-react';
 import StarField from '@/components/StarField';
 import SearchBar from '@/components/SearchBar';
 import TabBar from '@/components/TabBar';
@@ -8,9 +8,11 @@ import BrowserChrome from '@/components/BrowserChrome';
 import SettingsModal from '@/components/SettingsModal';
 import Typewriter from '@/components/Typewriter';
 import RotatingFacts from '@/components/RotatingFacts';
-import SideNav, { SidebarView } from '@/components/SideNav';
+import type { SidebarView } from '@/components/SideNav';
+import TopMenu from '@/components/TopMenu';
 import CommandPalette from '@/components/CommandPalette';
 import Dashboard from '@/components/dashboard/Dashboard';
+import HubLauncher from '@/components/HubLauncher';
 import AppsHub from '@/components/AppsHub';
 import ListView from '@/components/ListView';
 import DownloadsView from '@/components/DownloadsView';
@@ -19,6 +21,7 @@ import {
   useBookmarks, useHistory, useFavoriteApps, useActivity, useClosedTabs, usePinnedApps,
 } from '@/lib/browserData';
 import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank, extractDominantHue } from '@/lib/settings';
+import { THEMES, applyTheme } from '@/lib/themes';
 
 interface Tab { id: string; history: string[]; index: number; title: string; reloadKey: number; }
 
@@ -78,6 +81,57 @@ const Index = () => {
     window.addEventListener('keydown', h);
     return () => window.removeEventListener('keydown', h);
   }, []);
+
+  // Theme cycle with live preview (Ctrl+Shift+T)
+  const [previewTheme, setPreviewTheme] = useState<{ id: string; committedId: string } | null>(null);
+  const previewTimer = useRef<number | null>(null);
+
+  const cycleThemePreview = useCallback(() => {
+    setPreviewTheme(prev => {
+      const committed = prev?.committedId ?? settings.themeId;
+      const currentId = prev?.id ?? settings.themeId;
+      const i = THEMES.findIndex(t => t.id === currentId);
+      const next = THEMES[(i + 1) % THEMES.length];
+      applyTheme(next.id);
+      if (previewTimer.current) window.clearTimeout(previewTimer.current);
+      previewTimer.current = window.setTimeout(() => {
+        setSettings(s => ({ ...s, themeId: next.id }));
+        setPreviewTheme(null);
+      }, 3500) as unknown as number;
+      return { id: next.id, committedId: committed };
+    });
+  }, [settings.themeId, setSettings]);
+
+  const commitPreview = useCallback(() => {
+    if (!previewTheme) return;
+    if (previewTimer.current) window.clearTimeout(previewTimer.current);
+    setSettings(s => ({ ...s, themeId: previewTheme.id }));
+    setPreviewTheme(null);
+  }, [previewTheme, setSettings]);
+
+  const revertPreview = useCallback(() => {
+    if (!previewTheme) return;
+    if (previewTimer.current) window.clearTimeout(previewTimer.current);
+    applyTheme(previewTheme.committedId);
+    setPreviewTheme(null);
+  }, [previewTheme]);
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 't') {
+        e.preventDefault();
+        cycleThemePreview();
+        return;
+      }
+      if (previewTheme) {
+        if (e.key === 'Enter') { e.preventDefault(); commitPreview(); }
+        else if (e.key === 'Escape') { e.preventDefault(); revertPreview(); }
+      }
+    };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [cycleThemePreview, commitPreview, revertPreview, previewTheme]);
+
 
   // Auto accent
   useEffect(() => {
@@ -166,14 +220,6 @@ const Index = () => {
       <div className="noise-overlay" />
 
       <div className="relative z-10 flex h-screen">
-        <SideNav
-          active={view}
-          onSelect={v => { setView(v); setActiveTabId(null); }}
-          onOpenSettings={() => setShowSettings(true)}
-          onOpenPalette={() => setPaletteOpen(true)}
-        />
-
-
         <div className="flex-1 flex flex-col min-w-0">
           <header className="p-3 space-y-2">
             <div className="flex items-center gap-2">
@@ -190,10 +236,18 @@ const Index = () => {
               <button onClick={() => setPaletteOpen(true)} className="glass-card !p-2.5 hover:border-primary/50 shrink-0" title="Command palette (Ctrl+K)">
                 <CommandIcon className="w-4 h-4 text-primary" />
               </button>
-              <button onClick={() => setShowSettings(true)} className="glass-card !p-2.5 hover:border-primary/50 shrink-0" title="Settings">
-                <SettingsIcon className="w-4 h-4 text-primary" />
-              </button>
+              <TopMenu
+                active={view}
+                layoutStyle={settings.layoutStyle}
+                themeId={settings.themeId}
+                onSelect={v => { setView(v); setActiveTabId(null); }}
+                onOpenSettings={() => setShowSettings(true)}
+                onOpenPalette={() => setPaletteOpen(true)}
+                onChangeLayout={l => setSettings(s => ({ ...s, layoutStyle: l }))}
+                onCycleTheme={cycleThemePreview}
+              />
             </div>
+
 
             {activeTab && (
               <div className="flex items-center gap-2">
@@ -227,7 +281,15 @@ const Index = () => {
               </div>
             ) : (
               <div className="h-full overflow-y-auto px-4 pb-8">
-                {view === 'home' && (
+                {view === 'home' && settings.layoutStyle === 'hub' && (
+                  <HubLauncher
+                    pinnedIds={pinned.ids}
+                    onSearch={handleSearch}
+                    onOpen={(u, t) => createTab(u, t)}
+                    onOpenApps={() => setView('apps')}
+                  />
+                )}
+                {view === 'home' && settings.layoutStyle !== 'hub' && (
                   <>
                     <section className="text-center pt-8 pb-6 px-4">
                       <div className="flex items-center justify-center gap-3 mb-3">
@@ -260,6 +322,7 @@ const Index = () => {
                     <footer className="text-center py-6 mt-6 text-muted-foreground text-xs font-mono">// stay curious, stay sneaky</footer>
                   </>
                 )}
+
 
                 {view === 'apps' && (
                   <section className="py-6">
@@ -336,6 +399,22 @@ const Index = () => {
         onChange={setSettings}
         onApplyCloak={applyCloak}
       />
+
+      {previewTheme && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] glass-panel px-4 py-3 flex items-center gap-3 shadow-2xl border-primary/40">
+          <Palette className="w-4 h-4 text-primary" />
+          <div className="text-sm">
+            <div className="font-medium">
+              Previewing: <span className="text-primary">{THEMES.find(t => t.id === previewTheme.id)?.name}</span>
+            </div>
+            <div className="text-[11px] text-muted-foreground font-mono">
+              Ctrl+Shift+T next • Enter keep • Esc revert
+            </div>
+          </div>
+          <button onClick={commitPreview} className="ml-2 px-3 py-1 rounded-md bg-primary text-primary-foreground text-xs font-medium">Keep</button>
+          <button onClick={revertPreview} className="px-3 py-1 rounded-md border border-border text-xs">Revert</button>
+        </div>
+      )}
     </div>
   );
 };
