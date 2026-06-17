@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Layers, Settings as SettingsIcon, Command as CommandIcon, BookmarkPlus, X } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Layers, Command as CommandIcon, BookmarkPlus, X, Palette } from 'lucide-react';
 import StarField from '@/components/StarField';
 import SearchBar from '@/components/SearchBar';
 import TabBar from '@/components/TabBar';
@@ -8,9 +8,11 @@ import BrowserChrome from '@/components/BrowserChrome';
 import SettingsModal from '@/components/SettingsModal';
 import Typewriter from '@/components/Typewriter';
 import RotatingFacts from '@/components/RotatingFacts';
-import SideNav, { SidebarView } from '@/components/SideNav';
+import type { SidebarView } from '@/components/SideNav';
+import TopMenu from '@/components/TopMenu';
 import CommandPalette from '@/components/CommandPalette';
 import Dashboard from '@/components/dashboard/Dashboard';
+import HubLauncher from '@/components/HubLauncher';
 import AppsHub from '@/components/AppsHub';
 import ListView from '@/components/ListView';
 import DownloadsView from '@/components/DownloadsView';
@@ -19,6 +21,7 @@ import {
   useBookmarks, useHistory, useFavoriteApps, useActivity, useClosedTabs, usePinnedApps,
 } from '@/lib/browserData';
 import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank, extractDominantHue } from '@/lib/settings';
+import { THEMES, applyTheme } from '@/lib/themes';
 
 interface Tab { id: string; history: string[]; index: number; title: string; reloadKey: number; }
 
