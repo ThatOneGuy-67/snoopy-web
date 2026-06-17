@@ -399,6 +399,22 @@ const Index = () => {
         onChange={setSettings}
         onApplyCloak={applyCloak}
       />
+
+      {previewTheme && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] glass-panel px-4 py-3 flex items-center gap-3 shadow-2xl border-primary/40">
+          <Palette className="w-4 h-4 text-primary" />
+          <div className="text-sm">
+            <div className="font-medium">
+              Previewing: <span className="text-primary">{THEMES.find(t => t.id === previewTheme.id)?.name}</span>
+            </div>
+            <div className="text-[11px] text-muted-foreground font-mono">
+              Ctrl+Shift+T next • Enter keep • Esc revert
+            </div>
+          </div>
+          <button onClick={commitPreview} className="ml-2 px-3 py-1 rounded-md bg-primary text-primary-foreground text-xs font-medium">Keep</button>
+          <button onClick={revertPreview} className="px-3 py-1 rounded-md border border-border text-xs">Revert</button>
+        </div>
+      )}
     </div>
   );
 };
