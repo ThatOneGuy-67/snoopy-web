@@ -41,6 +41,8 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [wispTesting, setWispTesting] = useState(false);
   const [wispResult, setWispResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [importResult, setImportResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const importRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
 
