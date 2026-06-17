@@ -128,6 +128,14 @@ export function applyTheme(id: string) {
   r.setProperty('--glow-primary', t.accent);
   r.setProperty('--glass-bg', t.card);
   r.setProperty('--glass-border', t.border);
+  if (t.id === 'contrast') {
+    r.setProperty('--foreground', '0 0% 100%');
+    r.setProperty('--muted-foreground', '0 0% 90%');
+    r.setProperty('--glass-alpha', '0.95');
+  } else {
+    r.removeProperty('--foreground');
+    r.removeProperty('--muted-foreground');
+  }
   return t;
 }
 
