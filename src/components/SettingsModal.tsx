@@ -417,12 +417,35 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
                     ))}
                   </div>
                 </Field>
-                <Field label="Custom background URL">
+                <Field label="Live wallpapers" hint="Animated GIF backgrounds. May be heavier on slow devices.">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {LIVE_WALLPAPERS.map(b => (
+                      <button key={b.name} onClick={() => update('backgroundImage', b.url)}
+                        className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all ${
+                          settings.backgroundImage === b.url ? 'border-primary' : 'border-border hover:border-primary/50'
+                        }`}
+                        style={{
+                          backgroundImage: `url(${b.url})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        }}>
+                        <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-primary/80 text-[9px] font-mono text-primary-foreground flex items-center gap-1">
+                          <Film className="w-2.5 h-2.5" /> GIF
+                        </div>
+                        <div className="absolute bottom-0 inset-x-0 bg-background/70 text-[10px] py-0.5 text-center">
+                          {b.name}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </Field>
+                <Field label="Custom background URL" hint="Any image, GIF, or animated URL works.">
                   <input type="text" value={settings.backgroundImage}
                     onChange={e => update('backgroundImage', e.target.value)}
-                    placeholder="https://…"
+                    placeholder="https://… (.jpg, .png, .gif)"
                     className="w-full px-4 py-2 rounded-lg bg-input border border-border outline-none" />
                 </Field>
+
                 <Field label={`Background dim (${settings.backgroundDim}%)`}>
                   <input type="range" min={0} max={95} value={settings.backgroundDim}
                     onChange={e => update('backgroundDim', Number(e.target.value))}
