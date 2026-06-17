@@ -133,8 +133,61 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
                   <option value="bing">Bing</option>
                 </select>
               </Field>
+
+              <div className="border-t border-border pt-4 space-y-3">
+                <Field label="Layout style" hint="Browser is the full dashboard. Hub is a minimal launcher.">
+                  <div className="grid grid-cols-2 gap-2">
+                    <SegBtn active={settings.layoutStyle === 'browser'} onClick={() => update('layoutStyle', 'browser')}>
+                      Browser
+                    </SegBtn>
+                    <SegBtn active={settings.layoutStyle === 'hub'} onClick={() => update('layoutStyle', 'hub')}>
+                      Hub
+                    </SegBtn>
+                  </div>
+                </Field>
+              </div>
+
+              <div className="border-t border-border pt-4 space-y-3">
+                <Field label="Sync between devices" hint="Export your settings, bookmarks, pinned apps and history as a JSON file. Import it on any other device.">
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => downloadExport()}
+                      className="flex items-center justify-center gap-2 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90">
+                      <Download className="w-4 h-4" /> Export
+                    </button>
+                    <button
+                      onClick={() => importRef.current?.click()}
+                      className="flex items-center justify-center gap-2 py-2 rounded-lg border border-border hover:border-primary/50">
+                      <Upload className="w-4 h-4" /> Import
+                    </button>
+                    <input
+                      ref={importRef}
+                      type="file"
+                      accept="application/json"
+                      className="hidden"
+                      onChange={async e => {
+                        const f = e.target.files?.[0];
+                        if (!f) return;
+                        const txt = await f.text();
+                        const r = applyImport(txt);
+                        setImportResult(r);
+                        if (r.ok) setTimeout(() => window.location.reload(), 800);
+                        e.target.value = '';
+                      }} />
+                  </div>
+                  {importResult && (
+                    <div className={`flex items-start gap-2 p-3 rounded-lg text-sm mt-2 ${
+                      importResult.ok ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive'
+                    }`}>
+                      {importResult.ok ? <Check className="w-4 h-4 mt-0.5 shrink-0" /> : <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />}
+                      <span>{importResult.message}</span>
+                    </div>
+                  )}
+                </Field>
+              </div>
             </>
           )}
+
 
           {tab === 'proxy' && (
             <>
