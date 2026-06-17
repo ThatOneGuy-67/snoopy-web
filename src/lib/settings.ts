@@ -48,6 +48,7 @@ const DEFAULTS: AppSettings = {
   accentOverride: false,
   glassOpacity: 60,
   uiAnimations: true,
+  layoutStyle: 'browser',
 };
 
 export async function extractDominantHue(url: string): Promise<number | null> {
