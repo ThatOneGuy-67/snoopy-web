@@ -23,6 +23,7 @@ export interface AppSettings {
   accentOverride: boolean; // when true, accentHue overrides theme accent
   glassOpacity: number; // 10-100, transparency of glass surfaces
   uiAnimations: boolean; // master toggle for hover/transition animations
+  layoutStyle: 'browser' | 'hub'; // home layout: full browser dashboard vs minimal hub launcher
 }
 
 const DEFAULTS: AppSettings = {
