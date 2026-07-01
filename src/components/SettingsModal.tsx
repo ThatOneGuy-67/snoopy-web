@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Settings as SettingsIcon, X, Shield, Globe, Palette, KeyRound, Check, AlertCircle, Loader2, Image as ImageIcon, Download, Upload, Film } from 'lucide-react';
+import { Settings as SettingsIcon, X, Shield, Globe, Palette, KeyRound, Check, AlertCircle, Loader2, Image as ImageIcon, Download, Upload, Film, Gauge } from 'lucide-react';
 import { AppSettings, testProxyReachable, BACKGROUND_PRESETS, LIVE_WALLPAPERS, downloadExport, applyImport } from '@/lib/settings';
 import { THEMES } from '@/lib/themes';
 import { testWispReachable, DEFAULT_WISP_URL, clearCachedWispResult, resetController } from '@/lib/scramjet';
