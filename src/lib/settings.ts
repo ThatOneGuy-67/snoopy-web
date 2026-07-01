@@ -52,6 +52,8 @@ const DEFAULTS: AppSettings = {
   glassOpacity: 60,
   uiAnimations: true,
   layoutStyle: 'browser',
+  pauseWallpaperWhenHidden: true,
+  wallpaperFps: 'auto',
 };
 
 export async function extractDominantHue(url: string): Promise<number | null> {
