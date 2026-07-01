@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Settings as SettingsIcon, X, Shield, Globe, Palette, KeyRound, Check, AlertCircle, Loader2, Image as ImageIcon, Download, Upload, Film } from 'lucide-react';
+import { Settings as SettingsIcon, X, Shield, Globe, Palette, KeyRound, Check, AlertCircle, Loader2, Image as ImageIcon, Download, Upload, Film, Gauge } from 'lucide-react';
 import { AppSettings, testProxyReachable, BACKGROUND_PRESETS, LIVE_WALLPAPERS, downloadExport, applyImport } from '@/lib/settings';
 import { THEMES } from '@/lib/themes';
 import { testWispReachable, DEFAULT_WISP_URL, clearCachedWispResult, resetController } from '@/lib/scramjet';
@@ -23,7 +23,7 @@ const cloakPresets = [
   { name: 'Gmail', title: 'Inbox - Gmail', favicon: 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico' },
 ];
 
-type Tab = 'general' | 'proxy' | 'cloak' | 'panic' | 'theme';
+type Tab = 'general' | 'proxy' | 'cloak' | 'panic' | 'theme' | 'performance';
 
 const tabs: { id: Tab; label: string; icon: any }[] = [
   { id: 'general', label: 'General', icon: SettingsIcon },
@@ -31,6 +31,7 @@ const tabs: { id: Tab; label: string; icon: any }[] = [
   { id: 'cloak', label: 'Cloak', icon: Shield },
   { id: 'panic', label: 'Panic', icon: KeyRound },
   { id: 'theme', label: 'Theme', icon: Palette },
+  { id: 'performance', label: 'Performance', icon: Gauge },
 ];
 
 const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Props) => {
@@ -452,6 +453,31 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
                     className="w-full" />
                 </Field>
               </div>
+            </>
+          )}
+
+          {tab === 'performance' && (
+            <>
+              <Toggle
+                label="Pause animated wallpapers when tab is inactive"
+                hint="Stops GIF and video wallpapers from rendering while the browser tab is hidden. Reduces CPU and battery use."
+                checked={settings.pauseWallpaperWhenHidden}
+                onChange={v => update('pauseWallpaperWhenHidden', v)} />
+
+              <Field
+                label="Wallpaper frame rate"
+                hint="Cap how often animated wallpapers redraw. Lower values save CPU and GPU with little visible difference.">
+                <div className="grid grid-cols-4 gap-2">
+                  {(['auto', '15', '30', '60'] as const).map(opt => (
+                    <SegBtn
+                      key={opt}
+                      active={settings.wallpaperFps === opt}
+                      onClick={() => update('wallpaperFps', opt)}>
+                      {opt === 'auto' ? 'Auto' : `${opt} FPS`}
+                    </SegBtn>
+                  ))}
+                </div>
+              </Field>
             </>
           )}
         </div>

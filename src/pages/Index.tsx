@@ -216,6 +216,8 @@ const Index = () => {
           url={settings.backgroundImage}
           dim={settings.backgroundDim}
           fallbackUrl={DEFAULT_WALLPAPER_FALLBACK}
+          pauseWhenHidden={settings.pauseWallpaperWhenHidden}
+          fps={settings.wallpaperFps}
           onFailover={(failed, fb) => {
             // Persist the switch so we don't repeatedly attempt the broken URL.
             if (settings.backgroundImage === failed) {
