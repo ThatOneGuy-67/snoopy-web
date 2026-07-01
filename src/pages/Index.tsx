@@ -20,7 +20,8 @@ import DiagnosticsModal from '@/components/DiagnosticsModal';
 import {
   useBookmarks, useHistory, useFavoriteApps, useActivity, useClosedTabs, usePinnedApps,
 } from '@/lib/browserData';
-import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank, extractDominantHue } from '@/lib/settings';
+import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank, extractDominantHue, DEFAULT_WALLPAPER_FALLBACK } from '@/lib/settings';
+import { Wallpaper } from '@/components/Wallpaper';
 import { THEMES, applyTheme } from '@/lib/themes';
 
 interface Tab { id: string; history: string[]; index: number; title: string; reloadKey: number; }
