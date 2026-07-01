@@ -190,14 +190,20 @@ export const BACKGROUND_PRESETS: { name: string; url: string }[] = [
 ];
 
 // Live (animated) wallpaper presets — direct GIF / MP4 URLs are supported.
+// Tenor blocks hotlinking, so we use Giphy's public media CDN which does not.
+// The <Wallpaper/> component gracefully falls back if any single URL is down.
 export const LIVE_WALLPAPERS: { name: string; url: string }[] = [
-  { name: 'Matrix Rain', url: 'https://media.tenor.com/qWgkXbgVcq8AAAAC/matrix-code.gif' },
-  { name: 'Neon City', url: 'https://media.tenor.com/Sb4qV6Q1H1AAAAAC/cyberpunk-cyber.gif' },
-  { name: 'Space Drift', url: 'https://media.tenor.com/tcCDIPS3legAAAAC/stars-space.gif' },
-  { name: 'Lo-fi Room', url: 'https://media.tenor.com/J3jJpVK0nbAAAAAC/lofi-anime.gif' },
-  { name: 'Synthwave', url: 'https://media.tenor.com/zlF8j0sHrtkAAAAC/synthwave-retro.gif' },
-  { name: 'Aurora Loop', url: 'https://media.tenor.com/RWE99hHbADQAAAAC/aurora-northern-lights.gif' },
+  { name: 'Matrix Rain', url: 'https://media.giphy.com/media/S8ShQBn5o0LK/giphy.gif' },
+  { name: 'Neon City',   url: 'https://media.giphy.com/media/xUA7b0Iu1QhaOgv98A/giphy.gif' },
+  { name: 'Space Drift', url: 'https://media.giphy.com/media/l0HlL2vlfpWI0meli/giphy.gif' },
+  { name: 'Lo-fi Room',  url: 'https://media.giphy.com/media/UUp0mvxLxWmBG/giphy.gif' },
+  { name: 'Synthwave',   url: 'https://media.giphy.com/media/l3fzMuFVwyMcQ7bkY/giphy.gif' },
+  { name: 'Aurora Loop', url: 'https://media.giphy.com/media/xThuWpNaxQ0oaP9lPa/giphy.gif' },
 ];
+
+// Guaranteed-good static wallpaper used when a chosen wallpaper fails to load.
+export const DEFAULT_WALLPAPER_FALLBACK =
+  'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=1920&q=80';
 
 // Export the full snapshot a user can sync between devices.
 export interface SettingsExport {
