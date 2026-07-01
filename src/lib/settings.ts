@@ -24,6 +24,9 @@ export interface AppSettings {
   glassOpacity: number; // 10-100, transparency of glass surfaces
   uiAnimations: boolean; // master toggle for hover/transition animations
   layoutStyle: 'browser' | 'hub'; // home layout: full browser dashboard vs minimal hub launcher
+  // Performance
+  pauseWallpaperWhenHidden: boolean; // pause GIF/video wallpaper when the tab is inactive
+  wallpaperFps: 'auto' | '15' | '30' | '60'; // frame rate cap for animated wallpapers
 }
 
 const DEFAULTS: AppSettings = {
