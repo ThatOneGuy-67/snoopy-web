@@ -23,7 +23,7 @@ const cloakPresets = [
   { name: 'Gmail', title: 'Inbox - Gmail', favicon: 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico' },
 ];
 
-type Tab = 'general' | 'proxy' | 'cloak' | 'panic' | 'theme';
+type Tab = 'general' | 'proxy' | 'cloak' | 'panic' | 'theme' | 'performance';
 
 const tabs: { id: Tab; label: string; icon: any }[] = [
   { id: 'general', label: 'General', icon: SettingsIcon },
@@ -31,6 +31,7 @@ const tabs: { id: Tab; label: string; icon: any }[] = [
   { id: 'cloak', label: 'Cloak', icon: Shield },
   { id: 'panic', label: 'Panic', icon: KeyRound },
   { id: 'theme', label: 'Theme', icon: Palette },
+  { id: 'performance', label: 'Performance', icon: Gauge },
 ];
 
 const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Props) => {
