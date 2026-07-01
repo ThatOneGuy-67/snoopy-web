@@ -212,10 +212,17 @@ const Index = () => {
   return (
     <div id="snoopy-root" className="min-h-screen relative">
       {settings.backgroundImage && (
-        <>
-          <div className="fixed inset-0 z-0 bg-cover bg-center transition-all duration-500" style={{ backgroundImage: `url(${settings.backgroundImage})` }} />
-          <div className="fixed inset-0 z-0" style={{ background: `hsl(var(--background) / ${settings.backgroundDim / 100})` }} />
-        </>
+        <Wallpaper
+          url={settings.backgroundImage}
+          dim={settings.backgroundDim}
+          fallbackUrl={DEFAULT_WALLPAPER_FALLBACK}
+          onFailover={(failed, fb) => {
+            // Persist the switch so we don't repeatedly attempt the broken URL.
+            if (settings.backgroundImage === failed) {
+              setSettings({ ...settings, backgroundImage: fb });
+            }
+          }}
+        />
       )}
       {settings.showParticles && <StarField />}
       <div className="noise-overlay" />
