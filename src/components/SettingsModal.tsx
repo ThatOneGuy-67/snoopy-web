@@ -455,6 +455,31 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
               </div>
             </>
           )}
+
+          {tab === 'performance' && (
+            <>
+              <Toggle
+                label="Pause animated wallpapers when tab is inactive"
+                hint="Stops GIF and video wallpapers from rendering while the browser tab is hidden. Reduces CPU and battery use."
+                checked={settings.pauseWallpaperWhenHidden}
+                onChange={v => update('pauseWallpaperWhenHidden', v)} />
+
+              <Field
+                label="Wallpaper frame rate"
+                hint="Cap how often animated wallpapers redraw. Lower values save CPU and GPU with little visible difference.">
+                <div className="grid grid-cols-4 gap-2">
+                  {(['auto', '15', '30', '60'] as const).map(opt => (
+                    <SegBtn
+                      key={opt}
+                      active={settings.wallpaperFps === opt}
+                      onClick={() => update('wallpaperFps', opt)}>
+                      {opt === 'auto' ? 'Auto' : `${opt} FPS`}
+                    </SegBtn>
+                  ))}
+                </div>
+              </Field>
+            </>
+          )}
         </div>
       </div>
     </div>
