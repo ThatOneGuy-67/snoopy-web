@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Loader2, CheckCircle2, CircleDot } from 'lucide-react';
+import { Loader2, CheckCircle2 } from 'lucide-react';
 import { getController, testWispReachable } from '@/lib/scramjet';
+import { perfStart } from '@/lib/perf';
 import ProxyErrorScreen from './ProxyErrorScreen';
 import RelayStatus from './RelayStatus';
 
@@ -23,7 +24,10 @@ const ScramjetFrame = ({ url }: Props) => {
     setError(null);
     setEncoded(null);
 
-    try { localStorage.setItem('lastFailedUrl', url); } catch {}
+    const done = perfStart(`proxy.navigate ${url}`);
+    try { localStorage.setItem('lastFailedUrl', url); } catch {
+      // Storage may be blocked (private mode); non-fatal.
+    }
 
     (async () => {
       try {
@@ -40,10 +44,13 @@ const ScramjetFrame = ({ url }: Props) => {
         if (cancelled) return;
         setEncoded(enc);
         setStatus('loading');
-      } catch (e: any) {
+        done({ url, wispPingMs: wisp.pingMs });
+      } catch (e: unknown) {
         if (!cancelled) {
-          setError(e?.message || 'Failed to initialise proxy');
+          const msg = e instanceof Error ? e.message : String(e ?? 'Failed to initialise proxy');
+          setError(msg);
           setStatus('error');
+          done({ url, ok: false, error: msg });
         }
       }
     })();

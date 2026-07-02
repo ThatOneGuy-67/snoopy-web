@@ -3,7 +3,7 @@ import {
   MoreVertical, Home, AppWindow, Bookmark, History, Download, Settings,
   Command as CommandIcon, LayoutGrid, Monitor, Palette,
 } from 'lucide-react';
-import type { SidebarView } from './SideNav';
+import type { SidebarView } from '@/lib/views';
 import { THEMES } from '@/lib/themes';
 
 interface Props {

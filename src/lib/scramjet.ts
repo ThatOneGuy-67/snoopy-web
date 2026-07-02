@@ -135,6 +135,9 @@ function loadScript(src: string): Promise<void> {
 }
 
 async function init(wispUrl: string) {
+  const { perfStart } = await import('./perf');
+  const done = perfStart('scramjet.init');
+
   if (!('serviceWorker' in navigator)) {
     throw new Error('Service workers not supported in this browser');
   }
@@ -163,6 +166,7 @@ async function init(wispUrl: string) {
   const conn = new BareMuxConnection('/baremux/worker.js');
   await conn.setTransport('/epoxy/index.mjs', [{ wisp: wispUrl }]);
 
+  done({ wispUrl });
   return controller;
 }
 

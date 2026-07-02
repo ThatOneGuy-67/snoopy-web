@@ -8,7 +8,7 @@ import BrowserChrome from '@/components/BrowserChrome';
 import SettingsModal from '@/components/SettingsModal';
 import Typewriter from '@/components/Typewriter';
 import RotatingFacts from '@/components/RotatingFacts';
-import type { SidebarView } from '@/components/SideNav';
+import type { SidebarView } from '@/lib/views';
 import TopMenu from '@/components/TopMenu';
 import CommandPalette from '@/components/CommandPalette';
 import Dashboard from '@/components/dashboard/Dashboard';
@@ -21,6 +21,7 @@ import {
   useBookmarks, useHistory, useFavoriteApps, useActivity, useClosedTabs, usePinnedApps,
 } from '@/lib/browserData';
 import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank, extractDominantHue, DEFAULT_WALLPAPER_FALLBACK } from '@/lib/settings';
+import { perfMark } from '@/lib/perf';
 import { Wallpaper } from '@/components/Wallpaper';
 import { THEMES, applyTheme } from '@/lib/themes';
 
@@ -170,6 +171,7 @@ const Index = () => {
   const handleSearch = (query: string) => {
     const isUrl = query.includes('.') && !query.includes(' ');
     const url = isUrl ? (query.startsWith('http') ? query : `https://${query}`) : buildSearchUrl(query, settings.searchEngine);
+    perfMark('search.submit', { kind: isUrl ? 'url' : 'search', engine: settings.searchEngine });
     activity.log({ kind: 'search', label: isUrl ? `Visit ${query}` : `Search "${query}"` });
     createTab(url, isUrl ? undefined : `Search: ${query}`);
   };

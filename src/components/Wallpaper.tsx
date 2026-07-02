@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Loader2, ImageOff } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { perfStart } from '@/lib/perf';
 
 /**
  * Wallpaper
@@ -8,8 +9,9 @@ import { toast } from '@/hooks/use-toast';
  * Renders the background wallpaper (image, GIF, or video) beneath the app.
  *
  * Design goals:
- *   1. Use a real DOM <img>/<video> element (not a CSS background-image) so we
- *      can attach `onError` and fall back gracefully.
+ *   1. Use a real DOM <img>/<video> element (not a canvas) so animated GIFs
+ *      actually play — canvas `drawImage(img)` only ever paints the first
+ *      frame of an animated GIF, which caused the "frozen GIF" bug.
  *   2. Show a loading indicator until the media reports it can render.
  *   3. On failure, toast the user and swap to a known-good fallback URL
  *      instead of leaving the screen blank.
@@ -18,13 +20,11 @@ import { toast } from '@/hooks/use-toast';
  *   5. Scale with `object-fit: cover` so nothing distorts.
  *
  * Performance:
- *   The source <img>/<video> is kept off-screen (1x1, opacity 0) and its
- *   current frame is composited onto a full-viewport <canvas> via a
- *   requestAnimationFrame loop. This lets us:
- *     - Cap the animation frame rate (Auto / 15 / 30 / 60).
- *     - Halt the render loop and .pause() the <video> when the tab is hidden.
- *   Draw resolution is capped at devicePixelRatio 1.25 to avoid burning GPU
- *   on high-DPR screens without a visible quality drop.
+ *   - Only videos participate in the FPS cap (via a throttled canvas). GIFs
+ *     always render natively so their animation timing is preserved.
+ *   - `visibilitychange` pauses the underlying <video> when the tab is
+ *     hidden, so background wallpapers cost nothing when unfocused.
+ *   - Images are decoded off the main thread with `decoding="async"`.
  */
 
 export interface WallpaperProps {
@@ -38,7 +38,7 @@ export interface WallpaperProps {
   onFailover?: (failedUrl: string, fallbackUrl: string) => void;
   /** Pause rendering + video playback when the tab is hidden. */
   pauseWhenHidden?: boolean;
-  /** Frame-rate cap for the render loop. */
+  /** Frame-rate cap. Only applied to <video> sources; images/GIFs render natively. */
   fps?: 'auto' | '15' | '30' | '60';
 }
 
@@ -59,68 +59,53 @@ export function Wallpaper({
   const [loading, setLoading] = useState(true);
   const [errored, setErrored] = useState(false);
   const [activeUrl, setActiveUrl] = useState(url);
-  const [ready, setReady] = useState(false);
-  const [tabHidden, setTabHidden] = useState(
-    typeof document !== 'undefined' ? document.hidden : false,
-  );
   const triedFallback = useRef(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imgRef = useRef<HTMLImageElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const perfEnd = useRef<((p?: Record<string, unknown>) => number) | null>(null);
+
+  const isVideo = useMemo(() => isVideoUrl(activeUrl), [activeUrl]);
+  const fpsCap = FPS_MAP[fps] ?? 0;
+  // Canvas-throttled path only for capped video. Native <img>/<video> otherwise.
+  const useThrottledCanvas = isVideo && fpsCap > 0;
 
   // Reset transient state whenever the target URL changes.
   useEffect(() => {
     triedFallback.current = false;
     setErrored(false);
     setLoading(true);
-    setReady(false);
     setActiveUrl(url);
+    perfEnd.current = perfStart(`wallpaper.load ${isVideoUrl(url) ? 'video' : 'image'}`);
   }, [url]);
 
-  // Track document visibility only when the caller opts in.
+  // Pause / resume the underlying <video> in step with visibility.
   useEffect(() => {
-    if (!pauseWhenHidden) {
-      setTabHidden(false);
-      return;
-    }
-    const onVis = () => setTabHidden(document.hidden);
-    setTabHidden(document.hidden);
-    document.addEventListener('visibilitychange', onVis);
-    return () => document.removeEventListener('visibilitychange', onVis);
-  }, [pauseWhenHidden]);
-
-  // Pause / resume the underlying <video> element in step with visibility.
-  useEffect(() => {
+    if (!isVideo) return;
     const v = videoRef.current;
     if (!v) return;
-    if (tabHidden) {
-      v.pause();
-    } else {
-      // play() can reject if autoplay policies change; safe to swallow.
-      v.play().catch(() => {});
-    }
-  }, [tabHidden, activeUrl]);
+    const onVis = () => {
+      if (pauseWhenHidden && document.hidden) v.pause();
+      else v.play().catch(() => {}); // autoplay rejections are non-fatal
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, [isVideo, pauseWhenHidden, activeUrl]);
 
-  const isVideo = isVideoUrl(activeUrl);
-
-  // Canvas render loop — throttled to the selected FPS, halted when hidden.
+  // Throttled canvas render loop — only when the user asked to cap FPS on a video.
   useEffect(() => {
-    if (!ready || !activeUrl) return;
+    if (!useThrottledCanvas) return;
     const canvas = canvasRef.current;
-    const source: HTMLImageElement | HTMLVideoElement | null = isVideo
-      ? videoRef.current
-      : imgRef.current;
-    if (!canvas || !source) return;
+    const video = videoRef.current;
+    if (!canvas || !video) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const target = FPS_MAP[fps] ?? 0;
-    const interval = target > 0 ? 1000 / target : 0;
+    const interval = 1000 / fpsCap;
     let raf = 0;
     let lastDraw = 0;
+    let stopped = false;
 
     const resize = () => {
-      // Cap DPR to keep GPU usage sane on Retina without a visible quality loss.
       const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
       const w = Math.max(1, Math.floor(window.innerWidth * dpr));
       const h = Math.max(1, Math.floor(window.innerHeight * dpr));
@@ -130,37 +115,27 @@ export function Wallpaper({
 
     const draw = () => {
       resize();
-      const sw =
-        (source as HTMLImageElement).naturalWidth ||
-        (source as HTMLVideoElement).videoWidth ||
-        0;
-      const sh =
-        (source as HTMLImageElement).naturalHeight ||
-        (source as HTMLVideoElement).videoHeight ||
-        0;
+      const sw = video.videoWidth;
+      const sh = video.videoHeight;
       if (!sw || !sh) return;
-      // object-fit: cover
       const scale = Math.max(canvas.width / sw, canvas.height / sh);
       const dw = sw * scale;
       const dh = sh * scale;
       try {
-        ctx.drawImage(source, (canvas.width - dw) / 2, (canvas.height - dh) / 2, dw, dh);
+        ctx.drawImage(video, (canvas.width - dw) / 2, (canvas.height - dh) / 2, dw, dh);
       } catch {
-        // Transient decode failures are non-fatal; the next tick retries.
+        // decode may briefly fail; next tick retries.
       }
     };
 
-    // First paint so the wallpaper is visible immediately, even before the
-    // rAF loop schedules its first frame.
-    draw();
-
-    if (tabHidden) {
-      // Skip scheduling entirely — we only redraw when the tab returns.
-      return;
-    }
-
     const loop = (t: number) => {
-      if (!interval || t - lastDraw >= interval) {
+      if (stopped) return;
+      if (pauseWhenHidden && document.hidden) {
+        // Skip drawing while hidden; resume on visibility change.
+        raf = requestAnimationFrame(loop);
+        return;
+      }
+      if (t - lastDraw >= interval) {
         draw();
         lastDraw = t;
       }
@@ -171,14 +146,17 @@ export function Wallpaper({
     const onResize = () => draw();
     window.addEventListener('resize', onResize);
     return () => {
+      stopped = true;
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', onResize);
     };
-  }, [ready, activeUrl, isVideo, fps, tabHidden]);
+  }, [useThrottledCanvas, fpsCap, pauseWhenHidden, activeUrl]);
 
   if (!activeUrl) return null;
 
   const handleError = () => {
+    perfEnd.current?.({ url: activeUrl, ok: false });
+    perfEnd.current = null;
     if (!triedFallback.current && fallbackUrl && fallbackUrl !== activeUrl) {
       triedFallback.current = true;
       toast({
@@ -186,7 +164,6 @@ export function Wallpaper({
         description: 'Falling back to the default wallpaper.',
       });
       onFailover?.(activeUrl, fallbackUrl);
-      setReady(false);
       setLoading(true);
       setErrored(false);
       setActiveUrl(fallbackUrl);
@@ -197,45 +174,55 @@ export function Wallpaper({
   };
 
   const handleReady = () => {
+    perfEnd.current?.({ url: activeUrl, ok: true });
+    perfEnd.current = null;
     setLoading(false);
     setErrored(false);
-    setReady(true);
   };
 
   return (
     <>
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-background">
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 w-full h-full transition-opacity duration-500"
-          style={{ opacity: loading || errored ? 0 : 1 }}
-        />
-
-        {/* Hidden media source that drives the canvas. Keyed on URL so React
-            fully unmounts the previous element and its event handlers. */}
         {isVideo ? (
-          <video
-            key={activeUrl}
-            ref={videoRef}
-            src={activeUrl}
-            autoPlay
-            loop
-            muted
-            playsInline
-            onCanPlay={handleReady}
-            onError={handleError}
-            className="absolute top-0 left-0 w-px h-px opacity-0 pointer-events-none"
-            aria-hidden="true"
-          />
+          <>
+            <video
+              key={activeUrl}
+              ref={videoRef}
+              src={activeUrl}
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              onCanPlay={handleReady}
+              onError={handleError}
+              className={
+                useThrottledCanvas
+                  ? 'absolute top-0 left-0 w-px h-px opacity-0 pointer-events-none'
+                  : 'absolute inset-0 w-full h-full object-cover transition-opacity duration-500'
+              }
+              style={useThrottledCanvas ? undefined : { opacity: loading || errored ? 0 : 1 }}
+              aria-hidden="true"
+            />
+            {useThrottledCanvas && (
+              <canvas
+                ref={canvasRef}
+                className="absolute inset-0 w-full h-full transition-opacity duration-500"
+                style={{ opacity: loading || errored ? 0 : 1 }}
+              />
+            )}
+          </>
         ) : (
           <img
             key={activeUrl}
-            ref={imgRef}
             src={activeUrl}
             alt=""
             onLoad={handleReady}
             onError={handleError}
-            className="absolute top-0 left-0 w-px h-px opacity-0 pointer-events-none"
+            loading="eager"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+            style={{ opacity: loading || errored ? 0 : 1 }}
             aria-hidden="true"
           />
         )}
