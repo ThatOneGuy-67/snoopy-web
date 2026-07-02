@@ -12,7 +12,7 @@ import type { SidebarView } from '@/components/SideNav';
 import TopMenu from '@/components/TopMenu';
 import CommandPalette from '@/components/CommandPalette';
 import Dashboard from '@/components/dashboard/Dashboard';
-import HubLauncher from '@/components/HubLauncher';
+import HubShell from '@/components/hub/HubShell';
 import AppsHub from '@/components/AppsHub';
 import ListView from '@/components/ListView';
 import DownloadsView from '@/components/DownloadsView';
@@ -292,11 +292,12 @@ const Index = () => {
             ) : (
               <div className="h-full overflow-y-auto px-4 pb-8">
                 {view === 'home' && settings.layoutStyle === 'hub' && (
-                  <HubLauncher
+                  <HubShell
                     pinnedIds={pinned.ids}
                     onSearch={handleSearch}
                     onOpen={(u, t) => createTab(u, t)}
                     onOpenApps={() => setView('apps')}
+                    onOpenSettings={() => setShowSettings(true)}
                   />
                 )}
                 {view === 'home' && settings.layoutStyle !== 'hub' && (
