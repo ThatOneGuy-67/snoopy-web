@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AlertTriangle, ExternalLink, Loader2 } from 'lucide-react';
 import ScramjetFrame from './ScramjetFrame';
 import { loadSettings } from '@/lib/settings';
@@ -9,7 +9,9 @@ interface ProxyFrameProps {
 }
 
 const ProxyFrame = ({ url, proxyResolvedUrl }: ProxyFrameProps) => {
-  const settings = loadSettings();
+  // Read settings once per mount rather than on every render — this component
+  // re-renders often as tab state changes and localStorage reads add up.
+  const settings = useMemo(() => loadSettings(), []);
   if (settings.useScramjet) return <ScramjetFrame url={url} />;
 
   const src = proxyResolvedUrl || (url.startsWith('http') ? url : `https://${url}`);
