@@ -8,7 +8,7 @@ import BrowserChrome from '@/components/BrowserChrome';
 import SettingsModal from '@/components/SettingsModal';
 import Typewriter from '@/components/Typewriter';
 import RotatingFacts from '@/components/RotatingFacts';
-import type { SidebarView } from '@/components/SideNav';
+import type { SidebarView } from '@/lib/views';
 import TopMenu from '@/components/TopMenu';
 import CommandPalette from '@/components/CommandPalette';
 import Dashboard from '@/components/dashboard/Dashboard';
