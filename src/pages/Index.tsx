@@ -396,6 +396,7 @@ const Index = () => {
       </div>
 
       <DiagnosticsModal open={showDiag} onClose={() => setShowDiag(false)} settings={settings} />
+      <CloakSettings isOpen={showCloak} onClose={() => setShowCloak(false)} onApply={applyCloak} />
 
       <CommandPalette
         open={paletteOpen}
