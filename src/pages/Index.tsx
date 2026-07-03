@@ -331,6 +331,7 @@ const Index = () => {
                       onTogglePin={pinned.toggle}
                       onOpenPalette={() => setPaletteOpen(true)}
                       onOpenSettings={() => setShowSettings(true)}
+                      onOpenCloak={() => setShowCloak(true)}
                       onOpenView={(v) => setView(v as SidebarView)}
                       onOpenDiagnostics={() => setShowDiag(true)}
                     />
