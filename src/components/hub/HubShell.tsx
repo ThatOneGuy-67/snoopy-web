@@ -46,7 +46,7 @@ const HubShell = ({ pinnedIds, onSearch, onOpen, onOpenApps, onOpenSettings }: P
         {view === 'movies'    && <MoviesPage />}
         {view === 'music'     && <MusicPage />}
         {view === 'ai'        && <AIPage />}
-        {view === 'downloads' && <DownloadsPage />}
+        
       </div>
     </div>
   );
