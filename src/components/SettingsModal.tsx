@@ -418,10 +418,11 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
                     ))}
                   </div>
                 </Field>
-                <Field label="Live wallpapers" hint="Animated GIF backgrounds. May be heavier on slow devices.">
+                <Field label="Live wallpapers" hint="Animated GIF backgrounds bundled with the app. May be heavier on slow devices.">
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {LIVE_WALLPAPERS.map(b => (
                       <button key={b.name} onClick={() => update('backgroundImage', b.url)}
+                        title={`${b.name} — ${b.category}`}
                         className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all ${
                           settings.backgroundImage === b.url ? 'border-primary' : 'border-border hover:border-primary/50'
                         }`}
@@ -431,9 +432,9 @@ const SettingsModal = ({ isOpen, onClose, settings, onChange, onApplyCloak }: Pr
                           backgroundPosition: 'center',
                         }}>
                         <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-primary/80 text-[9px] font-mono text-primary-foreground flex items-center gap-1">
-                          <Film className="w-2.5 h-2.5" /> GIF
+                          <Film className="w-2.5 h-2.5" /> {b.category}
                         </div>
-                        <div className="absolute bottom-0 inset-x-0 bg-background/70 text-[10px] py-0.5 text-center">
+                        <div className="absolute bottom-0 inset-x-0 bg-background/70 text-[10px] py-0.5 text-center truncate px-1">
                           {b.name}
                         </div>
                       </button>
