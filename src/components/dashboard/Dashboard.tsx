@@ -24,6 +24,7 @@ interface DashboardProps {
   onTogglePin: (id: string) => void;
   onOpenPalette: () => void;
   onOpenSettings: () => void;
+  onOpenCloak?: () => void;
   onOpenView: (v: 'bookmarks' | 'history' | 'apps') => void;
   onOpenDiagnostics?: () => void;
 }
