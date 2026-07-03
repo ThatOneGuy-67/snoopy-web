@@ -88,10 +88,10 @@ const Dashboard = (p: DashboardProps) => {
       {/* Quick Actions */}
       <Widget title="Quick Actions" icon={<Zap className="w-3.5 h-3.5" />}>
         <div className="grid grid-cols-2 gap-2">
-          <QuickBtn icon={<Plus className="w-3.5 h-3.5" />} label="New tab"      onClick={() => p.onOpenPalette()} />
+          <QuickBtn icon={<Heart className="w-3.5 h-3.5" />}       label="Favorites" onClick={() => p.onOpenView('apps')} />
           <QuickBtn icon={<BookmarkIcon className="w-3.5 h-3.5" />} label="Bookmarks" onClick={() => p.onOpenView('bookmarks')} />
-          <QuickBtn icon={<Clock className="w-3.5 h-3.5" />} label="History"     onClick={() => p.onOpenView('history')} />
-          <QuickBtn icon={<ShieldCheck className="w-3.5 h-3.5" />} label="Cloak"  onClick={() => p.onOpenSettings()} />
+          <QuickBtn icon={<Clock className="w-3.5 h-3.5" />}       label="History"   onClick={() => p.onOpenView('history')} />
+          <QuickBtn icon={<ShieldCheck className="w-3.5 h-3.5" />} label="Cloak"     onClick={() => (p.onOpenCloak ?? p.onOpenSettings)()} />
         </div>
       </Widget>
 
