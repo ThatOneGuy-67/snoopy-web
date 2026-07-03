@@ -33,6 +33,7 @@ const Index = () => {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showCloak, setShowCloak] = useState(false);
   const [showDiag, setShowDiag] = useState(false);
   const [view, setView] = useState<SidebarView>('home');
   const [paletteOpen, setPaletteOpen] = useState(false);
