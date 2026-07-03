@@ -199,7 +199,7 @@ export const BACKGROUND_PRESETS: { name: string; url: string }[] = [
 // The <Wallpaper/> component gracefully falls back to DEFAULT_WALLPAPER_FALLBACK
 // if any single URL fails to load.
 export type LiveWallpaperCategory =
-  | 'Space' | 'Cyberpunk' | 'Nature' | 'Gaming' | 'Anime' | 'Abstract' | 'Lo-fi';
+  | 'Space' | 'Cyberpunk' | 'Nature' | 'Abstract';
 
 export interface LiveWallpaper { name: string; url: string; category: LiveWallpaperCategory; }
 
@@ -207,13 +207,10 @@ export const LIVE_WALLPAPERS: LiveWallpaper[] = [
   { name: 'Deep Space',    url: '/wallpapers/gifs/space.gif',     category: 'Space' },
   { name: 'Matrix Rain',   url: '/wallpapers/gifs/matrix.gif',    category: 'Cyberpunk' },
   { name: 'Neon City',     url: '/wallpapers/gifs/cyberpunk.gif', category: 'Cyberpunk' },
-  { name: 'Synthwave',     url: '/wallpapers/gifs/synthwave.gif', category: 'Cyberpunk' },
   { name: 'Forest Mist',   url: '/wallpapers/gifs/nature.gif',    category: 'Nature' },
   { name: 'Waterfall',     url: '/wallpapers/gifs/forest.gif',    category: 'Nature' },
-  { name: 'Arcade',        url: '/wallpapers/gifs/gaming.gif',    category: 'Gaming' },
-  { name: 'Anime Skyline', url: '/wallpapers/gifs/anime.gif',     category: 'Anime' },
+  { name: 'Japan House',   url: '/wallpapers/gifs/japan.gif',     category: 'Japan' },
   { name: 'Liquid Waves',  url: '/wallpapers/gifs/abstract.gif',  category: 'Abstract' },
-  { name: 'Lo-fi Room',    url: '/wallpapers/gifs/lofi.gif',      category: 'Lo-fi' },
 ];
 
 // Guaranteed-good static wallpaper used when a chosen wallpaper fails to load.
