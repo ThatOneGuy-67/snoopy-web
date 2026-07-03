@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Clock, Star, Pin, Zap, Activity, Bookmark as BookmarkIcon,
-  Plus, Trash2, X, Wifi, ChevronRight, ShieldCheck, Power, RotateCw,
+  Plus, Trash2, X, Wifi, ChevronRight, ShieldCheck, Power, RotateCw, Heart,
 } from 'lucide-react';
 import Widget from './Widget';
 import { APPS, getApp } from '@/lib/apps';
@@ -24,6 +24,7 @@ interface DashboardProps {
   onTogglePin: (id: string) => void;
   onOpenPalette: () => void;
   onOpenSettings: () => void;
+  onOpenCloak?: () => void;
   onOpenView: (v: 'bookmarks' | 'history' | 'apps') => void;
   onOpenDiagnostics?: () => void;
 }
@@ -87,10 +88,10 @@ const Dashboard = (p: DashboardProps) => {
       {/* Quick Actions */}
       <Widget title="Quick Actions" icon={<Zap className="w-3.5 h-3.5" />}>
         <div className="grid grid-cols-2 gap-2">
-          <QuickBtn icon={<Plus className="w-3.5 h-3.5" />} label="New tab"      onClick={() => p.onOpenPalette()} />
+          <QuickBtn icon={<Heart className="w-3.5 h-3.5" />}       label="Favorites" onClick={() => p.onOpenView('apps')} />
           <QuickBtn icon={<BookmarkIcon className="w-3.5 h-3.5" />} label="Bookmarks" onClick={() => p.onOpenView('bookmarks')} />
-          <QuickBtn icon={<Clock className="w-3.5 h-3.5" />} label="History"     onClick={() => p.onOpenView('history')} />
-          <QuickBtn icon={<ShieldCheck className="w-3.5 h-3.5" />} label="Cloak"  onClick={() => p.onOpenSettings()} />
+          <QuickBtn icon={<Clock className="w-3.5 h-3.5" />}       label="History"   onClick={() => p.onOpenView('history')} />
+          <QuickBtn icon={<ShieldCheck className="w-3.5 h-3.5" />} label="Cloak"     onClick={() => (p.onOpenCloak ?? p.onOpenSettings)()} />
         </div>
       </Widget>
 

@@ -6,7 +6,7 @@ import ChatPage from './pages/ChatPage';
 import MoviesPage from './pages/MoviesPage';
 import MusicPage from './pages/MusicPage';
 import AIPage from './pages/AIPage';
-import DownloadsPage from './pages/DownloadsPage';
+
 import { HUB_NAV_ITEMS, type HubViewId } from '@/lib/hubNav';
 
 interface Props {
@@ -46,7 +46,7 @@ const HubShell = ({ pinnedIds, onSearch, onOpen, onOpenApps, onOpenSettings }: P
         {view === 'movies'    && <MoviesPage />}
         {view === 'music'     && <MusicPage />}
         {view === 'ai'        && <AIPage />}
-        {view === 'downloads' && <DownloadsPage />}
+        
       </div>
     </div>
   );

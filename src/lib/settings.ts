@@ -194,16 +194,26 @@ export const BACKGROUND_PRESETS: { name: string; url: string }[] = [
   { name: 'Sunset', url: 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=80' },
 ];
 
-// Live (animated) wallpaper presets — direct GIF / MP4 URLs are supported.
-// Tenor blocks hotlinking, so we use Giphy's public media CDN which does not.
-// The <Wallpaper/> component gracefully falls back if any single URL is down.
-export const LIVE_WALLPAPERS: { name: string; url: string }[] = [
-  { name: 'Matrix Rain', url: 'https://media.giphy.com/media/S8ShQBn5o0LK/giphy.gif' },
-  { name: 'Neon City',   url: 'https://media.giphy.com/media/xUA7b0Iu1QhaOgv98A/giphy.gif' },
-  { name: 'Space Drift', url: 'https://media.giphy.com/media/l0HlL2vlfpWI0meli/giphy.gif' },
-  { name: 'Lo-fi Room',  url: 'https://media.giphy.com/media/UUp0mvxLxWmBG/giphy.gif' },
-  { name: 'Synthwave',   url: 'https://media.giphy.com/media/l3fzMuFVwyMcQ7bkY/giphy.gif' },
-  { name: 'Aurora Loop', url: 'https://media.giphy.com/media/xThuWpNaxQ0oaP9lPa/giphy.gif' },
+// Live (animated) wallpaper presets — bundled locally under /public/wallpapers/gifs/
+// so they never depend on third-party CDNs staying online.
+// The <Wallpaper/> component gracefully falls back to DEFAULT_WALLPAPER_FALLBACK
+// if any single URL fails to load.
+export type LiveWallpaperCategory =
+  | 'Space' | 'Cyberpunk' | 'Nature' | 'Gaming' | 'Anime' | 'Abstract' | 'Lo-fi';
+
+export interface LiveWallpaper { name: string; url: string; category: LiveWallpaperCategory; }
+
+export const LIVE_WALLPAPERS: LiveWallpaper[] = [
+  { name: 'Deep Space',    url: '/wallpapers/gifs/space.gif',     category: 'Space' },
+  { name: 'Matrix Rain',   url: '/wallpapers/gifs/matrix.gif',    category: 'Cyberpunk' },
+  { name: 'Neon City',     url: '/wallpapers/gifs/cyberpunk.gif', category: 'Cyberpunk' },
+  { name: 'Synthwave',     url: '/wallpapers/gifs/synthwave.gif', category: 'Cyberpunk' },
+  { name: 'Forest Mist',   url: '/wallpapers/gifs/nature.gif',    category: 'Nature' },
+  { name: 'Waterfall',     url: '/wallpapers/gifs/forest.gif',    category: 'Nature' },
+  { name: 'Arcade',        url: '/wallpapers/gifs/gaming.gif',    category: 'Gaming' },
+  { name: 'Anime Skyline', url: '/wallpapers/gifs/anime.gif',     category: 'Anime' },
+  { name: 'Liquid Waves',  url: '/wallpapers/gifs/abstract.gif',  category: 'Abstract' },
+  { name: 'Lo-fi Room',    url: '/wallpapers/gifs/lofi.gif',      category: 'Lo-fi' },
 ];
 
 // Guaranteed-good static wallpaper used when a chosen wallpaper fails to load.

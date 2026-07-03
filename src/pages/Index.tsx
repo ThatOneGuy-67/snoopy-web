@@ -17,6 +17,7 @@ import AppsHub from '@/components/AppsHub';
 import ListView from '@/components/ListView';
 import DownloadsView from '@/components/DownloadsView';
 import DiagnosticsModal from '@/components/DiagnosticsModal';
+import CloakSettings from '@/components/CloakSettings';
 import {
   useBookmarks, useHistory, useFavoriteApps, useActivity, useClosedTabs, usePinnedApps,
 } from '@/lib/browserData';
@@ -32,6 +33,7 @@ const Index = () => {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showCloak, setShowCloak] = useState(false);
   const [showDiag, setShowDiag] = useState(false);
   const [view, setView] = useState<SidebarView>('home');
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -329,6 +331,7 @@ const Index = () => {
                       onTogglePin={pinned.toggle}
                       onOpenPalette={() => setPaletteOpen(true)}
                       onOpenSettings={() => setShowSettings(true)}
+                      onOpenCloak={() => setShowCloak(true)}
                       onOpenView={(v) => setView(v as SidebarView)}
                       onOpenDiagnostics={() => setShowDiag(true)}
                     />
@@ -393,6 +396,7 @@ const Index = () => {
       </div>
 
       <DiagnosticsModal open={showDiag} onClose={() => setShowDiag(false)} settings={settings} />
+      <CloakSettings isOpen={showCloak} onClose={() => setShowCloak(false)} onApply={applyCloak} />
 
       <CommandPalette
         open={paletteOpen}
