@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Clock, Star, Pin, Zap, Activity, Bookmark as BookmarkIcon,
-  Plus, Trash2, X, Wifi, ChevronRight, ShieldCheck, Power, RotateCw,
+  Plus, Trash2, X, Wifi, ChevronRight, ShieldCheck, Power, RotateCw, Heart,
 } from 'lucide-react';
 import Widget from './Widget';
 import { APPS, getApp } from '@/lib/apps';
