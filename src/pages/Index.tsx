@@ -17,6 +17,7 @@ import AppsHub from '@/components/AppsHub';
 import ListView from '@/components/ListView';
 import DownloadsView from '@/components/DownloadsView';
 import DiagnosticsModal from '@/components/DiagnosticsModal';
+import CloakSettings from '@/components/CloakSettings';
 import {
   useBookmarks, useHistory, useFavoriteApps, useActivity, useClosedTabs, usePinnedApps,
 } from '@/lib/browserData';
