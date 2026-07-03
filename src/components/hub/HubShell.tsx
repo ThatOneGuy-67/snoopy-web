@@ -6,7 +6,7 @@ import ChatPage from './pages/ChatPage';
 import MoviesPage from './pages/MoviesPage';
 import MusicPage from './pages/MusicPage';
 import AIPage from './pages/AIPage';
-import DownloadsPage from './pages/DownloadsPage';
+
 import { HUB_NAV_ITEMS, type HubViewId } from '@/lib/hubNav';
 
 interface Props {
