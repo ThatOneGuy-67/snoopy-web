@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Shield, X } from 'lucide-react';
+import { Shield, X, ExternalLink } from 'lucide-react';
+import { openAboutBlank } from '@/lib/settings';
 
 interface CloakSettingsProps {
   isOpen: boolean;
@@ -8,11 +9,14 @@ interface CloakSettingsProps {
 }
 
 const presets = [
-  { name: 'Google Drive', title: 'My Drive - Google Drive', favicon: 'https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png' },
-  { name: 'Google Docs', title: 'Untitled document - Google Docs', favicon: 'https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico' },
-  { name: 'Canvas', title: 'Dashboard', favicon: 'https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon-e10d657a73.ico' },
-  { name: 'Clever', title: 'Clever | Portal', favicon: 'https://assets.clever.com/media/icons/favicon.ico' },
-  { name: 'Schoology', title: 'Home | Schoology', favicon: 'https://app.schoology.com/sites/all/themes/flavor/favicon.ico' },
+  { name: 'Google Drive',     title: 'My Drive - Google Drive',       favicon: 'https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png' },
+  { name: 'Google Docs',      title: 'Untitled document - Google Docs', favicon: 'https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico' },
+  { name: 'Google Classroom', title: 'Classes',                        favicon: 'https://ssl.gstatic.com/classroom/favicon.png' },
+  { name: 'Gmail',            title: 'Inbox - Gmail',                  favicon: 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico' },
+  { name: 'Canvas',           title: 'Dashboard',                      favicon: 'https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon-e10d657a73.ico' },
+  { name: 'Clever',           title: 'Clever | Portal',                favicon: 'https://assets.clever.com/media/icons/favicon.ico' },
+  { name: 'Schoology',        title: 'Home | Schoology',               favicon: 'https://app.schoology.com/sites/all/themes/flavor/favicon.ico' },
+  { name: 'Khan Academy',     title: 'Khan Academy',                   favicon: 'https://cdn.kastatic.org/images/favicon.ico' },
 ];
 
 const CloakSettings = ({ isOpen, onClose, onApply }: CloakSettingsProps) => {
@@ -33,8 +37,13 @@ const CloakSettings = ({ isOpen, onClose, onApply }: CloakSettingsProps) => {
     }
   };
 
+  const launchAboutBlank = () => {
+    openAboutBlank(window.location.href);
+    onClose();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
       <div className="glass-panel p-6 w-full max-w-md relative z-10">
         <div className="flex items-center justify-between mb-6">
@@ -55,12 +64,33 @@ const CloakSettings = ({ isOpen, onClose, onApply }: CloakSettingsProps) => {
                 <button
                   key={preset.name}
                   onClick={() => handlePreset(preset.title, preset.favicon)}
-                  className="glass-card p-3 text-left hover:border-primary/50"
+                  className="glass-card p-2.5 text-left hover:border-primary/50 flex items-center gap-2"
                 >
-                  <span className="text-sm font-medium">{preset.name}</span>
+                  <img
+                    src={preset.favicon}
+                    alt=""
+                    className="w-4 h-4 shrink-0 rounded-sm"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = 'hidden'; }}
+                  />
+                  <span className="text-sm font-medium truncate">{preset.name}</span>
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="border-t border-border pt-4">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">About:Blank</h3>
+            <button
+              onClick={launchAboutBlank}
+              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-primary/15 border border-primary/40 text-primary hover:bg-primary/25 transition-colors text-sm font-medium"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Launch inside about:blank
+            </button>
+            <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">
+              Opens Snoopy's Web in a new tab whose address is <code className="font-mono">about:blank</code>,
+              hiding it from history and referrer sniffers.
+            </p>
           </div>
 
           <div className="border-t border-border pt-4">
@@ -91,7 +121,7 @@ const CloakSettings = ({ isOpen, onClose, onApply }: CloakSettingsProps) => {
 
           <button
             onClick={() => {
-              document.title = 'ACCESS PORTAL';
+              document.title = "Snoopy's Web";
               const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
               if (link) link.href = '/favicon.ico';
               onClose();
