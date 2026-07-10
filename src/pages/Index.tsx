@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Layers, Command as CommandIcon, BookmarkPlus, X, Palette } from 'lucide-react';
 import StarField from '@/components/StarField';
 import SearchBar from '@/components/SearchBar';
 import TabBar from '@/components/TabBar';
 import ProxyFrame from '@/components/ProxyFrame';
 import BrowserChrome from '@/components/BrowserChrome';
-import SettingsModal from '@/components/SettingsModal';
+
 import Typewriter from '@/components/Typewriter';
 import RotatingFacts from '@/components/RotatingFacts';
 import type { SidebarView } from '@/lib/views';
@@ -29,10 +30,11 @@ import { THEMES, applyTheme } from '@/lib/themes';
 interface Tab { id: string; history: string[]; index: number; title: string; reloadKey: number; }
 
 const Index = () => {
+  const routerNavigate = useNavigate();
+  const openSettings = useCallback(() => routerNavigate('/settings'), [routerNavigate]);
   const [settings, setSettings] = useSettings();
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
   const [showCloak, setShowCloak] = useState(false);
   const [showDiag, setShowDiag] = useState(false);
   const [view, setView] = useState<SidebarView>('home');
@@ -255,7 +257,7 @@ const Index = () => {
                 layoutStyle={settings.layoutStyle}
                 themeId={settings.themeId}
                 onSelect={v => { setView(v); setActiveTabId(null); }}
-                onOpenSettings={() => setShowSettings(true)}
+                onOpenSettings={() => openSettings()}
                 onOpenPalette={() => setPaletteOpen(true)}
                 onChangeLayout={l => setSettings(s => ({ ...s, layoutStyle: l }))}
                 onCycleTheme={cycleThemePreview}
@@ -301,7 +303,7 @@ const Index = () => {
                     onSearch={handleSearch}
                     onOpen={(u, t) => createTab(u, t)}
                     onOpenApps={() => setView('apps')}
-                    onOpenSettings={() => setShowSettings(true)}
+                    onOpenSettings={() => openSettings()}
                   />
                 )}
                 {view === 'home' && settings.layoutStyle !== 'hub' && (
@@ -330,7 +332,7 @@ const Index = () => {
                       onRemoveBookmark={bookmarks.remove}
                       onTogglePin={pinned.toggle}
                       onOpenPalette={() => setPaletteOpen(true)}
-                      onOpenSettings={() => setShowSettings(true)}
+                      onOpenSettings={() => openSettings()}
                       onOpenCloak={() => setShowCloak(true)}
                       onOpenView={(v) => setView(v as SidebarView)}
                       onOpenDiagnostics={() => setShowDiag(true)}
@@ -405,17 +407,10 @@ const Index = () => {
         history={history.items}
         onOpenUrl={(u, t) => createTab(u, t)}
         onSearch={handleSearch}
-        onOpenSettings={() => setShowSettings(true)}
+        onOpenSettings={openSettings}
         onSelectView={(v) => { setView(v as SidebarView); setActiveTabId(null); }}
       />
 
-      <SettingsModal
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
-        settings={settings}
-        onChange={setSettings}
-        onApplyCloak={applyCloak}
-      />
 
       {previewTheme && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] glass-panel px-4 py-3 flex items-center gap-3 shadow-2xl border-primary/40">
