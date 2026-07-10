@@ -30,8 +30,8 @@ import { THEMES, applyTheme } from '@/lib/themes';
 interface Tab { id: string; history: string[]; index: number; title: string; reloadKey: number; }
 
 const Index = () => {
-  const navigate = useNavigate();
-  const openSettings = useCallback(() => navigate('/settings'), [navigate]);
+  const routerNavigate = useNavigate();
+  const openSettings = useCallback(() => routerNavigate('/settings'), [routerNavigate]);
   const [settings, setSettings] = useSettings();
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
