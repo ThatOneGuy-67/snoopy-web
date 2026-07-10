@@ -408,17 +408,10 @@ const Index = () => {
         history={history.items}
         onOpenUrl={(u, t) => createTab(u, t)}
         onSearch={handleSearch}
-        onOpenSettings={() => setShowSettings(true)}
+        onOpenSettings={openSettings}
         onSelectView={(v) => { setView(v as SidebarView); setActiveTabId(null); }}
       />
 
-      <SettingsModal
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
-        settings={settings}
-        onChange={setSettings}
-        onApplyCloak={applyCloak}
-      />
 
       {previewTheme && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] glass-panel px-4 py-3 flex items-center gap-3 shadow-2xl border-primary/40">
