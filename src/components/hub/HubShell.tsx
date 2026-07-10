@@ -32,7 +32,10 @@ const HubShell = ({ pinnedIds, onSearch, onOpen, onOpenApps, onOpenSettings }: P
   return (
     <div className="flex flex-col md:flex-row min-h-full">
       <HubSidebar active={view} onSelect={handleSelect} />
-      <div className="flex-1 min-w-0 animate-fade-in" key={view}>
+      <div
+        key={view}
+        className="flex-1 min-w-0 px-3 sm:px-4 md:px-6 pb-8 animate-fade-in transition-all duration-300"
+      >
         {view === 'home' && (
           <HubLauncher
             pinnedIds={pinnedIds}
@@ -41,12 +44,11 @@ const HubShell = ({ pinnedIds, onSearch, onOpen, onOpenApps, onOpenSettings }: P
             onOpenApps={onOpenApps}
           />
         )}
-        {view === 'games'     && <GamesPage />}
-        {view === 'chat'      && <ChatPage />}
-        {view === 'movies'    && <MoviesPage />}
-        {view === 'music'     && <MusicPage />}
-        {view === 'ai'        && <AIPage />}
-        
+        {view === 'games'  && <GamesPage />}
+        {view === 'chat'   && <ChatPage />}
+        {view === 'movies' && <MoviesPage />}
+        {view === 'music'  && <MusicPage />}
+        {view === 'ai'     && <AIPage />}
       </div>
     </div>
   );
