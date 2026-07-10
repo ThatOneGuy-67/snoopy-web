@@ -6,7 +6,7 @@ import SearchBar from '@/components/SearchBar';
 import TabBar from '@/components/TabBar';
 import ProxyFrame from '@/components/ProxyFrame';
 import BrowserChrome from '@/components/BrowserChrome';
-import SettingsModal from '@/components/SettingsModal';
+
 import Typewriter from '@/components/Typewriter';
 import RotatingFacts from '@/components/RotatingFacts';
 import type { SidebarView } from '@/lib/views';
