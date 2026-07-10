@@ -199,7 +199,7 @@ export const BACKGROUND_PRESETS: { name: string; url: string }[] = [
 // The <Wallpaper/> component gracefully falls back to DEFAULT_WALLPAPER_FALLBACK
 // if any single URL fails to load.
 export type LiveWallpaperCategory =
-  | 'Space' | 'Cyberpunk' | 'Nature' | 'Abstract';
+  | 'Space' | 'Cyberpunk' | 'Nature' | 'Japan' | 'Abstract';
 
 export interface LiveWallpaper { name: string; url: string; category: LiveWallpaperCategory; }
 
