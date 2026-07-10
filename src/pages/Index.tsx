@@ -35,7 +35,6 @@ const Index = () => {
   const [settings, setSettings] = useSettings();
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
   const [showCloak, setShowCloak] = useState(false);
   const [showDiag, setShowDiag] = useState(false);
   const [view, setView] = useState<SidebarView>('home');
@@ -258,7 +257,7 @@ const Index = () => {
                 layoutStyle={settings.layoutStyle}
                 themeId={settings.themeId}
                 onSelect={v => { setView(v); setActiveTabId(null); }}
-                onOpenSettings={() => setShowSettings(true)}
+                onOpenSettings={() => openSettings()}
                 onOpenPalette={() => setPaletteOpen(true)}
                 onChangeLayout={l => setSettings(s => ({ ...s, layoutStyle: l }))}
                 onCycleTheme={cycleThemePreview}
@@ -304,7 +303,7 @@ const Index = () => {
                     onSearch={handleSearch}
                     onOpen={(u, t) => createTab(u, t)}
                     onOpenApps={() => setView('apps')}
-                    onOpenSettings={() => setShowSettings(true)}
+                    onOpenSettings={() => openSettings()}
                   />
                 )}
                 {view === 'home' && settings.layoutStyle !== 'hub' && (
@@ -333,7 +332,7 @@ const Index = () => {
                       onRemoveBookmark={bookmarks.remove}
                       onTogglePin={pinned.toggle}
                       onOpenPalette={() => setPaletteOpen(true)}
-                      onOpenSettings={() => setShowSettings(true)}
+                      onOpenSettings={() => openSettings()}
                       onOpenCloak={() => setShowCloak(true)}
                       onOpenView={(v) => setView(v as SidebarView)}
                       onOpenDiagnostics={() => setShowDiag(true)}
