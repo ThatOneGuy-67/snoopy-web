@@ -48,7 +48,7 @@ const BrowserChrome = ({
   };
 
   const Btn = ({ onClick, disabled, title, children }: any) => (
-    <button onClick={onClick} disabled={disabled} title={title}
+    <button onClick={onClick} disabled={disabled} title={title} aria-label={title}
       className="p-2 rounded-lg hover:bg-secondary/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
       {children}
     </button>
@@ -68,6 +68,7 @@ const BrowserChrome = ({
           onChange={e => setValue(e.target.value)}
           onFocus={e => e.currentTarget.select()}
           onKeyDown={handleKey}
+          aria-label="Address bar"
           className="flex-1 bg-transparent outline-none text-sm min-w-0"
         />
       </div>
@@ -76,6 +77,7 @@ const BrowserChrome = ({
         {isFs ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
       </Btn>
       <a href={url} target="_blank" rel="noopener noreferrer"
+        aria-label="Open in new tab"
         className="p-2 rounded-lg hover:bg-secondary/50" title="Open in new tab">
         <ExternalLink className="w-4 h-4" />
       </a>
