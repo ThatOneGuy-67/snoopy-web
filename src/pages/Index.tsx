@@ -257,7 +257,7 @@ const Index = () => {
                   onHomeClick={() => { setActiveTabId(null); setView('home'); }}
                 />
               </div>
-              <button onClick={() => setPaletteOpen(true)} className="glass-card !p-2.5 hover:border-primary/50 shrink-0" title="Command palette (Ctrl+K)">
+              <button onClick={() => setPaletteOpen(true)} aria-label="Open command palette" className="glass-card !p-2.5 hover:border-primary/50 shrink-0" title="Command palette (Ctrl+K)">
                 <CommandIcon className="w-4 h-4 text-primary" />
               </button>
               <TopMenu
@@ -290,6 +290,7 @@ const Index = () => {
                   />
                 </div>
                 <button onClick={bookmarkCurrent}
+                  aria-label={currentBookmarked ? 'Remove bookmark' : 'Add bookmark'}
                   className={`glass-card !p-2.5 shrink-0 ${currentBookmarked ? 'border-primary/60 text-primary' : ''}`}
                   title={currentBookmarked ? 'Bookmarked' : 'Add bookmark'}>
                   <BookmarkPlus className="w-4 h-4" />
@@ -320,7 +321,7 @@ const Index = () => {
                       <div className="flex items-center justify-center gap-3 mb-3">
                         <Layers className="w-8 h-8 text-primary" />
                         <h1 className="text-4xl md:text-5xl font-bold tracking-tight glow-text min-h-[1.2em]">
-                          <Typewriter text="Snoopy's Web" speed={110} />
+                          <Typewriter text="Snoopy's Web — Secure Web Proxy" speed={90} />
                         </h1>
                       </div>
                       <p className="text-muted-foreground text-sm font-mono mb-6">// access the web without limits</p>
@@ -372,7 +373,7 @@ const Index = () => {
                         id: b.id, title: b.title, sub: b.url,
                         onClick: () => createTab(b.url, b.title),
                         right: (
-                          <button onClick={() => bookmarks.remove(b.id)} className="text-muted-foreground hover:text-destructive p-1" title="Remove">
+                          <button onClick={() => bookmarks.remove(b.id)} aria-label={`Remove bookmark ${b.title}`} className="text-muted-foreground hover:text-destructive p-1" title="Remove">
                             <X className="w-3.5 h-3.5" />
                           </button>
                         ),
