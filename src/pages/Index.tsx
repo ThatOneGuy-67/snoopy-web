@@ -61,8 +61,16 @@ const Index = () => {
     if (settings.autoCloakOnLoad && settings.defaultCloakTitle) {
       applyCloak(settings.defaultCloakTitle, settings.defaultCloakFavicon);
     } else {
-      document.title = "Snoopy's Web";
+      document.title = "Snoopy's Web — Access the web without limits";
     }
+    // Self-referencing canonical for the homepage.
+    let link = document.querySelector("link[rel='canonical']") as HTMLLinkElement | null;
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'canonical';
+      document.head.appendChild(link);
+    }
+    link.href = 'https://snoopy-web.lovable.app/';
   }, [settings.autoCloakOnLoad, settings.defaultCloakTitle, settings.defaultCloakFavicon, applyCloak]);
 
   // Panic key
