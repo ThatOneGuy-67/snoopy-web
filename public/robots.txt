@@ -12,3 +12,6 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://snoopy-web.lovable.app/sitemap.xml
+
