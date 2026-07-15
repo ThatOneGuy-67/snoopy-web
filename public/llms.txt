@@ -1,0 +1,10 @@
+# Snoopy's Web
+
+> Fast, private web hub with a built-in proxy, curated apps and games, cloaking, and a customizable dashboard.
+
+Snoopy's Web is a browser-based hub that lets users access websites, apps, and games through an integrated proxy (Scramjet + Wisp). It ships with a customizable dashboard, tab cloaking, wallpapers, and quick launchers for common services.
+
+## Pages
+
+- [Home](/): Search, dashboard, tabs, apps and games hub.
+- [Settings](/settings): Proxy, cloak, panic key, theme, and performance controls.

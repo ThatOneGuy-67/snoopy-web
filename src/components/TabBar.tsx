@@ -50,6 +50,7 @@ const TabBar = ({ tabs, activeTabId, onTabClick, onTabClose, onNewTab, onHomeCli
               e.stopPropagation();
               onTabClose(tab.id);
             }}
+            aria-label={`Close tab ${tab.title}`}
             className="p-1 rounded hover:bg-destructive/20 hover:text-destructive transition-colors"
           >
             <X className="w-3 h-3" />
@@ -59,6 +60,7 @@ const TabBar = ({ tabs, activeTabId, onTabClick, onTabClose, onNewTab, onHomeCli
 
       <button
         onClick={onNewTab}
+        aria-label="New tab"
         className="p-2 rounded-lg hover:bg-secondary/50 text-muted-foreground hover:text-foreground transition-all duration-200 shrink-0"
       >
         <Plus className="w-4 h-4" />

@@ -35,6 +35,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
         />
         <button
           onClick={handleSearch}
+          aria-label="Search or visit URL"
           className="p-3 rounded-lg bg-primary/20 hover:bg-primary/30 text-primary transition-all duration-200 hover:scale-105"
         >
           <ArrowRight className="w-5 h-5" />
