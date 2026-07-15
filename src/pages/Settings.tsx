@@ -71,6 +71,7 @@ const tabs: { id: Tab; label: string; icon: any }[] = [
 ];
 
 const SettingsPage = () => {
+  usePageMeta("Settings — Snoopy's Web", '/settings');
   const navigate = useNavigate();
   const [settings, setSettings] = useSettings();
   const [tab, setTab] = useState<Tab>('general');
