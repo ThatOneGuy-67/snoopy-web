@@ -1,4 +1,4 @@
-> TOG's Web — https://snoopy-web.lovable.app/
+# TOG's Web — https://snoopy-web.lovable.app/
 
 User-agent: Googlebot
 Allow: /
