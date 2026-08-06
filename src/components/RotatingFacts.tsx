@@ -12,7 +12,7 @@ const FACTS = [
   'A day on Venus > a year on Venus.',
   'Cloak your tab in Settings.',
   'Flamingos = a "flamboyance".',
-  'Pin Snoopy as "Docs".',
+  'Pin TOG as "Docs".',
   'More chess games than atoms in the universe.',
 ];
 

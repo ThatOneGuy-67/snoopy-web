@@ -67,7 +67,7 @@ const HubSidebar = ({ active, onSelect }: Props) => {
         </button>
         <div className="flex items-center gap-2">
           <Layers className="w-4 h-4 text-primary" />
-          <span className="text-sm font-semibold glow-text">Snoopy's Web</span>
+          <span className="text-sm font-semibold glow-text">TOG's Web</span>
         </div>
         <div className="w-9" />
       </div>
@@ -81,7 +81,7 @@ const HubSidebar = ({ active, onSelect }: Props) => {
           {!collapsed && (
             <div className="flex items-center gap-2 overflow-hidden">
               <Layers className="w-4 h-4 text-primary shrink-0" />
-              <span className="text-sm font-semibold truncate">Snoopy's Web</span>
+              <span className="text-sm font-semibold truncate">TOG's Web</span>
             </div>
           )}
           <button
@@ -114,7 +114,7 @@ const HubSidebar = ({ active, onSelect }: Props) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold">Snoopy's Web</span>
+                <span className="text-sm font-semibold">TOG's Web</span>
               </div>
               <button
                 onClick={() => setMobileOpen(false)}

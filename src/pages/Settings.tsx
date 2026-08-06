@@ -71,7 +71,7 @@ const tabs: { id: Tab; label: string; icon: any }[] = [
 ];
 
 const SettingsPage = () => {
-  usePageMeta("Settings — Snoopy's Web", '/settings');
+  usePageMeta("Settings — TOG's Web", '/settings');
   const navigate = useNavigate();
   const [settings, setSettings] = useSettings();
   const [tab, setTab] = useState<Tab>('general');
@@ -328,7 +328,7 @@ const SettingsPage = () => {
                     Launch inside about:blank
                   </button>
                   <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    Opens Snoopy's Web in a new tab whose address bar reads <code className="font-mono">about:blank</code>,
+                    Opens TOG's Web in a new tab whose address bar reads <code className="font-mono">about:blank</code>,
                     hiding it from history and referrer sniffers.
                   </p>
                 </div>
@@ -359,7 +359,7 @@ const SettingsPage = () => {
                 </div>
 
                 <button
-                  onClick={() => applyCloak("Snoopy's Web", '/favicon.ico')}
+                  onClick={() => applyCloak("TOG's Web", '/favicon.ico')}
                   className="w-full py-2 rounded-lg border border-border text-muted-foreground hover:text-foreground">
                   Reset
                 </button>

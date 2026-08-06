@@ -5,7 +5,7 @@ const ChatPage = () => (
   <ComingSoon
     title="Chat"
     icon={MessageCircle}
-    description="Realtime chat rooms are coming to Snoopy's Web."
+    description="Realtime chat rooms are coming to TOG's Web."
   />
 );
 

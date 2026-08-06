@@ -265,7 +265,7 @@ export function downloadExport() {
 export function applyImport(raw: string): { ok: boolean; message: string } {
   try {
     const parsed = JSON.parse(raw) as Partial<SettingsExport>;
-    if (parsed?.app !== 'snoopy-web') return { ok: false, message: 'Not a Snoopy Web export file.' };
+    if (parsed?.app !== 'snoopy-web') return { ok: false, message: 'Not a TOG Web export file.' };
     if (parsed.settings) saveSettings({ ...loadSettings(), ...parsed.settings });
     if (parsed.bookmarks) localStorage.setItem(STORAGE_KEYS.bookmarks, JSON.stringify(parsed.bookmarks));
     if (parsed.pinned)    localStorage.setItem(STORAGE_KEYS.pinned, JSON.stringify(parsed.pinned));
