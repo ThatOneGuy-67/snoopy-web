@@ -14,7 +14,6 @@ import {
 } from 'firebase/database';
 import {
   ADMIN_PASSWORD,
-  BAD_WORDS,
   CAT_GIFS,
   COLORS,
   MOD_GIFS,
