@@ -61,7 +61,7 @@ const Index = () => {
     if (settings.autoCloakOnLoad && settings.defaultCloakTitle) {
       applyCloak(settings.defaultCloakTitle, settings.defaultCloakFavicon);
     } else {
-      document.title = "Snoopy's Web — Access the web without limits";
+      document.title = "TOG's Web — Access the web without limits";
     }
     // Self-referencing canonical for the homepage.
     let link = document.querySelector("link[rel='canonical']") as HTMLLinkElement | null;
@@ -321,7 +321,7 @@ const Index = () => {
                       <div className="flex items-center justify-center gap-3 mb-3">
                         <Layers className="w-8 h-8 text-primary" />
                         <h1 className="text-4xl md:text-5xl font-bold tracking-tight glow-text min-h-[1.2em]">
-                          <Typewriter text="Snoopy's Web — Secure Web Proxy" speed={90} />
+                          <Typewriter text="TOG's Web — Secure Web Proxy" speed={90} />
                         </h1>
                       </div>
                       <p className="text-muted-foreground text-sm font-mono mb-6">// access the web without limits</p>

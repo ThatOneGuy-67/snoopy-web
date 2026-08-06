@@ -88,7 +88,7 @@ const CloakSettings = ({ isOpen, onClose, onApply }: CloakSettingsProps) => {
               Launch inside about:blank
             </button>
             <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">
-              Opens Snoopy's Web in a new tab whose address is <code className="font-mono">about:blank</code>,
+              Opens TOG's Web in a new tab whose address is <code className="font-mono">about:blank</code>,
               hiding it from history and referrer sniffers.
             </p>
           </div>
@@ -121,7 +121,7 @@ const CloakSettings = ({ isOpen, onClose, onApply }: CloakSettingsProps) => {
 
           <button
             onClick={() => {
-              document.title = "Snoopy's Web";
+              document.title = "TOG's Web";
               const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
               if (link) link.href = '/favicon.ico';
               onClose();
