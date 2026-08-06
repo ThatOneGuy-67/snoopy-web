@@ -1,3 +1,5 @@
+# TOG's Web — https://snoopy-web.lovable.app/
+
 User-agent: Googlebot
 Allow: /
 
@@ -14,4 +16,3 @@ User-agent: *
 Allow: /
 
 Sitemap: https://snoopy-web.lovable.app/sitemap.xml
-

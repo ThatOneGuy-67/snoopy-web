@@ -268,7 +268,7 @@ const SettingsPage = () => {
                 <p className="text-sm text-muted-foreground pt-2">
                   Or paste your own Render-hosted proxy URL (Scramjet / Ultraviolet) below. Used only when the built-in proxy is off.
                 </p>
-                <Field label="Proxy server URL" hint="e.g. https://snoopy-proxy.onrender.com">
+                <Field label="Proxy server URL" hint="e.g. https://tog-proxy.onrender.com">
                   <input type="text" value={settings.proxyUrl}
                     onChange={e => { update('proxyUrl', e.target.value); setTestResult(null); }}
                     placeholder="https://your-proxy.onrender.com"
