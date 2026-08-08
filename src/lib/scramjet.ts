@@ -152,14 +152,10 @@ function loadScript(src: string): Promise<void> {
   
     const { ScramjetController } = window.$scramjetLoadController();
   
+    console.log('Scramjet BASE:', BASE);
+    console.log('Scramjet prefix:', `${BASE}scramjet/service/`);
+    
     const controller = new ScramjetController({
-      console.log('Scramjet BASE:', BASE);
-      console.log('Scramjet prefix:', `${BASE}scramjet/service/`);
-      console.log('Scramjet files:', {
-        wasm: `${BASE}scramjet/scramjet.wasm.wasm`,
-        all: `${BASE}scramjet/scramjet.all.js`,
-        sync: `${BASE}scramjet/scramjet.sync.js`,
-      });
       prefix: `${BASE}scramjet/service/`,
       files: {
         wasm: `${BASE}scramjet/scramjet.wasm.wasm`,
