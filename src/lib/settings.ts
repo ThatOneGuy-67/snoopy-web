@@ -27,6 +27,7 @@ export interface AppSettings {
   // Performance
   pauseWallpaperWhenHidden: boolean; // pause GIF/video wallpaper when the tab is inactive
   wallpaperFps: 'auto' | '15' | '30' | '60'; // frame rate cap for animated wallpapers
+  chatMatchTheme: boolean; // Chat page follows the active proxy theme preset
 }
 
 const DEFAULTS: AppSettings = {
@@ -54,6 +55,7 @@ const DEFAULTS: AppSettings = {
   layoutStyle: 'browser',
   pauseWallpaperWhenHidden: true,
   wallpaperFps: 'auto',
+  chatMatchTheme: true,
 };
 
 export async function extractDominantHue(url: string): Promise<number | null> {
