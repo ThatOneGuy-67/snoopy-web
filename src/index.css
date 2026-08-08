@@ -160,3 +160,76 @@ html[data-anim="off"] *::after {
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground));
 }
+
+/* ---------------- Chat page: ambient background + glow accents --------------- */
+
+/* Scoped ambient layer so the Chat surface gets the same subtle stars/noise
+   and soft glow accents used on the proxy screens. */
+.chat-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.chat-ambient::before {
+  /* soft glow accents */
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(40% 40% at 15% 10%, hsl(var(--glow-primary) / 0.10) 0%, transparent 70%),
+    radial-gradient(45% 45% at 85% 90%, hsl(var(--glow-secondary, var(--glow-primary)) / 0.08) 0%, transparent 70%);
+}
+
+.chat-ambient::after {
+  /* noise texture, matching .noise-overlay */
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+.chat-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: hsl(220 10% 95%);
+  opacity: 0;
+  animation: twinkle var(--duration) ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+
+/* Hover glow used by chat cards, room buttons and message bubbles */
+.hover-glow {
+  @apply transition-all duration-300 ease-out;
+}
+
+.hover-glow:hover {
+  border-color: hsl(var(--glow-primary) / 0.45);
+  box-shadow:
+    0 8px 28px hsl(220 15% 5% / 0.45),
+    0 0 22px hsl(var(--glow-primary) / 0.14),
+    inset 0 1px 0 hsl(220 10% 95% / 0.08);
+}
+
+/* When "match proxy theme" is turned off, the Chat page falls back to the
+   default dark-grey glass palette instead of the active theme preset. */
+.chat-neutral {
+  --primary: 140 80% 55%;
+  --primary-foreground: 220 15% 8%;
+  --accent: 140 80% 50%;
+  --secondary: 220 15% 18%;
+  --muted: 220 15% 15%;
+  --muted-foreground: 220 10% 60%;
+  --border: 220 15% 20%;
+  --input: 220 15% 15%;
+  --glass-bg: 220 15% 15%;
+  --glass-border: 220 15% 25%;
+  --glow-primary: 140 80% 55%;
+  --glow-secondary: 160 60% 50%;
+}
