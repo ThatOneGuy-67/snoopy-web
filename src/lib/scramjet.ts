@@ -142,7 +142,7 @@ async function init(wispUrl: string) {
     throw new Error('Service workers not supported in this browser');
   }
 
-  await loadScript('/scramjet/scramjet.all.js');
+  await loadScript(`${import.meta.env.BASE_URL}scramjet/scramjet.all.js`);
 
   if (typeof window.$scramjetLoadController !== 'function') {
     throw new Error('Scramjet failed to load (loader global missing)');
