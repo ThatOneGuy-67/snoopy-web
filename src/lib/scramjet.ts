@@ -148,14 +148,20 @@ async function init(wispUrl: string) {
     throw new Error('Scramjet failed to load (loader global missing)');
   }
   const { ScramjetController } = window.$scramjetLoadController();
-  const controller = new ScramjetController({
-    prefix: '/scramjet/service/',
+  const BASE = import.meta.env.BASE_URL;
+
+const controller = new ScramjetController({
+    prefix: `${BASE}scramjet/service/`,
     files: {
-      wasm: '/scramjet/scramjet.wasm.wasm',
-      all: '/scramjet/scramjet.all.js',
-      sync: '/scramjet/scramjet.sync.js',
+      wasm: `${BASE}scramjet/scramjet.wasm.wasm`,
+      all: `${BASE}scramjet/scramjet.all.js`,
+      sync: `${BASE}scramjet/scramjet.sync.js`,
     },
-    flags: { captureErrors: true, scramitize: false, sourcemaps: true },
+    flags: {
+      captureErrors: true,
+      scramitize: false,
+      sourcemaps: true,
+    },
   });
   await controller.init();
 
