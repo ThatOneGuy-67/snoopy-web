@@ -166,7 +166,9 @@ async function init(wispUrl: string) {
   await navigator.serviceWorker.ready;
 
   const { BareMuxConnection } = await import('@mercuryworkshop/bare-mux');
-  const conn = new BareMuxConnection('/baremux/worker.js');
+  const conn = new BareMuxConnection(
+    `${import.meta.env.BASE_URL}baremux/worker.js`
+  );
   await conn.setTransport('/epoxy/index.mjs', [{ wisp: wispUrl }]);
 
   done({ wispUrl });
