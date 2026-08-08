@@ -134,53 +134,63 @@ function loadScript(src: string): Promise<void> {
   });
 }
 
-async function init(wispUrl: string) {
-  const { perfStart } = await import('./perf');
-  const done = perfStart('scramjet.init');
-
-  if (!('serviceWorker' in navigator)) {
-    throw new Error('Service workers not supported in this browser');
+  async function init(wispUrl: string) {
+    const { perfStart } = await import('./perf');
+    const done = perfStart('scramjet.init');
+  
+    if (!('serviceWorker' in navigator)) {
+      throw new Error('Service workers not supported in this browser');
+    }
+  
+    const BASE = import.meta.env.BASE_URL;
+  
+    await loadScript(`${BASE}scramjet/scramjet.all.js`);
+  
+    if (typeof window.$scramjetLoadController !== 'function') {
+      throw new Error('Scramjet failed to load (loader global missing)');
+    }
+  
+    const { ScramjetController } = window.$scramjetLoadController();
+  
+    const controller = new ScramjetController({
+      prefix: `${BASE}scramjet/service/`,
+      files: {
+        wasm: `${BASE}scramjet/scramjet.wasm.wasm`,
+        all: `${BASE}scramjet/scramjet.all.js`,
+        sync: `${BASE}scramjet/scramjet.sync.js`,
+      },
+      flags: {
+        captureErrors: true,
+        scramitize: false,
+        sourcemaps: true,
+      },
+    });
+  
+    await controller.init();
+  
+    await navigator.serviceWorker.register(
+      `${BASE}sw.js`,
+      { scope: BASE }
+    );
+  
+    await navigator.serviceWorker.ready;
+  
+    const { BareMuxConnection } =
+      await import('@mercuryworkshop/bare-mux');
+  
+    const conn = new BareMuxConnection(
+      `${BASE}baremux/worker.js`
+    );
+  
+    await conn.setTransport(
+      `${BASE}epoxy/index.mjs`,
+      [{ wisp: wispUrl }]
+    );
+  
+    done({ wispUrl });
+  
+    return controller;
   }
-
-  await loadScript(`${import.meta.env.BASE_URL}scramjet/scramjet.all.js`);
-
-  if (typeof window.$scramjetLoadController !== 'function') {
-    throw new Error('Scramjet failed to load (loader global missing)');
-  }
-  const { ScramjetController } = window.$scramjetLoadController();
-  const BASE = import.meta.env.BASE_URL;
-
-const controller = new ScramjetController({
-    prefix: `${BASE}scramjet/service/`,
-    files: {
-      wasm: `${BASE}scramjet/scramjet.wasm.wasm`,
-      all: `${BASE}scramjet/scramjet.all.js`,
-      sync: `${BASE}scramjet/scramjet.sync.js`,
-    },
-    flags: {
-      captureErrors: true,
-      scramitize: false,
-      sourcemaps: true,
-    },
-  });
-  await controller.init();
-
-  await navigator.serviceWorker.register(
-    `${import.meta.env.BASE_URL}sw.js`,
-    { scope: import.meta.env.BASE_URL }
-  );
-  await navigator.serviceWorker.ready;
-
-  const { BareMuxConnection } = await import('@mercuryworkshop/bare-mux');
-  const conn = new BareMuxConnection(
-    `${import.meta.env.BASE_URL}baremux/worker.js`
-  );
-  await conn.setTransport('/epoxy/index.mjs', [{ wisp: wispUrl }]);
-
-  done({ wispUrl });
-  return controller;
-}
-
 export function getController(): Promise<any> {
   const wispUrl = getWispUrl();
   if (!controllerPromise || controllerWispUrl !== wispUrl) {
