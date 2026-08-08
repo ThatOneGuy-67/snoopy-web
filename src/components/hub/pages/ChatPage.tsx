@@ -28,6 +28,8 @@ import {
   type Role,
   type RoomMeta,
 } from '@/lib/chatDb';
+import ChatAmbient from '../ChatAmbient';
+import { loadSettings } from '@/lib/settings';
 import {
   ArrowDown,
   ArrowUp,
@@ -43,6 +45,19 @@ import {
 } from 'lucide-react';
 
 const ChatPage = () => {
+  // Follow the active proxy theme preset unless the user opted out in Settings.
+  const [matchTheme, setMatchTheme] = useState(() => loadSettings().chatMatchTheme);
+  useEffect(() => {
+    const sync = () => setMatchTheme(loadSettings().chatMatchTheme);
+    window.addEventListener('focus', sync);
+    window.addEventListener('storage', sync);
+    return () => {
+      window.removeEventListener('focus', sync);
+      window.removeEventListener('storage', sync);
+    };
+  }, []);
+  const themeClass = matchTheme ? '' : 'chat-neutral';
+
   const [joined, setJoined] = useState(false);
   const [nameInput, setNameInput] = useState(() => localStorage.getItem('savedUsername') ?? '');
   const [passInput, setPassInput] = useState(() => localStorage.getItem('savedPassword') ?? '');
@@ -325,8 +340,9 @@ const ChatPage = () => {
 
   if (!joined) {
     return (
-      <div className="max-w-md mx-auto pt-10 px-4">
-        <div className="glass-panel p-6 flex flex-col gap-4">
+      <div className={`relative max-w-md mx-auto pt-8 sm:pt-10 px-1 sm:px-4 ${themeClass}`}>
+        <ChatAmbient stars={30} />
+        <div className="glass-panel hover-glow relative z-10 p-5 sm:p-6 flex flex-col gap-4">
           <div className="flex items-center gap-3">
             <span className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/35 text-primary flex items-center justify-center">
               <MessageCircle className="w-5 h-5" />
@@ -370,10 +386,11 @@ const ChatPage = () => {
   }
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 max-w-6xl mx-auto pt-2 md:h-[calc(100vh-6rem)]">
+    <div className={`relative flex flex-col md:flex-row gap-3 md:gap-4 max-w-6xl mx-auto pt-2 md:h-[calc(100vh-6rem)] ${themeClass}`}>
+      <ChatAmbient />
       {/* rooms sidebar */}
-      <aside className="md:w-64 shrink-0 flex flex-col gap-3 md:overflow-y-auto">
-        <div className="glass-panel p-3">
+      <aside className="relative z-10 md:w-64 shrink-0 flex flex-col gap-2 md:gap-3 md:overflow-y-auto">
+        <div className="glass-panel hover-glow p-2.5 md:p-3">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-mono text-muted-foreground flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5" /> Online: {online.length}
@@ -387,25 +404,27 @@ const ChatPage = () => {
           </p>
         </div>
 
-        <div className="glass-panel p-3 flex flex-col gap-2">
+        <div className="glass-panel hover-glow p-2.5 md:p-3 flex flex-col gap-2">
           <p className="text-[11px] font-mono text-muted-foreground">// public rooms</p>
+          <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible -mx-0.5 px-0.5 pb-1 md:pb-0">
           {PUBLIC_ROOMS.map((r) => (
             <button
               key={r.id}
               onClick={() => setRoom(r)}
-              className={`text-left rounded-xl px-3 py-2 border transition ${
+              className={`shrink-0 md:shrink w-44 md:w-auto text-left rounded-xl px-3 py-2 border transition hover-glow ${
                 room.id === r.id
                   ? 'bg-primary/15 border-primary/40 text-primary'
                   : 'bg-secondary/30 border-border/50 hover:bg-secondary/50'
               }`}
             >
               <span className="block text-sm font-medium">{r.name}</span>
-              <span className="block text-xs text-muted-foreground">{r.description}</span>
+              <span className="block text-xs text-muted-foreground truncate">{r.description}</span>
             </button>
           ))}
+          </div>
         </div>
 
-        <div className="glass-panel p-3 flex flex-col gap-2">
+        <div className="glass-panel hover-glow p-2.5 md:p-3 flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <p className="text-[11px] font-mono text-muted-foreground">// private chats</p>
             <button
@@ -421,7 +440,7 @@ const ChatPage = () => {
             <div key={r.id} className="flex items-center gap-1">
               <button
                 onClick={() => setRoom(r)}
-                className={`flex-1 text-left rounded-xl px-3 py-2 border transition ${
+                className={`flex-1 text-left rounded-xl px-3 py-2 border transition hover-glow ${
                   room.id === r.id
                     ? 'bg-primary/15 border-primary/40 text-primary'
                     : 'bg-secondary/30 border-border/50 hover:bg-secondary/50'
@@ -444,7 +463,7 @@ const ChatPage = () => {
         </div>
 
         {(isAdmin || isMod) && (
-          <div className="glass-panel p-3 flex flex-col gap-2">
+          <div className="glass-panel hover-glow p-2.5 md:p-3 flex flex-col gap-2">
             <p className="text-[11px] font-mono text-primary flex items-center gap-1.5">
               <Shield className="w-3.5 h-3.5" /> // staff panel
             </p>
@@ -487,7 +506,7 @@ const ChatPage = () => {
       </aside>
 
       {/* chat area */}
-      <div className="flex-1 min-w-0 flex flex-col">
+      <div className="relative z-10 flex-1 min-w-0 flex flex-col">
         <div className="pb-2 flex items-center justify-between gap-2">
           <h1 className="text-lg font-bold glow-text truncate">
             {room.name}
@@ -515,7 +534,7 @@ const ChatPage = () => {
           <div className="glass-panel border-destructive/40 text-destructive text-sm px-3 py-2 mb-2">{notice}</div>
         )}
 
-        <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 pr-1 pb-3 min-h-[45vh]">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-2.5 sm:space-y-3 pr-1 pb-3 min-h-[50vh] max-h-[60vh] md:max-h-none">
           {messages.length === 0 && (
             <p className="text-sm text-muted-foreground text-center pt-10">No messages yet — say hi.</p>
           )}
@@ -524,7 +543,12 @@ const ChatPage = () => {
             const mine = m.name === username;
             return (
               <div key={m.key} className={`flex ${mine ? 'justify-end' : ''}`}>
-                <div className={`glass-panel px-4 py-2.5 max-w-[85%] ${mine ? 'bg-primary/10' : ''}`}>
+                <div
+                  className={`glass-panel hover-glow px-3 sm:px-4 py-2 sm:py-2.5 max-w-[90%] sm:max-w-[85%] ${
+                    mine ? 'border-primary/35 shadow-[0_0_20px_hsl(var(--glow-primary)/0.12)]' : ''
+                  }`}
+                  style={mine ? { background: 'linear-gradient(135deg, hsl(var(--glow-primary) / 0.14), hsl(var(--glass-bg) / 0.35))' } : undefined}
+                >
                   <p className="text-xs font-semibold mb-1" style={{ color: m.color || (m.admin ? 'hsl(var(--destructive))' : undefined) }}>
                     {label}
                   </p>
@@ -545,7 +569,7 @@ const ChatPage = () => {
           })}
         </div>
 
-        <div className="glass-panel p-2 flex items-center gap-2">
+        <div className="glass-panel hover-glow sticky bottom-0 p-1.5 sm:p-2 flex items-center gap-1 sm:gap-2 min-h-[52px]">
           <button onClick={() => setModal('color')} aria-label="Pick name color" className="p-2 rounded-lg hover:bg-secondary/60 text-muted-foreground hover:text-foreground">
             <Palette className="w-4 h-4" />
           </button>
@@ -563,7 +587,7 @@ const ChatPage = () => {
             }}
             placeholder={room.gifOnly ? 'This room only allows GIFs' : 'Type a message and press enter'}
             aria-label="Message"
-            className="flex-1 bg-transparent text-sm outline-none px-1"
+            className="flex-1 bg-transparent text-sm outline-none px-1 py-2 min-w-0"
           />
           <button
             onClick={send}
