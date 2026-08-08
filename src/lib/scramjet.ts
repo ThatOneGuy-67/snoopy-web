@@ -159,7 +159,10 @@ async function init(wispUrl: string) {
   });
   await controller.init();
 
-  await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+  await navigator.serviceWorker.register(
+    `${import.meta.env.BASE_URL}sw.js`,
+    { scope: import.meta.env.BASE_URL }
+  );
   await navigator.serviceWorker.ready;
 
   const { BareMuxConnection } = await import('@mercuryworkshop/bare-mux');
