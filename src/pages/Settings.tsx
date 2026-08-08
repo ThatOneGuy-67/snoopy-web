@@ -445,6 +445,9 @@ const SettingsPage = () => {
                     checked={settings.uiAnimations} onChange={v => update('uiAnimations', v)} />
                   <Toggle label="Animated star background"
                     checked={settings.showParticles} onChange={v => update('showParticles', v)} />
+                  <Toggle label="Chat matches theme preset"
+                    hint="Chat page follows the active theme (Matrix, AMOLED, Vaporwave...). Off uses the default dark grey glass look."
+                    checked={settings.chatMatchTheme} onChange={v => update('chatMatchTheme', v)} />
                 </div>
 
                 {/* Wallpaper section — replaces the previous placeholder-comment strip with
