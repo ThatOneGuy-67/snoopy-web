@@ -84,7 +84,7 @@ let inflight: Promise<Game[]> | null = null;
 export function loadGames(): Promise<Game[]> {
   if (cache) return Promise.resolve(cache);
   if (inflight) return inflight;
-  inflight = fetch('/games.json')
+  inflight = fetch(`${import.meta.env.BASE_URL}games.json`)
     .then(r => {
       if (!r.ok) throw new Error(`games.json ${r.status}`);
       return r.json() as Promise<GameEntry[]>;
