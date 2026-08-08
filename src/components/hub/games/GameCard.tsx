@@ -47,7 +47,7 @@ const GameCard = ({ game, favorite, onToggleFavorite, onPlay }: Props) => {
 
       <div className="p-3 flex flex-col gap-2 flex-1">
         <div className="flex items-start gap-2">
-          <h3 className="text-sm font-semibold leading-snug line-clamp-2 flex-1" title={game.t}>
+          <h3 className="text-sm font-semibold leading-snug line-clamp-2 break-words flex-1" title={game.t}>
             {game.t}
           </h3>
           <button
