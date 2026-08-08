@@ -48,7 +48,12 @@ const GamesPage = () => {
 
   const play = useCallback((game: Game) => {
     setRecent(pushRecent(game.id));
-    window.open(game.f, '_blank', 'noopener,noreferrer');
+  
+    const url = game.f.startsWith('http')
+      ? game.f
+      : `${import.meta.env.BASE_URL}${game.f.replace(/^\/+/, '')}`;
+  
+    window.open(url, '_blank', 'noopener,noreferrer');
   }, []);
 
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
