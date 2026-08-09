@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TOG AI — Standalone Assistant</title>
+<meta name="description" content="TOG AI standalone chat — a single-file, embeddable AI assistant with streaming replies and markdown support." />
+<style>
+  :root{
+    --bg:220 8% 8%; --panel:220 8% 12%; --border:220 8% 24%;
+    --fg:220 12% 94%; --muted:220 8% 62%; --primary:200 95% 66%;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    color:hsl(var(--fg));background:hsl(var(--bg));overflow:hidden;
+  }
+  #stars{position:fixed;inset:0;z-index:0;opacity:.5}
+  .glow{position:fixed;z-index:0;filter:blur(90px);opacity:.22;border-radius:50%}
+  .g1{width:46vw;height:46vw;background:hsl(var(--primary));top:-14vw;right:-10vw}
+  .g2{width:38vw;height:38vw;background:hsl(280 90% 60%);bottom:-16vw;left:-10vw}
+  .shell{position:relative;z-index:1;display:flex;flex-direction:column;height:100dvh;max-width:900px;margin:0 auto;padding:12px}
+  .glass{background:hsl(var(--panel)/.55);border:1px solid hsl(var(--border)/.7);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-radius:16px}
+  header{display:flex;align-items:center;gap:10px;padding:12px 14px;margin-bottom:10px}
+  header h1{font-size:16px;margin:0;letter-spacing:-.01em}
+  header p{margin:0;font:12px ui-monospace,monospace;color:hsl(var(--muted))}
+  .dot{width:10px;height:10px;border-radius:50%;background:hsl(var(--primary));box-shadow:0 0 14px hsl(var(--primary))}
+  select,button,textarea{font:inherit;color:inherit}
+  select{margin-left:auto;background:hsl(var(--bg)/.7);border:1px solid hsl(var(--border));border-radius:10px;padding:7px 10px;font-size:13px}
+  #log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+  .msg{max-width:86%;padding:11px 14px;border-radius:14px;line-height:1.55;font-size:14.5px;word-wrap:break-word}
+  .user{align-self:flex-end;background:hsl(var(--primary)/.16);border:1px solid hsl(var(--primary)/.35)}
+  .bot{align-self:flex-start;background:hsl(var(--panel)/.8);border:1px solid hsl(var(--border)/.7)}
+  .err{align-self:center;color:#fca5a5;font:12px ui-monospace,monospace;text-align:center}
+  .msg pre{background:hsl(var(--bg)/.85);border:1px solid hsl(var(--border));border-radius:10px;padding:12px;overflow-x:auto;font-size:13px}
+  .msg code{font-family:ui-monospace,monospace;font-size:.92em}
+  .msg :not(pre)>code{background:hsl(var(--bg)/.8);padding:1px 5px;border-radius:5px}
+  .msg p{margin:.45em 0}
+  .empty{margin:auto;text-align:center;color:hsl(var(--muted));font:13px ui-monospace,monospace}
+  form{display:flex;gap:8px;padding:10px;margin-top:10px;align-items:flex-end}
+  textarea{flex:1;resize:none;max-height:150px;background:transparent;border:none;outline:none;padding:8px;font-size:15px}
+  button.send{background:hsl(var(--primary)/.18);border:1px solid hsl(var(--primary)/.45);color:hsl(var(--primary));border-radius:12px;padding:10px 16px;cursor:pointer;transition:.2s}
+  button.send:hover{background:hsl(var(--primary)/.3)}
+  button.send:disabled{opacity:.5;cursor:not-allowed}
+  @keyframes tw{0%,100%{opacity:.15}50%{opacity:.9}}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="glow g1"></div><div class="glow g2"></div>
+
+<div class="shell">
+  <header class="glass">
+    <span class="dot"></span>
+    <div>
+      <h1>TOG AI</h1>
+      <p>// standalone assistant</p>
+    </div>
+    <select id="persona" aria-label="Assistant"></select>
+  </header>
+
+  <div id="log" class="glass"><div class="empty">// ask anything to get started</div></div>
+
+  <form id="form" class="glass">
+    <textarea id="input" rows="1" placeholder="Message TOG AI…" aria-label="Message"></textarea>
+    <button class="send" id="send" type="submit">Send</button>
+  </form>
+</div>
+
+<script>
+/* ------------------------------ configuration ----------------------------- */
+const ENDPOINT = "https://zwctbszdsekczxudydws.supabase.co/functions/v1/ai-chat";
+const PUBLIC_KEY = "sb_publishable_-ctYGJWekfjkj__4-1daFw_DUYMaoFp";
+
+const BASE = `You are part of TOG AI. Be accurate, concise and genuinely useful.
+Format with Markdown, use fenced code blocks with a language tag, and never invent facts.`;
+
+const PERSONAS = [
+  { id:"general",  name:"General Assistant", prompt:BASE },
+  { id:"code",     name:"Code Expert",       prompt:BASE+" You are a senior engineer. Give working, idiomatic code with brief explanations." },
+  { id:"study",    name:"Study Buddy",       prompt:BASE+" Explain like a patient tutor: step by step, with examples and a short recap." },
+  { id:"writer",   name:"Writing Coach",     prompt:BASE+" Improve clarity, tone and structure. Show the rewrite, then what changed." },
+  { id:"math",     name:"Math Solver",       prompt:BASE+" Solve rigorously, show every step, and state the final answer clearly." },
+  { id:"ideas",    name:"Brainstormer",      prompt:BASE+" Produce lots of varied, concrete ideas, ranked by usefulness." },
+];
+
+/* --------------------------------- state --------------------------------- */
+const KEY = "tog-ai-standalone-history";
+let messages = [];
+try { messages = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch {}
+
+const $log = document.getElementById("log");
+const $input = document.getElementById("input");
+const $form = document.getElementById("form");
+const $send = document.getElementById("send");
+const $persona = document.getElementById("persona");
+
+PERSONAS.forEach(p => {
+  const o = document.createElement("option");
+  o.value = p.id; o.textContent = p.name; $persona.appendChild(o);
+});
+$persona.value = localStorage.getItem("tog-ai-persona") || "general";
+$persona.onchange = () => localStorage.setItem("tog-ai-persona", $persona.value);
+
+/* ------------------------------ tiny markdown ----------------------------- */
+function esc(s){return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function md(src){
+  const blocks = [];
+  let s = src.replace(/```(\w*)\n?([\s\S]*?)```/g,(_,lang,code)=>{
+    blocks.push(`<pre><code data-lang="${esc(lang)}">${esc(code)}</code></pre>`);
+    return `\u0000${blocks.length-1}\u0000`;
+  });
+  s = esc(s)
+    .replace(/`([^`\n]+)`/g,"<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>")
+    .replace(/(^|[^*])\*([^*\n]+)\*/g,"$1<em>$2</em>")
+    .replace(/^### (.*)$/gm,"<h3>$1</h3>")
+    .replace(/^## (.*)$/gm,"<h2>$1</h2>")
+    .replace(/^# (.*)$/gm,"<h2>$1</h2>")
+    .replace(/^\s*[-*] (.*)$/gm,"<li>$1</li>")
+    .replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g,"<ul>$1</ul>")
+    .split(/\n{2,}/).map(p=>/^<(h\d|ul|pre)/.test(p.trim())?p:`<p>${p.replace(/\n/g,"<br>")}</p>`).join("");
+  return s.replace(/\u0000(\d+)\u0000/g,(_,i)=>blocks[i]);
+}
+
+/* --------------------------------- render -------------------------------- */
+function render(){
+  $log.innerHTML = "";
+  if(!messages.length){
+    $log.innerHTML = '<div class="empty">// ask anything to get started</div>';
+    return;
+  }
+  for(const m of messages){
+    const d = document.createElement("div");
+    d.className = "msg " + (m.role === "user" ? "user" : "bot");
+    d.innerHTML = m.role === "user" ? esc(m.content).replace(/\n/g,"<br>") : md(m.content);
+    $log.appendChild(d);
+  }
+  $log.scrollTop = $log.scrollHeight;
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(messages.slice(-60))); }catch{} }
+render();
+
+/* ---------------------------------- chat ---------------------------------- */
+$input.addEventListener("input", () => {
+  $input.style.height = "auto";
+  $input.style.height = Math.min($input.scrollHeight, 150) + "px";
+});
+$input.addEventListener("keydown", e => {
+  if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); $form.requestSubmit(); }
+});
+
+$form.addEventListener("submit", async e => {
+  e.preventDefault();
+  const text = $input.value.trim();
+  if(!text || $send.disabled) return;
+
+  messages.push({ role:"user", content:text });
+  $input.value = ""; $input.style.height = "auto";
+  $send.disabled = true;
+  render();
+
+  const bubble = document.createElement("div");
+  bubble.className = "msg bot";
+  bubble.textContent = "…";
+  $log.appendChild(bubble);
+  $log.scrollTop = $log.scrollHeight;
+
+  const persona = PERSONAS.find(p => p.id === $persona.value) || PERSONAS[0];
+  let acc = "";
+
+  try{
+    const res = await fetch(ENDPOINT, {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "apikey": PUBLIC_KEY,
+        "Authorization": "Bearer " + PUBLIC_KEY
+      },
+      body: JSON.stringify({ messages: messages.slice(-30), system: persona.prompt })
+    });
+
+    if(!res.ok || !res.body){
+      let detail = "";
+      try { detail = (await res.json()).error || ""; } catch { detail = await res.text().catch(()=>""); }
+      throw new Error(detail || ("request failed (" + res.status + ")"));
+    }
+
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    while(true){
+      const { done, value } = await reader.read();
+      if(done) break;
+      acc += dec.decode(value, { stream:true });
+      bubble.innerHTML = md(acc);
+      $log.scrollTop = $log.scrollHeight;
+    }
+    messages.push({ role:"assistant", content: acc });
+    save();
+    render();
+  }catch(err){
+    bubble.remove();
+    const e2 = document.createElement("div");
+    e2.className = "err";
+    e2.textContent = "// " + (err && err.message ? err.message : "something went wrong");
+    $log.appendChild(e2);
+  }finally{
+    $send.disabled = false;
+    $input.focus();
+  }
+});
+
+/* ------------------------------- starfield -------------------------------- */
+(function(){
+  const c = document.getElementById("stars"), x = c.getContext("2d");
+  let stars = [], raf = 0;
+  function size(){
+    c.width = innerWidth; c.height = innerHeight;
+    const n = Math.min(140, Math.round(innerWidth * innerHeight / 14000));
+    stars = Array.from({length:n}, () => ({
+      x: Math.random()*c.width, y: Math.random()*c.height,
+      r: Math.random()*1.3+.3, p: Math.random()*Math.PI*2, s: Math.random()*.015+.005
+    }));
+  }
+  function draw(){
+    x.clearRect(0,0,c.width,c.height);
+    for(const s of stars){
+      s.p += s.s;
+      x.globalAlpha = .25 + Math.abs(Math.sin(s.p))*.6;
+      x.fillStyle = "#dbeafe";
+      x.beginPath(); x.arc(s.x, s.y, s.r, 0, Math.PI*2); x.fill();
+    }
+    raf = requestAnimationFrame(draw);
+  }
+  addEventListener("resize", size);
+  document.addEventListener("visibilitychange", () => {
+    if(document.hidden){ cancelAnimationFrame(raf); raf = 0; }
+    else if(!raf){ raf = requestAnimationFrame(draw); }
+  });
+  size(); draw();
+})();
+</script>
+</body>
+</html>
