@@ -1,13 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Gamepad2, Search, Loader2, RefreshCw, Star, X } from 'lucide-react';
 import GameCard from '../games/GameCard';
+import GameDetailsModal from '../games/GameDetailsModal';
 import {
   GAME_CATEGORIES,
+  gameUrl,
   loadGames,
   pushRecent,
   readFavorites,
+  readFilters,
   readRecent,
+  searchGames,
   writeFavorites,
+  writeFilters,
   type Game,
   type GameCategory,
 } from '@/lib/games';
@@ -15,13 +20,15 @@ import {
 const PAGE = 60;
 
 const GamesPage = () => {
+  const saved = useMemo(readFilters, []);
   const [games, setGames] = useState<Game[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [query, setQuery] = useState('');
-  const [category, setCategory] = useState<GameCategory>('All');
-  const [limit, setLimit] = useState(PAGE);
+  const [query, setQuery] = useState(saved.query);
+  const [category, setCategory] = useState<GameCategory>(saved.category);
+  const [limit, setLimit] = useState(saved.limit);
   const [favorites, setFavorites] = useState<string[]>(() => readFavorites());
   const [recent, setRecent] = useState<string[]>(() => readRecent());
+  const [details, setDetails] = useState<Game | null>(null);
 
   const fetchGames = useCallback(() => {
     setError(null);
@@ -34,9 +41,10 @@ const GamesPage = () => {
     fetchGames();
   }, [fetchGames]);
 
+  // Persist filters (including how far the user has paged) for the session.
   useEffect(() => {
-    setLimit(PAGE);
-  }, [query, category]);
+    writeFilters({ query, category, limit });
+  }, [query, category, limit]);
 
   const toggleFavorite = useCallback((id: string) => {
     setFavorites(prev => {
@@ -48,28 +56,26 @@ const GamesPage = () => {
 
   const play = useCallback((game: Game) => {
     setRecent(pushRecent(game.id));
-  
-    const url = game.f.startsWith('http')
-      ? game.f
-      : `${import.meta.env.BASE_URL}${game.f.replace(/^\/+/, '')}`;
-  
-    window.open(url, '_blank', 'noopener,noreferrer');
+    window.open(gameUrl(game), '_blank', 'noopener,noreferrer');
   }, []);
 
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
 
-  const filtered = useMemo(() => {
+  const byCategory = useMemo(() => {
     if (!games) return [];
-    const q = query.trim().toLowerCase();
-    return games.filter(g => {
-      if (category === 'Favorites') {
-        if (!favoriteSet.has(g.id)) return false;
-      } else if (category !== 'All' && g.category !== category) {
-        return false;
-      }
-      return !q || g.t.toLowerCase().includes(q);
-    });
-  }, [games, query, category, favoriteSet]);
+    if (category === 'Favorites') return games.filter(g => favoriteSet.has(g.id));
+    if (category === 'All') return games;
+    return games.filter(g => g.category === category);
+  }, [games, category, favoriteSet]);
+
+  const filtered = useMemo(() => searchGames(byCategory, query), [byCategory, query]);
+
+  // Counts for the category chips.
+  const counts = useMemo(() => {
+    const map = new Map<string, number>();
+    if (games) for (const g of games) map.set(g.category, (map.get(g.category) ?? 0) + 1);
+    return map;
+  }, [games]);
 
   const recentGames = useMemo(() => {
     if (!games || query || category !== 'All' || !recent.length) return [];
@@ -78,6 +84,19 @@ const GamesPage = () => {
   }, [games, recent, query, category]);
 
   const visible = filtered.slice(0, limit);
+
+  const changeCategory = (cat: GameCategory) => {
+    setCategory(cat);
+    setLimit(PAGE);
+  };
+
+  const changeQuery = (q: string) => {
+    setQuery(q);
+    setLimit(PAGE);
+  };
+
+  const chipCount = (cat: GameCategory) =>
+    cat === 'All' ? games?.length : cat === 'Favorites' ? favorites.length : counts.get(cat);
 
   return (
     <div className="max-w-7xl mx-auto pt-6 animate-fade-in">
@@ -105,16 +124,16 @@ const GamesPage = () => {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={e => changeQuery(e.target.value)}
             type="search"
-            placeholder="Search games..."
+            placeholder="Search games — try “mc”, “1v1”, “btd”…"
             aria-label="Search games"
             className="w-full h-11 pl-10 pr-10 rounded-xl bg-foreground/5 border border-border/60 text-sm outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground"
           />
           {query && (
             <button
               type="button"
-              onClick={() => setQuery('')}
+              onClick={() => changeQuery('')}
               aria-label="Clear search"
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             >
@@ -126,25 +145,29 @@ const GamesPage = () => {
         <div className="flex gap-2 mt-4 overflow-x-auto pb-1 -mx-1 px-1">
           {GAME_CATEGORIES.map(cat => {
             const active = cat === category;
+            const n = chipCount(cat);
             return (
               <button
                 key={cat}
                 type="button"
-                onClick={() => setCategory(cat)}
+                onClick={() => changeCategory(cat)}
                 aria-pressed={active}
-                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-mono border transition-all duration-200 ${
+                className={`shrink-0 inline-flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-full text-xs font-mono border transition-all duration-200 ${
                   active
-                    ? 'border-primary/60 text-primary bg-primary/10'
+                    ? 'border-primary/60 text-primary bg-primary/10 shadow-[0_0_18px_hsl(var(--glow-primary)/0.25)]'
                     : 'border-border/60 text-muted-foreground hover:text-foreground hover:border-border'
                 }`}
               >
-                {cat === 'Favorites' ? (
-                  <span className="flex items-center gap-1">
-                    <Star className="w-3 h-3" /> Favorites
-                    {favorites.length > 0 && ` (${favorites.length})`}
+                {cat === 'Favorites' && <Star className={`w-3 h-3 ${favorites.length ? 'fill-primary text-primary' : ''}`} />}
+                {cat}
+                {typeof n === 'number' && n > 0 && (
+                  <span
+                    className={`px-1.5 rounded-full text-[10px] ${
+                      active ? 'bg-primary/20 text-primary' : 'bg-foreground/10 text-muted-foreground'
+                    }`}
+                  >
+                    {n > 999 ? `${Math.floor(n / 1000)}k` : n}
                   </span>
-                ) : (
-                  cat
                 )}
               </button>
             );
@@ -164,6 +187,7 @@ const GamesPage = () => {
                 favorite={favoriteSet.has(g.id)}
                 onToggleFavorite={toggleFavorite}
                 onPlay={play}
+                onDetails={setDetails}
               />
             ))}
           </div>
@@ -214,6 +238,7 @@ const GamesPage = () => {
                   favorite={favoriteSet.has(g.id)}
                   onToggleFavorite={toggleFavorite}
                   onPlay={play}
+                  onDetails={setDetails}
                 />
               ))}
             </div>
@@ -231,6 +256,19 @@ const GamesPage = () => {
             </div>
           )}
         </>
+      )}
+
+      {details && (
+        <GameDetailsModal
+          game={details}
+          favorite={favoriteSet.has(details.id)}
+          onToggleFavorite={toggleFavorite}
+          onPlay={g => {
+            play(g);
+            setDetails(null);
+          }}
+          onClose={() => setDetails(null)}
+        />
       )}
     </div>
   );
