@@ -5,19 +5,23 @@ import {
 } from 'lucide-react';
 import {
   testWispReachable, getWispUrl, clearProxyCache, classifyError,
-  RELAY_PRESETS, type RetryEvent,
+  RELAY_PRESETS, type RetryEvent, type ProxyEndpoint,
 } from '@/lib/scramjet';
+
 import { loadSettings, saveSettings, openAboutBlank } from '@/lib/settings';
 
 interface Props {
   url: string;
   errorMessage: string;
   onRetry: () => void;
+  /** Exact endpoints involved in the failed request, shown to the user. */
+  endpoint?: ProxyEndpoint;
 }
 
-const ProxyErrorScreen = ({ url, errorMessage, onRetry }: Props) => {
+const ProxyErrorScreen = ({ url, errorMessage, onRetry, endpoint }: Props) => {
   const target = url.startsWith('http') ? url : `https://${url}`;
   const classified = classifyError(errorMessage);
+
 
   const [log, setLog] = useState<string[]>([]);
   const [retrying, setRetrying] = useState(false);
@@ -93,10 +97,14 @@ const ProxyErrorScreen = ({ url, errorMessage, onRetry }: Props) => {
   const debugInfo = () => JSON.stringify({
     target, error: errorMessage, classified,
     relay: currentRelay,
+    endpoint,
     ua: navigator.userAgent,
     online: navigator.onLine,
+    secureContext: typeof window !== 'undefined' ? window.isSecureContext : null,
+    serviceWorker: typeof navigator !== 'undefined' && 'serviceWorker' in navigator,
     time: new Date().toISOString(),
   }, null, 2);
+
 
   const handleCopy = async () => {
     try { await navigator.clipboard.writeText(debugInfo()); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch {}
@@ -126,6 +134,25 @@ const ProxyErrorScreen = ({ url, errorMessage, onRetry }: Props) => {
               <p className="text-xs text-muted-foreground/80 font-mono mt-2 truncate" title={target}>→ {target}</p>
             </div>
           </div>
+
+          {/* exact failing endpoints */}
+          {endpoint && (
+            <dl className="rounded-lg bg-background/40 border border-border/50 p-3 text-[11px] font-mono space-y-1">
+              {([
+                ['Failing request', endpoint.encoded ? new URL(endpoint.encoded, location.origin).href : endpoint.target],
+                ['Wisp relay', endpoint.relay],
+                ['Proxy prefix', endpoint.prefix],
+                ['Service worker', endpoint.swUrl],
+                ['Base path', endpoint.base],
+              ] as [string, string][]).map(([k, v]) => (
+                <div key={k} className="flex gap-2">
+                  <dt className="shrink-0 w-28 text-muted-foreground/70">{k}</dt>
+                  <dd className="min-w-0 truncate text-muted-foreground" title={v}>{v}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+
 
           {/* live status box */}
           <div className="rounded-lg bg-background/50 border border-border/50 p-3 font-mono text-xs space-y-1 max-h-44 overflow-auto">

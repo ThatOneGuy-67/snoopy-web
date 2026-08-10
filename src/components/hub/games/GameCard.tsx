@@ -1,6 +1,7 @@
-import { memo } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import { Star, Play, Info } from 'lucide-react';
-import { prefetchGame, type Game } from '@/lib/games';
+import { observeForPrefetch, prefetchGame, type Game } from '@/lib/games';
+
 
 interface Props {
   game: Game;
@@ -50,14 +51,21 @@ export const GameCover = ({ game, large = false }: { game: Game; large?: boolean
 
 const GameCard = ({ game, favorite, onToggleFavorite, onPlay, onDetails }: Props) => {
   const warm = () => prefetchGame(game);
+  const cardRef = useRef<HTMLElement>(null);
+
+  // Viewport-driven prefetch (budgeted) — the main path on touch devices where
+  // there is no hover to warm the cache.
+  useEffect(() => observeForPrefetch(cardRef.current, game), [game]);
 
   return (
     <article
+      ref={cardRef}
       className="glass-panel hover-glow group flex flex-col overflow-hidden"
       style={{ contentVisibility: 'auto', containIntrinsicSize: '260px' }}
       onMouseEnter={warm}
       onTouchStart={warm}
     >
+
       <button
         type="button"
         onClick={() => onPlay(game)}

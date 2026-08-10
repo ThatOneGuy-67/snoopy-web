@@ -118,6 +118,71 @@ export async function testWispReachable(
   return result;
 }
 
+/* --------------------------- environment + failover ---------------------- */
+
+/** Everything the UI needs to tell the user exactly what failed and where. */
+export interface ProxyEndpoint {
+  base: string;
+  prefix: string;
+  swUrl: string;
+  relay: string;
+  encoded?: string;
+  target: string;
+}
+
+export function describeEndpoint(target: string, relay = getWispUrl(), encoded?: string): ProxyEndpoint {
+  const base = import.meta.env.BASE_URL;
+  return {
+    base,
+    prefix: `${base}scramjet/service/`,
+    swUrl: new URL(`${base}sw.js`, location.origin).href,
+    relay,
+    encoded,
+    target,
+  };
+}
+
+/**
+ * Hard requirements for the in-app proxy. Failing these produced a generic
+ * "proxy failed to start" before — now the user gets the real reason.
+ */
+export function checkEnvironment(): { ok: boolean; message: string } {
+  if (typeof window === 'undefined') return { ok: false, message: 'No browser environment' };
+  if (!window.isSecureContext) {
+    return { ok: false, message: 'Insecure context: the proxy needs HTTPS (or localhost) to register a service worker' };
+  }
+  if (!('serviceWorker' in navigator)) {
+    return { ok: false, message: 'Service workers are unavailable — this is usually a managed/enterprise Chromebook policy or a private window' };
+  }
+  if (!('WebAssembly' in window)) {
+    return { ok: false, message: 'WebAssembly is disabled in this browser' };
+  }
+  return { ok: true, message: 'Environment OK' };
+}
+
+/**
+ * Try the preferred relay, then every other preset. School networks routinely
+ * block a single Wisp host, so failing over is the difference between "proxy
+ * is broken" and "proxy works".
+ */
+export async function findWorkingRelay(
+  preferred = getWispUrl(),
+  onEvent?: (e: RetryEvent) => void
+): Promise<{ ok: boolean; url: string; message: string; pingMs?: number; tried: string[] }> {
+  const candidates = [preferred, ...RELAY_PRESETS.map(r => r.url).filter(u => u !== preferred)];
+  const tried: string[] = [];
+  let lastMsg = 'No relay reachable';
+  for (const url of candidates) {
+    tried.push(url);
+    const r = await testWispReachable(url, { retries: url === preferred ? 2 : 1, timeoutMs: 4500, onEvent });
+    if (r.ok) return { ok: true, url, message: r.message, pingMs: r.pingMs, tried };
+    lastMsg = r.message;
+  }
+  return { ok: false, url: preferred, message: lastMsg, tried };
+}
+
+
+
 let controllerPromise: Promise<any> | null = null;
 let controllerWispUrl: string | null = null;
 
