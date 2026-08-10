@@ -5,8 +5,9 @@ import {
 } from 'lucide-react';
 import {
   testWispReachable, getWispUrl, clearProxyCache, classifyError,
-  RELAY_PRESETS, type RetryEvent,
+  RELAY_PRESETS, type RetryEvent, type ProxyEndpoint,
 } from '@/lib/scramjet';
+
 import { loadSettings, saveSettings, openAboutBlank } from '@/lib/settings';
 
 interface Props {
