@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loader2, CheckCircle2 } from 'lucide-react';
-import { getController, testWispReachable } from '@/lib/scramjet';
+import {
+  getController, findWorkingRelay, checkEnvironment, getWispUrl,
+  describeEndpoint, type ProxyEndpoint,
+} from '@/lib/scramjet';
+import { loadSettings, saveSettings } from '@/lib/settings';
 import { perfStart } from '@/lib/perf';
 import ProxyErrorScreen from './ProxyErrorScreen';
 import RelayStatus from './RelayStatus';
@@ -16,6 +20,7 @@ const ScramjetFrame = ({ url }: Props) => {
   const [status, setStatus] = useState<Status>('checking');
   const [error, setError] = useState<string | null>(null);
   const [encoded, setEncoded] = useState<string | null>(null);
+  const [endpoint, setEndpoint] = useState<ProxyEndpoint>(() => describeEndpoint(url));
   const [bootKey, setBootKey] = useState(0); // bump to retry
 
   useEffect(() => {
@@ -23,6 +28,7 @@ const ScramjetFrame = ({ url }: Props) => {
     setStatus('checking');
     setError(null);
     setEncoded(null);
+    setEndpoint(describeEndpoint(url));
 
     const done = perfStart(`proxy.navigate ${url}`);
     try { localStorage.setItem('lastFailedUrl', url); } catch {
@@ -31,9 +37,20 @@ const ScramjetFrame = ({ url }: Props) => {
 
     (async () => {
       try {
-        const wisp = await testWispReachable();
+        const env = checkEnvironment();
+        if (!env.ok) throw new Error(env.message);
+
+        const relay = await findWorkingRelay();
         if (cancelled) return;
-        if (!wisp.ok) throw new Error(`Wisp relay unreachable: ${wisp.message}`);
+        if (!relay.ok) {
+          throw new Error(`Wisp relay unreachable: ${relay.message} (tried ${relay.tried.join(', ')})`);
+        }
+        // A failover relay becomes the new default so the whole app follows it.
+        if (relay.url !== getWispUrl()) {
+          const s = loadSettings();
+          saveSettings({ ...s, wispUrl: relay.url });
+        }
+        setEndpoint(describeEndpoint(url, relay.url));
 
         setStatus('booting');
         const controller = await getController();
@@ -43,8 +60,9 @@ const ScramjetFrame = ({ url }: Props) => {
         const enc = controller.encodeUrl(target);
         if (cancelled) return;
         setEncoded(enc);
+        setEndpoint(describeEndpoint(url, relay.url, enc));
         setStatus('loading');
-        done({ url, wispPingMs: wisp.pingMs });
+        done({ url, wispPingMs: relay.pingMs });
       } catch (e: unknown) {
         if (!cancelled) {
           const msg = e instanceof Error ? e.message : String(e ?? 'Failed to initialise proxy');
@@ -65,11 +83,13 @@ const ScramjetFrame = ({ url }: Props) => {
         <ProxyErrorScreen
           url={url}
           errorMessage={error || 'Unknown error'}
+          endpoint={endpoint}
           onRetry={() => setBootKey(k => k + 1)}
         />
       </div>
     );
   }
+
 
   const StatusBadge = () => {
     const map: Record<Exclude<Status, 'error'>, { label: string; icon: JSX.Element; cls: string }> = {
