@@ -1,6 +1,7 @@
-import { memo } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import { Star, Play, Info } from 'lucide-react';
-import { prefetchGame, type Game } from '@/lib/games';
+import { observeForPrefetch, prefetchGame, type Game } from '@/lib/games';
+
 
 interface Props {
   game: Game;
