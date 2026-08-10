@@ -97,10 +97,14 @@ const ProxyErrorScreen = ({ url, errorMessage, onRetry, endpoint }: Props) => {
   const debugInfo = () => JSON.stringify({
     target, error: errorMessage, classified,
     relay: currentRelay,
+    endpoint,
     ua: navigator.userAgent,
     online: navigator.onLine,
+    secureContext: typeof window !== 'undefined' ? window.isSecureContext : null,
+    serviceWorker: typeof navigator !== 'undefined' && 'serviceWorker' in navigator,
     time: new Date().toISOString(),
   }, null, 2);
+
 
   const handleCopy = async () => {
     try { await navigator.clipboard.writeText(debugInfo()); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch {}
