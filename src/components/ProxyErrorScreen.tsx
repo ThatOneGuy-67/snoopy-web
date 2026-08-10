@@ -135,6 +135,25 @@ const ProxyErrorScreen = ({ url, errorMessage, onRetry, endpoint }: Props) => {
             </div>
           </div>
 
+          {/* exact failing endpoints */}
+          {endpoint && (
+            <dl className="rounded-lg bg-background/40 border border-border/50 p-3 text-[11px] font-mono space-y-1">
+              {([
+                ['Failing request', endpoint.encoded ? new URL(endpoint.encoded, location.origin).href : endpoint.target],
+                ['Wisp relay', endpoint.relay],
+                ['Proxy prefix', endpoint.prefix],
+                ['Service worker', endpoint.swUrl],
+                ['Base path', endpoint.base],
+              ] as [string, string][]).map(([k, v]) => (
+                <div key={k} className="flex gap-2">
+                  <dt className="shrink-0 w-28 text-muted-foreground/70">{k}</dt>
+                  <dd className="min-w-0 truncate text-muted-foreground" title={v}>{v}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+
+
           {/* live status box */}
           <div className="rounded-lg bg-background/50 border border-border/50 p-3 font-mono text-xs space-y-1 max-h-44 overflow-auto">
             {log.length === 0
