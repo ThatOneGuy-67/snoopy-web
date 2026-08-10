@@ -324,17 +324,60 @@ export function writeFilters(f: GameFilters) {
   }
 }
 
+/**
+ * Origin that serves the oversized games which were offloaded to CDN storage
+ * (`/__l5e/assets-v1/...`). Those paths only resolve on the Lovable-hosted
+ * deployment, so when the app runs anywhere else (GitHub Pages, a Chromebook
+ * hitting the Pages build, localhost) we point them back at the canonical
+ * origin instead of 404-ing.
+ */
+export const ASSET_ORIGIN = 'https://snoopy-web.lovable.app';
+
+function servesLovableAssets(): boolean {
+  if (typeof window === 'undefined') return true;
+  return /(^|\.)lovable\.(app|dev)$/.test(window.location.hostname);
+}
+
 /** Resolve a game's playable URL (CDN or app-relative). */
 export function gameUrl(game: Game): string {
-  return game.f.startsWith('http')
-    ? game.f
-    : `${import.meta.env.BASE_URL}${game.f.replace(/^\/+/, '')}`;
+  const f = game.f;
+  if (f.startsWith('http')) return f;
+  // CDN-offloaded assets live at a fixed absolute path, never under BASE_URL.
+  if (f.startsWith('/__l5e/')) {
+    return servesLovableAssets() ? f : `${ASSET_ORIGIN}${f}`;
+  }
+  return `${import.meta.env.BASE_URL}${f.replace(/^\/+/, '')}`;
+}
+
+/* ------------------------------ prefetching ------------------------------ */
+
+const prefetched = new Set<string>();
+
+function isMobileLike(): boolean {
+  if (typeof window === 'undefined') return false;
+  const narrow = window.matchMedia?.('(max-width: 767px)').matches ?? false;
+  const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false;
+  return narrow || coarse;
+}
+
+function saveData(): boolean {
+  const c = (navigator as any)?.connection;
+  return Boolean(c?.saveData) || /2g/.test(String(c?.effectiveType ?? ''));
+}
+
+/**
+ * Prefetch budget: game bundles are heavy (some are multiple MB), so on mobile
+ * we only ever warm a handful, and we warm nothing at all on save-data or 2G.
+ */
+function prefetchBudget(): number {
+  if (saveData()) return 0;
+  return isMobileLike() ? 6 : 40;
 }
 
 /** Warm the browser cache for a game so clicking Play feels instant. */
-const prefetched = new Set<string>();
 export function prefetchGame(game: Game) {
-  if (prefetched.has(game.id) || prefetched.size > 40) return;
+  if (prefetched.has(game.id)) return;
+  if (prefetched.size >= prefetchBudget()) return;
   prefetched.add(game.id);
   try {
     const link = document.createElement('link');
@@ -346,3 +389,49 @@ export function prefetchGame(game: Game) {
     /* ignore */
   }
 }
+
+/**
+ * Shared IntersectionObserver that prefetches a card's game once it has been
+ * visible for a moment — bounded by the same budget above. One observer for
+ * the whole grid keeps the cost flat no matter how many cards are rendered.
+ */
+type Observed = { game: Game; timer?: number };
+let io: IntersectionObserver | null = null;
+const observed = new WeakMap<Element, Observed>();
+
+function ensureObserver(): IntersectionObserver | null {
+  if (typeof IntersectionObserver === 'undefined') return null;
+  if (io) return io;
+  io = new IntersectionObserver(
+    entries => {
+      for (const entry of entries) {
+        const rec = observed.get(entry.target);
+        if (!rec) continue;
+        if (entry.isIntersecting) {
+          rec.timer = window.setTimeout(() => prefetchGame(rec.game), 600);
+        } else if (rec.timer) {
+          clearTimeout(rec.timer);
+          rec.timer = undefined;
+        }
+      }
+    },
+    { rootMargin: '200px 0px' }
+  );
+  return io;
+}
+
+/** Observe a card element; returns a cleanup function. */
+export function observeForPrefetch(el: Element | null, game: Game): () => void {
+  if (!el) return () => undefined;
+  const obs = ensureObserver();
+  if (!obs) return () => undefined;
+  observed.set(el, { game });
+  obs.observe(el);
+  return () => {
+    const rec = observed.get(el);
+    if (rec?.timer) clearTimeout(rec.timer);
+    observed.delete(el);
+    obs.unobserve(el);
+  };
+}
+
