@@ -13,11 +13,14 @@ interface Props {
   url: string;
   errorMessage: string;
   onRetry: () => void;
+  /** Exact endpoints involved in the failed request, shown to the user. */
+  endpoint?: ProxyEndpoint;
 }
 
-const ProxyErrorScreen = ({ url, errorMessage, onRetry }: Props) => {
+const ProxyErrorScreen = ({ url, errorMessage, onRetry, endpoint }: Props) => {
   const target = url.startsWith('http') ? url : `https://${url}`;
   const classified = classifyError(errorMessage);
+
 
   const [log, setLog] = useState<string[]>([]);
   const [retrying, setRetrying] = useState(false);
