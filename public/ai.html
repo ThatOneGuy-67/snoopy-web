@@ -1,245 +1,393 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>TOG AI — Standalone Assistant</title>
-<meta name="description" content="TOG AI standalone chat — a single-file, embeddable AI assistant with streaming replies and markdown support." />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TOG AI</title>
+<meta name="description" content="Standalone TOG AI chat assistant">
 <style>
-  :root{
-    --bg:220 8% 8%; --panel:220 8% 12%; --border:220 8% 24%;
-    --fg:220 12% 94%; --muted:220 8% 62%; --primary:200 95% 66%;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-    color:hsl(var(--fg));background:hsl(var(--bg));overflow:hidden;
-  }
-  #stars{position:fixed;inset:0;z-index:0;opacity:.5}
-  .glow{position:fixed;z-index:0;filter:blur(90px);opacity:.22;border-radius:50%}
-  .g1{width:46vw;height:46vw;background:hsl(var(--primary));top:-14vw;right:-10vw}
-  .g2{width:38vw;height:38vw;background:hsl(280 90% 60%);bottom:-16vw;left:-10vw}
-  .shell{position:relative;z-index:1;display:flex;flex-direction:column;height:100dvh;max-width:900px;margin:0 auto;padding:12px}
-  .glass{background:hsl(var(--panel)/.55);border:1px solid hsl(var(--border)/.7);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-radius:16px}
-  header{display:flex;align-items:center;gap:10px;padding:12px 14px;margin-bottom:10px}
-  header h1{font-size:16px;margin:0;letter-spacing:-.01em}
-  header p{margin:0;font:12px ui-monospace,monospace;color:hsl(var(--muted))}
-  .dot{width:10px;height:10px;border-radius:50%;background:hsl(var(--primary));box-shadow:0 0 14px hsl(var(--primary))}
-  select,button,textarea{font:inherit;color:inherit}
-  select{margin-left:auto;background:hsl(var(--bg)/.7);border:1px solid hsl(var(--border));border-radius:10px;padding:7px 10px;font-size:13px}
-  #log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
-  .msg{max-width:86%;padding:11px 14px;border-radius:14px;line-height:1.55;font-size:14.5px;word-wrap:break-word}
-  .user{align-self:flex-end;background:hsl(var(--primary)/.16);border:1px solid hsl(var(--primary)/.35)}
-  .bot{align-self:flex-start;background:hsl(var(--panel)/.8);border:1px solid hsl(var(--border)/.7)}
-  .err{align-self:center;color:#fca5a5;font:12px ui-monospace,monospace;text-align:center}
-  .msg pre{background:hsl(var(--bg)/.85);border:1px solid hsl(var(--border));border-radius:10px;padding:12px;overflow-x:auto;font-size:13px}
-  .msg code{font-family:ui-monospace,monospace;font-size:.92em}
-  .msg :not(pre)>code{background:hsl(var(--bg)/.8);padding:1px 5px;border-radius:5px}
-  .msg p{margin:.45em 0}
-  .empty{margin:auto;text-align:center;color:hsl(var(--muted));font:13px ui-monospace,monospace}
-  form{display:flex;gap:8px;padding:10px;margin-top:10px;align-items:flex-end}
-  textarea{flex:1;resize:none;max-height:150px;background:transparent;border:none;outline:none;padding:8px;font-size:15px}
-  button.send{background:hsl(var(--primary)/.18);border:1px solid hsl(var(--primary)/.45);color:hsl(var(--primary));border-radius:12px;padding:10px 16px;cursor:pointer;transition:.2s}
-  button.send:hover{background:hsl(var(--primary)/.3)}
-  button.send:disabled{opacity:.5;cursor:not-allowed}
-  @keyframes tw{0%,100%{opacity:.15}50%{opacity:.9}}
+:root{
+  --bg:#08090d;--panel:#0e1016;--panel2:#12151d;--border:#252a35;
+  --text:#eef2f7;--muted:#8d96a6;--accent:#52c7ff;--danger:#ff6b7a;
+  --sidebar:278px;--max:900px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+.app{height:100dvh;display:flex;position:relative}
+#stars{position:fixed;inset:0;z-index:0;opacity:.28;pointer-events:none}
+.glow{position:fixed;border-radius:50%;filter:blur(100px);opacity:.14;pointer-events:none;z-index:0}
+.g1{width:40vw;height:40vw;right:-12vw;top:-18vw;background:#2ebcff}
+.g2{width:36vw;height:36vw;left:-16vw;bottom:-20vw;background:#9a5cff}
+
+.sidebar{
+  width:var(--sidebar);height:100%;background:rgba(12,14,20,.92);
+  border-right:1px solid var(--border);display:flex;flex-direction:column;
+  position:relative;z-index:5;transition:transform .22s ease;
+}
+.brand{height:64px;padding:0 18px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--border)}
+.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#55d5ff,#7b6cff);display:grid;place-items:center;font-weight:900;color:#071018;box-shadow:0 0 24px rgba(82,199,255,.18)}
+.brand strong{font-size:15px}.brand span{font-size:11px;color:var(--muted);display:block;margin-top:2px}
+.newchat{margin:14px;border:1px solid #303746;background:#151922;border-radius:11px;padding:10px 12px;text-align:left}
+.newchat:hover{background:#1b202b;border-color:#3b4556}
+.newchat b{font-size:13px}.newchat small{display:block;color:var(--muted);margin-top:2px}
+.side-scroll{flex:1;overflow:auto;padding:0 10px 10px}
+.section-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#697385;padding:10px 8px 7px}
+.chat-item{
+  width:100%;display:flex;align-items:center;gap:8px;border:0;background:transparent;
+  border-radius:9px;padding:9px 9px;color:#cfd5df;text-align:left;margin-bottom:2px
+}
+.chat-item:hover{background:#171b24}.chat-item.active{background:#1b202a;color:#fff}
+.chat-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;font-size:13px}
+.chat-actions{display:none;gap:2px}.chat-item:hover .chat-actions{display:flex}
+.icon-btn{width:27px;height:27px;border:0;background:transparent;border-radius:7px;color:#8993a3;display:grid;place-items:center}
+.icon-btn:hover{background:#252b36;color:#fff}
+.pin{font-size:11px;color:#ffc857}
+.folder-row{display:flex;gap:5px;padding:0 4px 5px}
+.folder-input{flex:1;min-width:0;background:#0b0d12;border:1px solid var(--border);border-radius:8px;padding:7px 8px;font-size:12px;outline:none}
+.side-bottom{padding:10px;border-top:1px solid var(--border);color:var(--muted);font-size:11px}
+
+.main{min-width:0;flex:1;height:100%;display:flex;flex-direction:column;position:relative;z-index:1}
+.topbar{height:64px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 18px;background:rgba(8,9,13,.72);backdrop-filter:blur(18px)}
+.mobile-menu{display:none}
+.model-select{appearance:none;background:#12151c;border:1px solid var(--border);border-radius:10px;padding:8px 32px 8px 11px;font-size:13px;outline:none}
+.model-info{min-width:0}.model-name{font-weight:700;font-size:13px}.model-tag{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-actions{margin-left:auto;display:flex;gap:5px}
+.top-btn{height:34px;padding:0 10px;border:1px solid var(--border);border-radius:9px;background:#10131a;color:#aeb7c5;font-size:12px}
+.top-btn:hover{background:#191d26;color:#fff}
+.chat{flex:1;overflow:auto;scroll-behavior:smooth}
+.chat-inner{width:min(var(--max),100%);margin:0 auto;padding:28px 22px 145px}
+.welcome{text-align:center;padding:9vh 10px 40px}
+.welcome-logo{width:58px;height:58px;border-radius:18px;margin:0 auto 16px;display:grid;place-items:center;background:linear-gradient(135deg,#55d5ff,#7b6cff);font-weight:900;font-size:20px;color:#071018;box-shadow:0 0 45px rgba(82,199,255,.18)}
+.welcome h1{margin:0;font-size:28px;letter-spacing:-.04em}.welcome p{color:var(--muted);font-size:13px;margin:9px 0 22px}
+.starters{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:720px;margin:auto}
+.starter{padding:12px;text-align:left;background:#10131a;border:1px solid var(--border);border-radius:11px;color:#cbd3df;font-size:12px}
+.starter:hover{background:#171b24;border-color:#394252}
+.message{display:flex;gap:12px;margin:0 auto 27px;max-width:820px}
+.avatar{flex:0 0 32px;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:11px;font-weight:800}
+.message.user .avatar{background:#243140;color:#ccecff}.message.assistant .avatar{background:linear-gradient(135deg,#55d5ff,#7b6cff);color:#071018}
+.message-body{min-width:0;flex:1}.message-head{font-size:12px;font-weight:700;margin:3px 0 7px}.message-body-content{font-size:14px;line-height:1.7;color:#e1e6ed}
+.message-body-content p{margin:.4em 0}.message-body-content h1,.message-body-content h2,.message-body-content h3{line-height:1.3;margin:1em 0 .45em}
+.code-wrap{margin:11px 0;border:1px solid #2a303c;border-radius:11px;overflow:hidden;background:#090b10}.code-head{height:36px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 12px;background:#11151d;border-bottom:1px solid #2a303c;color:#8993a3;font:11px ui-monospace,monospace}.code-actions{display:flex;align-items:center;gap:5px}.code-btn{border:1px solid #303744;background:#181d26;color:#aeb7c5;border-radius:6px;padding:4px 7px;font-size:10px}.code-btn:hover{background:#252b35;color:#fff}.message-body-content pre{position:relative;background:#090b10;border:0;border-radius:0;padding:13px;margin:0;overflow:auto}
+.message-body-content code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.9em}
+.message-body-content :not(pre)>code{background:#171b23;padding:2px 5px;border-radius:5px}
+.message-body-content blockquote{border-left:3px solid #3b4657;margin:10px 0;padding-left:12px;color:#aeb7c5}
+.message-body-content table{border-collapse:collapse;width:100%;margin:12px 0}.message-body-content th,.message-body-content td{border:1px solid var(--border);padding:7px;text-align:left}.message-body-content th{background:#141820}
+.message-body-content a{color:#6fd3ff}
+.attachments{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.attachment{border:1px solid var(--border);background:#10131a;border-radius:8px;padding:6px 8px;font-size:11px;color:#aeb7c5}
+.attachment img{max-width:260px;max-height:220px;border-radius:7px;display:block}
+
+
+.composer-wrap{position:absolute;left:0;right:0;bottom:0;padding:12px 18px 17px;background:linear-gradient(transparent,rgba(8,9,13,.96) 28%)}
+.composer{width:min(var(--max),100%);margin:auto;border:1px solid #303744;background:rgba(17,20,28,.94);border-radius:15px;box-shadow:0 12px 40px rgba(0,0,0,.28);overflow:hidden}
+.preview{display:none;padding:8px;border-bottom:1px solid var(--border);gap:7px;flex-wrap:wrap}.preview.show{display:flex}
+.file-chip{display:flex;align-items:center;gap:7px;background:#191e27;border:1px solid #303744;border-radius:8px;padding:6px 8px;font-size:11px}
+.file-chip button{border:0;background:transparent;color:#8993a3}
+.composer-row{display:flex;align-items:flex-end;gap:7px;padding:9px}
+textarea{flex:1;resize:none;min-height:40px;max-height:170px;border:0;outline:0;background:transparent;padding:9px 7px;font-size:14px;line-height:1.45}
+.tool{width:38px;height:38px;border:0;background:transparent;border-radius:9px;color:#929cab;font-size:18px;display:grid;place-items:center}
+.tool:hover{background:#20252f;color:#fff}
+.send{width:38px;height:38px;border:0;border-radius:10px;background:#dcefff;color:#081018;font-weight:900}
+.send:hover{background:#fff}.send.stop{background:#ff707d;color:#16070a}
+.hint{text-align:center;color:#687284;font-size:10px;padding-top:7px}
+
+@media(max-width:760px){
+  .sidebar{position:absolute;left:0;top:0;bottom:0;transform:translateX(-100%);box-shadow:18px 0 50px rgba(0,0,0,.45)}
+  .sidebar.open{transform:translateX(0)}
+  .mobile-menu{display:grid;width:34px;height:34px;border:1px solid var(--border);background:#11141b;border-radius:9px;place-items:center}
+  .topbar{padding:0 10px}.model-tag{display:none}
+  .starters{grid-template-columns:1fr}
+  .chat-inner{padding-left:14px;padding-right:14px}
+  .message{gap:9px}.welcome{padding-top:6vh}
+}
 </style>
 </head>
 <body>
-<canvas id="stars"></canvas>
-<div class="glow g1"></div><div class="glow g2"></div>
-
-<div class="shell">
-  <header class="glass">
-    <span class="dot"></span>
-    <div>
-      <h1>TOG AI</h1>
-      <p>// standalone assistant</p>
+<canvas id="stars"></canvas><div class="glow g1"></div><div class="glow g2"></div>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo">TOG</div><div><strong>TOG AI</strong><span>standalone assistant</span></div>
     </div>
-    <select id="persona" aria-label="Assistant"></select>
-  </header>
+    <button class="newchat" id="newChat"><b>＋ New chat</b><small>Start a fresh conversation</small></button>
+    <div class="side-scroll">
+      <div class="section-label">Chats</div>
+      <div id="chatList"></div>
+      <div class="section-label">Folders</div>
+      <div class="folder-row"><input id="folderInput" class="folder-input" placeholder="New folder"><button class="icon-btn" id="addFolder" title="Add folder">＋</button></div>
+      <div id="folderList"></div>
+    </div>
+    <div class="side-bottom">Conversations are stored locally in your browser.</div>
+  </aside>
 
-  <div id="log" class="glass"><div class="empty">// ask anything to get started</div></div>
+  <main class="main">
+    <header class="topbar">
+      <button class="mobile-menu" id="menuBtn">☰</button>
+      <select class="model-select" id="modelSelect" aria-label="Choose AI"></select>
+      <div class="model-info"><div class="model-name" id="modelName"></div><div class="model-tag" id="modelTag"></div></div>
+      <div class="top-actions">
+        <button class="top-btn" id="exportBtn">Export</button>
+        <button class="top-btn" id="clearBtn">Clear</button>
+      </div>
+    </header>
+    <section class="chat" id="chat"><div class="chat-inner" id="chatInner"></div></section>
 
-  <form id="form" class="glass">
-    <textarea id="input" rows="1" placeholder="Message TOG AI…" aria-label="Message"></textarea>
-    <button class="send" id="send" type="submit">Send</button>
-  </form>
+    <div class="composer-wrap">
+      <div class="composer">
+        <div class="preview" id="preview"></div>
+        <form class="composer-row" id="form">
+          <input type="file" id="fileInput" hidden multiple accept="image/*,.txt,.md,.csv,.log,.ts,.tsx,.js,.jsx,.py,.java,.cs,.cpp,.rs,.go,.sql,.html,.css,.json,.yml,.yaml">
+          <button class="tool" type="button" id="attachBtn" title="Attach file">＋</button>
+          <textarea id="input" rows="1" placeholder="Message TOG AI…"></textarea>
+          <button class="send" id="send" type="submit" title="Send">↑</button>
+        </form>
+      </div>
+      <div class="hint">Enter to send · Shift+Enter for a new line · Up to 4 MB per attachment</div>
+    </div>
+  </main>
 </div>
 
 <script>
-/* ------------------------------ configuration ----------------------------- */
 const ENDPOINT = "https://zwctbszdsekczxudydws.supabase.co/functions/v1/ai-chat";
 const PUBLIC_KEY = "sb_publishable_-ctYGJWekfjkj__4-1daFw_DUYMaoFp";
 
 const BASE = `You are part of TOG AI. Be accurate, concise and genuinely useful.
-Format with Markdown, use fenced code blocks with a language tag, and never invent facts.`;
+Format with Markdown. Use fenced code blocks with a language tag, tables where they help,
+and LaTeX ($inline$ / $$block$$) for mathematics. Never invent facts — say when unsure.`;
 
-const PERSONAS = [
-  { id:"general",  name:"General Assistant", prompt:BASE },
-  { id:"code",     name:"Code Expert",       prompt:BASE+" You are a senior engineer. Give working, idiomatic code with brief explanations." },
-  { id:"study",    name:"Study Buddy",       prompt:BASE+" Explain like a patient tutor: step by step, with examples and a short recap." },
-  { id:"writer",   name:"Writing Coach",     prompt:BASE+" Improve clarity, tone and structure. Show the rewrite, then what changed." },
-  { id:"math",     name:"Math Solver",       prompt:BASE+" Solve rigorously, show every step, and state the final answer clearly." },
-  { id:"ideas",    name:"Brainstormer",      prompt:BASE+" Produce lots of varied, concrete ideas, ranked by usefulness." },
+const MODELS = [
+{id:"general",name:"General AI",tagline:"Everyday questions & conversation",temperature:.7,prompt:`${BASE}
+You are a well-rounded general assistant. You handle general questions, conversation,
+research, writing, schoolwork and brainstorming. Adapt depth to the user's level, give
+direct answers first and supporting detail after.`,starters:["Explain quantum entanglement simply","Help me brainstorm a science fair project","Summarise the causes of World War I"]},
+{id:"coding",name:"Coding AI",tagline:"Write, debug & review code",temperature:.2,prompt:`${BASE}
+You are an expert software engineer fluent in HTML, CSS, JavaScript, TypeScript, Python,
+C#, C++, Java, Rust, Go and SQL. You debug, review, refactor, explain code and generate
+whole projects. Always give complete, runnable code with the correct language tag, note
+edge cases, and prefer idiomatic modern patterns. When reviewing, list issues by severity.
+Keep generated code clean. Do not add unnecessary comments, section headers, banners, or
+explanatory notes inside code. Avoid decorative comments such as /* configuration */ or
+// create the button. Only use a comment when it is genuinely needed to explain a
+non-obvious implementation detail or required API behavior.`,starters:["Review this function for bugs","Refactor this component to be reusable","Generate a REST API in Python + FastAPI"]},
+{id:"planning",name:"Planning AI",tagline:"Plans, roadmaps & schedules",temperature:.5,prompt:`${BASE}
+You are a planning specialist. You build project plans, study plans, workout plans,
+business plans, roadmaps, daily schedules and task breakdowns. Always produce concrete,
+time-boxed, prioritised steps — prefer tables and checklists. Ask for constraints
+(time, budget, skill level) only when they materially change the plan.`,starters:["Build a 4-week study plan for finals","Create a 90-day roadmap for my startup","Plan a beginner 5-day workout split"]},
+{id:"builder",name:"Builder AI",tagline:"Ship websites, apps & APIs",temperature:.35,prompt:`${BASE}
+You are a full-stack build assistant. You design and scaffold websites, apps and APIs:
+folder structures, architecture, UI/UX flow, and database schemas (with SQL DDL).
+Justify trade-offs briefly, then commit to a recommendation. Output file trees in code
+blocks and schemas as SQL or tables.`,starters:["Design the architecture for a chat app","Scaffold a Next.js + Postgres project","Design a database schema for a shop"]},
+{id:"designer",name:"Designer AI",tagline:"UI, UX, branding & color",temperature:.75,prompt:`${BASE}
+You are a senior product designer. You give UI ideas, UX improvements, color palettes
+(always with hex + HSL values), layout suggestions, branding and logo/icon direction, and
+accessibility guidance (state WCAG contrast ratios when relevant). Be specific: name
+spacing, type scale and hierarchy rather than vague adjectives.`,starters:["Design a dark glassmorphism palette","Improve the UX of a signup flow","Suggest a logo concept for a proxy site"]},
+{id:"math",name:"Math AI",tagline:"Step-by-step solutions",temperature:.1,prompt:`${BASE}
+You are a mathematics tutor covering algebra, calculus, statistics and geometry.
+ALWAYS show the full step-by-step working, one transformation per line, using LaTeX
+($$...$$ for display math). Finish with a clearly labelled final answer and, when useful,
+a sanity check.`,starters:["Solve 3x² - 5x - 2 = 0 step by step","Find the derivative of x·ln(x)","Explain standard deviation with an example"]},
+{id:"science",name:"Science AI",tagline:"Biology to astronomy",temperature:.3,prompt:`${BASE}
+You are a science specialist covering biology, chemistry, physics, astronomy and
+engineering. Explain mechanisms, not just facts. Include equations in LaTeX with units,
+balanced chemical equations where relevant, and note real-world examples.`,starters:["Explain CRISPR gene editing","Balance this chemical equation","Why do neutron stars spin so fast?"]},
+{id:"writer",name:"Writer AI",tagline:"Essays, emails & stories",temperature:.8,prompt:`${BASE}
+You are a professional writer and editor. You draft essays, emails, stories,
+documentation and blog posts, fix grammar and rewrite for tone or length. Match the
+requested voice and audience. When editing, show the improved version first, then a short
+bullet list of what changed and why.`,starters:["Write a polite email asking for an extension","Rewrite this paragraph to sound confident","Draft a blog intro about web privacy"]},
+{id:"research",name:"Research AI",tagline:"Summaries & comparisons",temperature:.3,prompt:`${BASE}
+You are a research analyst. You summarise information, compare technologies, list pros
+and cons, explain concepts and produce structured reports. Default to comparison tables
+and clearly separated sections. State assumptions and flag anything that may be outdated,
+since you cannot browse the web.`,starters:["Compare React, Vue and Svelte","Pros and cons of serverless databases","Write a report on renewable energy"]},
+{id:"creative",name:"Creative AI",tagline:"Stories, worlds & ideas",temperature:.95,prompt:`${BASE}
+You are a creative collaborator for storytelling, worldbuilding, character creation and
+idea generation. Be vivid and specific — concrete sensory detail over abstraction. Offer
+multiple distinct directions when brainstorming, and keep continuity with anything the
+user has already established.`,starters:["Invent a world where gravity reverses nightly","Create a morally grey villain","Give me 10 short story hooks"]}
 ];
 
-/* --------------------------------- state --------------------------------- */
-const KEY = "tog-ai-standalone-history";
-let messages = [];
-try { messages = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch {}
+const CONV_KEY="snoopy.ai.conversations.v2", FOLDER_KEY="snoopy.ai.folders.v1";
+const MAX_FILE_BYTES=4*1024*1024;
+const TEXTY=/^(text\/|application\/(json|xml|javascript|typescript|x-yaml|sql))/;
+const $=id=>document.getElementById(id);
+const uid=()=>crypto?.randomUUID?.() || Math.random().toString(36).slice(2)+Date.now().toString(36);
+const getModel=id=>MODELS.find(m=>m.id===id)||MODELS[0];
+const deriveTitle=t=>{const s=t.replace(/\s+/g," ").trim();return !s?"New chat":s.length>44?s.slice(0,44)+"…":s};
 
-const $log = document.getElementById("log");
-const $input = document.getElementById("input");
-const $form = document.getElementById("form");
-const $send = document.getElementById("send");
-const $persona = document.getElementById("persona");
+function read(key){try{const x=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(x)?x:[]}catch{return[]}}
+let conversations=read(CONV_KEY).map(c=>({...c,modelId:c.modelId||"general",messages:Array.isArray(c.messages)?c.messages:[]}));
+let folders=read(FOLDER_KEY);
+let activeId=localStorage.getItem("tog-ai-active")||null;
+function save(){try{localStorage.setItem(CONV_KEY,JSON.stringify(conversations));localStorage.setItem(FOLDER_KEY,JSON.stringify(folders));localStorage.setItem("tog-ai-active",activeId||"")}catch{}}
+function createConversation(modelId="general",folderId=null){
+ const now=Date.now();return{id:uid(),title:"New chat",modelId,messages:[],pinned:false,folderId,createdAt:now,updatedAt:now}
+}
+function current(){return conversations.find(c=>c.id===activeId)}
+function ensureCurrent(){
+ let c=current();if(!c){c=createConversation(localStorage.getItem("tog-ai-model")||"general");conversations.push(c);activeId=c.id;save()}return c
+}
+function sorted(list){return [...list].sort((a,b)=>!!b.pinned-!!a.pinned||b.updatedAt-a.updatedAt)}
 
-PERSONAS.forEach(p => {
-  const o = document.createElement("option");
-  o.value = p.id; o.textContent = p.name; $persona.appendChild(o);
-});
-$persona.value = localStorage.getItem("tog-ai-persona") || "general";
-$persona.onchange = () => localStorage.setItem("tog-ai-persona", $persona.value);
-
-/* ------------------------------ tiny markdown ----------------------------- */
-function esc(s){return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]))}
+function inline(s){
+ return s.replace(/`([^`\n]+)`/g,"<code>$1</code>")
+ .replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>")
+ .replace(/~~([^~]+)~~/g,"<del>$1</del>")
+ .replace(/(^|[^*])\*([^*\n]+)\*/g,"$1<em>$2</em>")
+ .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+}
+function downloadText(filename,text,type="text/plain"){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function openHtmlPreview(code){const w=window.open("about:blank","_blank");if(!w){alert("Allow pop-ups to preview HTML.");return}w.document.open();w.document.write(code);w.document.close()}
 function md(src){
-  const blocks = [];
-  let s = src.replace(/```(\w*)\n?([\s\S]*?)```/g,(_,lang,code)=>{
-    blocks.push(`<pre><code data-lang="${esc(lang)}">${esc(code)}</code></pre>`);
-    return `\u0000${blocks.length-1}\u0000`;
-  });
-  s = esc(s)
-    .replace(/`([^`\n]+)`/g,"<code>$1</code>")
-    .replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>")
-    .replace(/(^|[^*])\*([^*\n]+)\*/g,"$1<em>$2</em>")
-    .replace(/^### (.*)$/gm,"<h3>$1</h3>")
-    .replace(/^## (.*)$/gm,"<h2>$1</h2>")
-    .replace(/^# (.*)$/gm,"<h2>$1</h2>")
-    .replace(/^\s*[-*] (.*)$/gm,"<li>$1</li>")
-    .replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g,"<ul>$1</ul>")
-    .split(/\n{2,}/).map(p=>/^<(h\d|ul|pre)/.test(p.trim())?p:`<p>${p.replace(/\n/g,"<br>")}</p>`).join("");
-  return s.replace(/\u0000(\d+)\u0000/g,(_,i)=>blocks[i]);
+ const blocks=[];
+ let s=esc(src).replace(/```([\w.+-]*)\n?([\s\S]*?)```/g,(_,lang,code)=>{
+   const i=blocks.length,L=esc(lang||"text"),isHtml=/^(html|htm|xhtml)$/i.test(lang||"");
+   blocks.push(`<div class="code-wrap"><div class="code-head"><span>${L}</span><div class="code-actions">${isHtml?`<button class="code-btn preview-code" data-code="${encodeURIComponent(code)}">Preview</button>`:""}<button class="code-btn copy-code" data-code="${encodeURIComponent(code)}">Copy</button><button class="code-btn download-code" data-code="${encodeURIComponent(code)}" data-lang="${L}">Download</button></div></div><pre><code>${code}</code></pre></div>`);return `\u0000${i}\u0000`;
+ });
+ s=s.replace(/\$\$([\s\S]*?)\$\$/g,"<div class=\"math\">$$$1$$</div>");
+ const lines=s.split("\n"),out=[];let list=false,table=false;
+ for(const raw of lines){
+   const line=raw.trim();
+   if(!line){if(list){out.push("</ul>");list=false}if(table){out.push("</table>");table=false}continue}
+   if(/^\|.*\|$/.test(line)){
+     const cells=line.split("|").slice(1,-1).map(x=>x.trim());
+     if(!table){out.push("<table><tbody>");table=true}
+     if(cells.every(x=>/^:?-{3,}:?$/.test(x)))continue;
+     out.push("<tr>"+cells.map(x=>`<td>${inline(x)}</td>`).join("")+"</tr>");continue
+   } else if(table){out.push("</table>");table=false}
+   if(/^#{1,3}\s/.test(line)){const n=line.match(/^#+/)[0].length;out.push(`<h${n}>${inline(line.slice(n).trim())}</h${n}>`);continue}
+   if(/^[-*]\s+/.test(line)){if(!list){out.push("<ul>");list=true}out.push(`<li>${inline(line.replace(/^[-*]\s+/,""))}</li>`);continue}
+   if(list){out.push("</ul>");list=false}
+   if(/^>\s?/.test(line)){out.push(`<blockquote>${inline(line.replace(/^>\s?/,""))}</blockquote>`);continue}
+   out.push(`<p>${inline(line)}</p>`);
+ }
+ if(list)out.push("</ul>");if(table)out.push("</table>");
+ return out.join("").replace(/\u0000(\d+)\u0000/g,(_,i)=>blocks[i]);
 }
 
-/* --------------------------------- render -------------------------------- */
-function render(){
-  $log.innerHTML = "";
-  if(!messages.length){
-    $log.innerHTML = '<div class="empty">// ask anything to get started</div>';
-    return;
-  }
-  for(const m of messages){
-    const d = document.createElement("div");
-    d.className = "msg " + (m.role === "user" ? "user" : "bot");
-    d.innerHTML = m.role === "user" ? esc(m.content).replace(/\n/g,"<br>") : md(m.content);
-    $log.appendChild(d);
-  }
-  $log.scrollTop = $log.scrollHeight;
+function renderModels(){
+ $("modelSelect").innerHTML=MODELS.map(m=>`<option value="${m.id}">${m.name}</option>`).join("");
+ $("modelSelect").value=ensureCurrent().modelId;
+ updateModelInfo();
 }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(messages.slice(-60))); }catch{} }
-render();
+function updateModelInfo(){
+ const m=getModel($("modelSelect").value);$("modelName").textContent=m.name;$("modelTag").textContent=m.tagline
+}
+function renderSidebar(){
+ const list=sorted(conversations),el=$("chatList");el.innerHTML="";
+ list.forEach(c=>{
+   const row=document.createElement("div");row.className="chat-item"+(c.id===activeId?" active":"");
+   row.innerHTML=`<span class="chat-title">${esc(c.title)}</span>${c.pinned?'<span class="pin">★</span>':""}<span class="chat-actions"><button class="icon-btn pin-btn" title="Pin">★</button><button class="icon-btn del-btn" title="Delete">×</button></span>`;
+   row.onclick=e=>{if(e.target.closest("button"))return;activeId=c.id;save();renderAll();$("sidebar").classList.remove("open")};
+   row.querySelector(".pin-btn").onclick=e=>{e.stopPropagation();c.pinned=!c.pinned;c.updatedAt=Date.now();save();renderSidebar()};
+   row.querySelector(".del-btn").onclick=e=>{e.stopPropagation();if(confirm("Delete this chat?")){conversations=conversations.filter(x=>x.id!==c.id);if(activeId===c.id)activeId=null;save();ensureCurrent();renderAll()}};
+   el.appendChild(row)
+ });
+ $("folderList").innerHTML="";
+ folders.forEach(f=>{
+   const row=document.createElement("div");row.className="chat-item";
+   const count=conversations.filter(c=>c.folderId===f.id).length;
+   row.innerHTML=`<span class="chat-title">▰ ${esc(f.name)} <span style="color:#687284">(${count})</span></span><button class="icon-btn folder-del" title="Delete folder">×</button>`;
+   row.querySelector(".folder-del").onclick=()=>{if(confirm("Delete folder? Chats will remain.") ){folders=folders.filter(x=>x.id!==f.id);conversations.forEach(c=>{if(c.folderId===f.id)c.folderId=null});save();renderSidebar()}};
+   row.onclick=e=>{if(e.target.closest("button"))return;const c=sorted(conversations.filter(c=>c.folderId===f.id))[0];if(c){activeId=c.id;renderAll()}};
+   $("folderList").appendChild(row)
+ });
+}
+function attachCodeActions(root){
+ root.querySelectorAll(".copy-code").forEach(b=>b.onclick=async()=>{const t=decodeURIComponent(b.dataset.code);try{await navigator.clipboard.writeText(t)}catch{downloadText("code.txt",t)}b.textContent="Copied";setTimeout(()=>b.textContent="Copy",900)});
+ root.querySelectorAll(".download-code").forEach(b=>b.onclick=()=>{const t=decodeURIComponent(b.dataset.code),l=(b.dataset.lang||"text").toLowerCase(),e={html:"html",htm:"html",css:"css",js:"js",javascript:"js",ts:"ts",py:"py",python:"py",json:"json",xml:"xml",svg:"svg",cs:"cs",cpp:"cpp",c:"c",java:"java",go:"go",rs:"rs",sql:"sql",md:"md",txt:"txt"}[l]||"txt";downloadText(`tog-code.${e}`,t,e==="html"?"text/html":"text/plain")});
+ root.querySelectorAll(".preview-code").forEach(b=>b.onclick=()=>openHtmlPreview(decodeURIComponent(b.dataset.code)));
+}
+function renderChat(){
+ const c=ensureCurrent(),m=getModel(c.modelId),box=$("chatInner");
+ if(!c.messages.length){
+   box.innerHTML=`<div class="welcome"><div class="welcome-logo">TOG</div><h1>${esc(m.name)}</h1><p>${esc(m.tagline)}</p><div class="starters">${m.starters.map(s=>`<button class="starter">${esc(s)}</button>`).join("")}</div></div>`;
+   box.querySelectorAll(".starter").forEach(b=>b.onclick=()=>{$("input").value=b.textContent;resizeInput();$("input").focus()});
+   return
+ }
+ box.innerHTML="";
+ c.messages.forEach(msg=>{
+   const d=document.createElement("article");d.className="message "+msg.role;
+   const files=(msg.attachments||[]).map(a=>a.kind==="image"?`<div class="attachment"><img src="${a.data}" alt="${esc(a.name)}"><div>${esc(a.name)}</div></div>`:`<div class="attachment">📄 ${esc(a.name)}</div>`).join("");
+   d.innerHTML=`<div class="avatar">${msg.role==="user"?"YOU":"TOG"}</div><div class="message-body"><div class="message-head">${msg.role==="user"?"You":esc(m.name)}</div><div class="message-body-content">${msg.role==="user"?esc(msg.content).replace(/\n/g,"<br>"):md(msg.content)}</div>${files?`<div class="attachments">${files}</div>`:""}</div>`;
+   box.appendChild(d)
+ });
+ attachCodeActions(box);
+ $("chat").scrollTop=$("chat").scrollHeight
+}
+function renderAll(){renderModels();renderSidebar();renderChat();renderPreview()}
 
-/* ---------------------------------- chat ---------------------------------- */
-$input.addEventListener("input", () => {
-  $input.style.height = "auto";
-  $input.style.height = Math.min($input.scrollHeight, 150) + "px";
-});
-$input.addEventListener("keydown", e => {
-  if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); $form.requestSubmit(); }
-});
+let pending=[];
+async function fileToAttachment(file){
+ if(file.size>MAX_FILE_BYTES)return null;
+ const image=file.type.startsWith("image/");
+ const text=TEXTY.test(file.type)||/\.(md|txt|csv|log|ts|tsx|js|jsx|py|java|cs|cpp|rs|go|sql|html|css|json|yml|yaml)$/i.test(file.name);
+ if(!image&&!text)return null;
+ const data=image?await new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result));fr.onerror=()=>rej(fr.error);fr.readAsDataURL(file)}):await file.text();
+ return{id:uid(),name:file.name,mime:file.type||"application/octet-stream",kind:image?"image":"text",data,size:file.size}
+}
+function renderPreview(){
+ const p=$("preview");p.innerHTML="";
+ pending.forEach((a,i)=>{const d=document.createElement("div");d.className="file-chip";d.innerHTML=`${a.kind==="image"?"🖼️":"📄"} ${esc(a.name)} <button type="button">×</button>`;d.querySelector("button").onclick=()=>{pending.splice(i,1);renderPreview()};p.appendChild(d)});
+ p.classList.toggle("show",pending.length>0)
+}
 
-$form.addEventListener("submit", async e => {
-  e.preventDefault();
-  const text = $input.value.trim();
-  if(!text || $send.disabled) return;
+let controller=null;
+async function sendMessage(text){
+ const c=ensureCurrent(),m=getModel(c.modelId);
+ c.messages.push({id:uid(),role:"user",content:text,createdAt:Date.now(),attachments:pending.map(({id,name,mime,kind,data,size})=>({id,name,mime,kind,data,size}))});
+ pending=[];c.title=c.title==="New chat"?deriveTitle(text):c.title;c.updatedAt=Date.now();save();renderAll();
+ const assistant={id:uid(),role:"assistant",content:"",createdAt:Date.now()};c.messages.push(assistant);c.updatedAt=Date.now();
+ controller=new AbortController();$("send").classList.add("stop");$("send").textContent="■";$("send").title="Stop";
+ try{
+   const res=await fetch(ENDPOINT,{method:"POST",signal:controller.signal,headers:{"Content-Type":"application/json","apikey":PUBLIC_KEY},body:JSON.stringify({
+     system:m.prompt,temperature:m.temperature,
+     messages:c.messages.filter(x=>!x.error&&x.id!==assistant.id).map(x=>({role:x.role,content:x.content,attachments:(x.attachments||[]).map(a=>({name:a.name,mime:a.mime,kind:a.kind,data:a.data}))}))
+   })});
+   if(!res.ok||!res.body){let detail="";try{detail=(await res.json()).error||""}catch{detail=await res.text().catch(()=>"" )}throw new Error(detail||`AI request failed (${res.status})`)}
+   const reader=res.body.getReader(),dec=new TextDecoder();
+   let streamNode=null,lastPaint=0;
+   while(true){
+     const {done,value}=await reader.read(); if(done)break;
+     assistant.content+=dec.decode(value,{stream:true});
+     if(!streamNode){renderChat();const ns=$("chatInner").querySelectorAll(".message.assistant");streamNode=ns[ns.length-1]?.querySelector(".message-body-content")}
+     const now=performance.now();
+     if(now-lastPaint>=45&&streamNode){streamNode.innerHTML=md(assistant.content);attachCodeActions(streamNode);lastPaint=now;$('chat').scrollTop=$('chat').scrollHeight}
+   }
+   assistant.content+=dec.decode();
+   if(streamNode){streamNode.innerHTML=md(assistant.content);attachCodeActions(streamNode)}
+   c.updatedAt=Date.now();save()
+ }catch(err){
+   if(err.name==="AbortError"){assistant.content=assistant.content||"Generation stopped."}
+   else{assistant.error=true;assistant.content="Sorry — "+(err.message||"something went wrong")}
+   c.updatedAt=Date.now();save()
+ }finally{controller=null;$("send").classList.remove("stop");$("send").textContent="↑";$("send").title="Send";renderAll();$("input").focus()}
+}
 
-  messages.push({ role:"user", content:text });
-  $input.value = ""; $input.style.height = "auto";
-  $send.disabled = true;
-  render();
+function resizeInput(){const x=$("input");x.style.height="auto";x.style.height=Math.min(x.scrollHeight,170)+"px"}
+$("form").onsubmit=e=>{e.preventDefault();const t=$("input").value.trim();if(!t)return;if(controller){controller.abort();return}$("input").value="";resizeInput();sendMessage(t)};
+$("input").oninput=resizeInput;
+$("input").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();$("form").requestSubmit()}};
+$("attachBtn").onclick=()=>$("fileInput").click();
+$("fileInput").onchange=async e=>{for(const f of [...e.target.files]){const a=await fileToAttachment(f);if(a)pending.push(a);else alert(`${f.name} is unsupported or larger than 4 MB.`)}e.target.value="";renderPreview()};
+$("newChat").onclick=()=>{activeId=null;ensureCurrent();renderAll();$("input").focus()};
+$("modelSelect").onchange=()=>{const c=ensureCurrent();c.modelId=$("modelSelect").value;c.updatedAt=Date.now();localStorage.setItem("tog-ai-model",c.modelId);save();renderAll()};
+$("menuBtn").onclick=()=>$("sidebar").classList.toggle("open");
+$("clearBtn").onclick=()=>{const c=ensureCurrent();if(c.messages.length&&confirm("Clear all messages in this chat?")){c.messages=[];c.title="New chat";c.updatedAt=Date.now();save();renderAll()}};
+$("exportBtn").onclick=()=>{const c=ensureCurrent();const payload=JSON.stringify(c,null,2);const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([payload],{type:"application/json"}));a.download=(c.title||"tog-chat").replace(/[^\w\- ]/g,"").replace(/\s+/g,"_")+".json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+$("addFolder").onclick=()=>{const n=$("folderInput").value.trim();if(!n)return;folders.push({id:uid(),name:n,createdAt:Date.now()});$("folderInput").value="";save();renderSidebar()};
+$("folderInput").onkeydown=e=>{if(e.key==="Enter")$("addFolder").click()};
 
-  const bubble = document.createElement("div");
-  bubble.className = "msg bot";
-  bubble.textContent = "…";
-  $log.appendChild(bubble);
-  $log.scrollTop = $log.scrollHeight;
+(()=>{const c=$("stars"),x=c.getContext("2d");let stars=[],raf=0;function size(){c.width=innerWidth;c.height=innerHeight;stars=Array.from({length:Math.min(130,Math.round(innerWidth*innerHeight/16000))},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.2+.25,p:Math.random()*6.28,s:Math.random()*.014+.004}))}function draw(){x.clearRect(0,0,c.width,c.height);for(const s of stars){s.p+=s.s;x.globalAlpha=.18+Math.abs(Math.sin(s.p))*.45;x.fillStyle="#dbeafe";x.beginPath();x.arc(s.x,s.y,s.r,0,6.28);x.fill()}raf=requestAnimationFrame(draw)}addEventListener("resize",size);size();draw()})();
 
-  const persona = PERSONAS.find(p => p.id === $persona.value) || PERSONAS[0];
-  let acc = "";
-
-  try{
-    const res = await fetch(ENDPOINT, {
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "apikey": PUBLIC_KEY,
-        "Authorization": "Bearer " + PUBLIC_KEY
-      },
-      body: JSON.stringify({ messages: messages.slice(-30), system: persona.prompt })
-    });
-
-    if(!res.ok || !res.body){
-      let detail = "";
-      try { detail = (await res.json()).error || ""; } catch { detail = await res.text().catch(()=>""); }
-      throw new Error(detail || ("request failed (" + res.status + ")"));
-    }
-
-    const reader = res.body.getReader();
-    const dec = new TextDecoder();
-    while(true){
-      const { done, value } = await reader.read();
-      if(done) break;
-      acc += dec.decode(value, { stream:true });
-      bubble.innerHTML = md(acc);
-      $log.scrollTop = $log.scrollHeight;
-    }
-    messages.push({ role:"assistant", content: acc });
-    save();
-    render();
-  }catch(err){
-    bubble.remove();
-    const e2 = document.createElement("div");
-    e2.className = "err";
-    e2.textContent = "// " + (err && err.message ? err.message : "something went wrong");
-    $log.appendChild(e2);
-  }finally{
-    $send.disabled = false;
-    $input.focus();
-  }
-});
-
-/* ------------------------------- starfield -------------------------------- */
-(function(){
-  const c = document.getElementById("stars"), x = c.getContext("2d");
-  let stars = [], raf = 0;
-  function size(){
-    c.width = innerWidth; c.height = innerHeight;
-    const n = Math.min(140, Math.round(innerWidth * innerHeight / 14000));
-    stars = Array.from({length:n}, () => ({
-      x: Math.random()*c.width, y: Math.random()*c.height,
-      r: Math.random()*1.3+.3, p: Math.random()*Math.PI*2, s: Math.random()*.015+.005
-    }));
-  }
-  function draw(){
-    x.clearRect(0,0,c.width,c.height);
-    for(const s of stars){
-      s.p += s.s;
-      x.globalAlpha = .25 + Math.abs(Math.sin(s.p))*.6;
-      x.fillStyle = "#dbeafe";
-      x.beginPath(); x.arc(s.x, s.y, s.r, 0, Math.PI*2); x.fill();
-    }
-    raf = requestAnimationFrame(draw);
-  }
-  addEventListener("resize", size);
-  document.addEventListener("visibilitychange", () => {
-    if(document.hidden){ cancelAnimationFrame(raf); raf = 0; }
-    else if(!raf){ raf = requestAnimationFrame(draw); }
-  });
-  size(); draw();
-})();
+ensureCurrent();renderAll();
 </script>
 </body>
 </html>
