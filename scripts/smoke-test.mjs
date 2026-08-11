@@ -85,6 +85,15 @@ try {
       });
       const reg = await navigator.serviceWorker.register(`${BASE}sw.js`, { scope: BASE });
       await navigator.serviceWorker.ready;
+       if (!navigator.serviceWorker.controller) {
+         await new Promise(resolve => {
+           const timer = setTimeout(resolve, 5000);
+           navigator.serviceWorker.addEventListener('controllerchange', () => {
+             clearTimeout(timer);
+             resolve();
+           }, { once: true });
+         });
+       }
        await controller.init();
        const { BareMuxConnection } = await import(`${BASE}baremux/index.mjs`);
        const conn = new BareMuxConnection(`${BASE}baremux/worker.js`);
