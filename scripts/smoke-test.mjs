@@ -11,7 +11,7 @@
 import { chromium } from 'playwright';
 
 const SITE = (process.env.SITE_URL || 'http://localhost:8080/').replace(/\/?$/, '/');
-const SAMPLE_GAMES = 6;
+const SAMPLE_GAMES = 12;
 
 const results = [];
 function record(name, ok, detail = '') {
@@ -83,12 +83,25 @@ try {
           sync: `${BASE}scramjet/scramjet.sync.js`,
         },
       });
-      await controller.init();
-      const reg = await navigator.serviceWorker.register(`${BASE}sw.js`, { scope: BASE });
-      await navigator.serviceWorker.ready;
-      const { BareMuxConnection } = await import(`${BASE}baremux/index.mjs`).catch(() => ({}));
+       // Controller first avoids a v1 IndexedDB schema race with the worker.
+       await controller.init();
+       const reg = await navigator.serviceWorker.register(`${BASE}sw.js`, { scope: BASE });
+       await navigator.serviceWorker.ready;
+       if (!navigator.serviceWorker.controller) {
+         await new Promise(resolve => {
+           const timer = setTimeout(resolve, 5000);
+           navigator.serviceWorker.addEventListener('controllerchange', () => {
+             clearTimeout(timer);
+             resolve();
+           }, { once: true });
+         });
+       }
+       await controller.modifyConfig({});
+       const { BareMuxConnection } = await import(`${BASE}baremux/index.mjs`);
+       const conn = new BareMuxConnection(`${BASE}baremux/worker.js`);
+       await conn.setTransport(`${BASE}epoxy/index.mjs`, [{ wisp: 'wss://wisp.mercurywork.shop/' }]);
       const encoded = controller.encodeUrl('https://example.com');
-      return { ok: true, encoded, scope: reg.scope, baremux: Boolean(BareMuxConnection) };
+       return { ok: true, encoded, scope: reg.scope, controlled: Boolean(navigator.serviceWorker.controller) };
     } catch (e) {
       return { ok: false, error: String(e?.message || e) };
     }
@@ -97,9 +110,36 @@ try {
 
   if (proxy.ok) {
     record('proxy encodes URL under base path', proxy.encoded.startsWith(new URL(SITE).pathname), proxy.encoded);
-    const status = await head(new URL(proxy.encoded, SITE).href);
-    // The proxied fetch is served by the SW; a 2xx means the whole chain works.
-    record('proxied request succeeds', status >= 200 && status < 400, `HTTP ${status}`);
+    record('service worker controls smoke-test page', proxy.controlled, proxy.scope);
+
+    const targets = [
+      'https://example.com',
+      ...pick(local).slice(0, 8).map(g => new URL(g.f.replace(/^\/+/, ''), SITE).href),
+    ];
+    for (const target of targets) {
+      const result = await page.evaluate(async targetUrl => {
+        const BASE = new URL(document.baseURI).pathname;
+        const { ScramjetController } = window.$scramjetLoadController();
+        const controller = new ScramjetController({
+          prefix: `${BASE}scramjet/service/`,
+          files: {
+            wasm: `${BASE}scramjet/scramjet.wasm.wasm`,
+            all: `${BASE}scramjet/scramjet.all.js`,
+            sync: `${BASE}scramjet/scramjet.sync.js`,
+          },
+        });
+        await controller.init();
+        const encoded = controller.encodeUrl(targetUrl);
+        try {
+          const response = await fetch(encoded);
+          return { status: response.status, encoded };
+        } catch (error) {
+          return { status: 0, encoded, error: String(error?.message || error) };
+        }
+      }, target);
+      const label = target === 'https://example.com' ? 'external request' : `game via proxy "${decodeURIComponent(target.split('/').pop() || '')}"`;
+      record(label, result.status >= 200 && result.status < 400, `HTTP ${result.status} ${result.error || result.encoded}`);
+    }
   }
 } finally {
   await browser.close();

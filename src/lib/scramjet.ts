@@ -12,7 +12,6 @@ export const DEFAULT_WISP_URL = 'wss://wisp.mercurywork.shop/';
 export const RELAY_PRESETS: { name: string; url: string }[] = [
   { name: 'Mercury (default)', url: 'wss://wisp.mercurywork.shop/' },
   { name: 'Anura', url: 'wss://anura.pro/' },
-  { name: 'Echo (test only)', url: 'wss://echo.websocket.events/' },
 ];
 
 export function getWispUrl(): string {
@@ -199,6 +198,48 @@ function loadScript(src: string): Promise<void> {
   });
 }
 
+async function waitForServiceWorkerControl(timeoutMs = 6000): Promise<void> {
+  if (navigator.serviceWorker.controller) return;
+  await new Promise<void>((resolve, reject) => {
+    const timer = window.setTimeout(() => {
+      navigator.serviceWorker.removeEventListener('controllerchange', onChange);
+      reject(new Error('Service worker installed but did not take control. Reload the page and retry.'));
+    }, timeoutMs);
+    const onChange = () => {
+      window.clearTimeout(timer);
+      resolve();
+    };
+    navigator.serviceWorker.addEventListener('controllerchange', onChange, { once: true });
+  });
+}
+
+const SCRAMJET_STORES = ['config', 'cookies', 'redirectTrackers', 'referrerPolicies', 'publicSuffixList'];
+
+/** Remove databases created by older Scramjet builds with an incomplete v1 schema. */
+async function repairLegacyScramjetDatabase(): Promise<void> {
+  await new Promise<void>(resolve => {
+    const request = indexedDB.open('$scramjet');
+    request.onerror = () => resolve();
+    request.onupgradeneeded = () => {
+      // A fresh database is completed by controller.init(); don't keep this
+      // temporary connection open and block its upgrade transaction.
+    };
+    request.onsuccess = () => {
+      const db = request.result;
+      const complete = SCRAMJET_STORES.every(store => db.objectStoreNames.contains(store));
+      db.close();
+      if (complete) {
+        resolve();
+        return;
+      }
+      const removal = indexedDB.deleteDatabase('$scramjet');
+      removal.onsuccess = () => resolve();
+      removal.onerror = () => resolve();
+      removal.onblocked = () => resolve();
+    };
+  });
+}
+
   async function init(wispUrl: string) {
     const { perfStart } = await import('./perf');
     const done = perfStart('scramjet.init');
@@ -208,6 +249,8 @@ function loadScript(src: string): Promise<void> {
     }
   
     const BASE = import.meta.env.BASE_URL;
+
+    await repairLegacyScramjetDatabase();
   
     await loadScript(`${BASE}scramjet/scramjet.all.js`);
   
@@ -217,9 +260,6 @@ function loadScript(src: string): Promise<void> {
   
     const { ScramjetController } = window.$scramjetLoadController();
   
-    console.log('Scramjet BASE:', BASE);
-    console.log('Scramjet prefix:', `${BASE}scramjet/service/`);
-    
     const controller = new ScramjetController({
       prefix: `${BASE}scramjet/service/`,
       files: {
@@ -234,14 +274,19 @@ function loadScript(src: string): Promise<void> {
       },
     });
   
+    // Initialize IndexedDB before installing the worker. If both start at once,
+    // the worker can win the v1 database upgrade race and leave required stores
+    // absent, which makes controller.init() fail with NotFoundError.
     await controller.init();
-  
+
     await navigator.serviceWorker.register(
       `${BASE}sw.js`,
       { scope: BASE }
     );
-  
     await navigator.serviceWorker.ready;
+    await waitForServiceWorkerControl();
+    // Push the persisted config to the now-controlling worker as well.
+    await controller.modifyConfig({});
   
     const { BareMuxConnection } =
       await import('@mercuryworkshop/bare-mux');
@@ -286,8 +331,9 @@ export async function clearProxyCache(): Promise<{ cleared: string[]; errors: st
     }
   } catch (e: any) { errors.push(`caches: ${e?.message}`); }
   try {
+    indexedDB.deleteDatabase('$scramjet');
     indexedDB.deleteDatabase('scramjet');
-    cleared.push('scramjet IDB');
+    cleared.push('Scramjet databases');
   } catch (e: any) { errors.push(`idb: ${e?.message}`); }
   try {
     if ('serviceWorker' in navigator) {
