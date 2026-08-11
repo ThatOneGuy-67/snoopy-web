@@ -198,6 +198,21 @@ function loadScript(src: string): Promise<void> {
   });
 }
 
+async function waitForServiceWorkerControl(timeoutMs = 6000): Promise<void> {
+  if (navigator.serviceWorker.controller) return;
+  await new Promise<void>((resolve, reject) => {
+    const timer = window.setTimeout(() => {
+      navigator.serviceWorker.removeEventListener('controllerchange', onChange);
+      reject(new Error('Service worker installed but did not take control. Reload the page and retry.'));
+    }, timeoutMs);
+    const onChange = () => {
+      window.clearTimeout(timer);
+      resolve();
+    };
+    navigator.serviceWorker.addEventListener('controllerchange', onChange, { once: true });
+  });
+}
+
   async function init(wispUrl: string) {
     const { perfStart } = await import('./perf');
     const done = perfStart('scramjet.init');
@@ -235,6 +250,7 @@ function loadScript(src: string): Promise<void> {
       { scope: BASE }
     );
     await navigator.serviceWorker.ready;
+    await waitForServiceWorkerControl();
 
     // ScramjetFrame requires the controller config in IDB before navigation.
     // Register first so controller.init() can also notify an already-active SW.

@@ -18,6 +18,7 @@ type Status = 'checking' | 'booting' | 'loading' | 'ready' | 'error';
 const ScramjetFrame = ({ url }: Props) => {
   const ref = useRef<HTMLIFrameElement>(null);
   const frameRef = useRef<{ go: (target: string) => void } | null>(null);
+  const controllerRef = useRef<any>(null);
   const [status, setStatus] = useState<Status>('checking');
   const [error, setError] = useState<string | null>(null);
   const [encoded, setEncoded] = useState<string | null>(null);
@@ -56,6 +57,7 @@ const ScramjetFrame = ({ url }: Props) => {
         setStatus('booting');
         const controller = await getController();
         if (cancelled) return;
+        controllerRef.current = controller;
 
         const target = url.startsWith('http') ? url : `https://${url}`;
         const enc = controller.encodeUrl(target);
@@ -63,13 +65,6 @@ const ScramjetFrame = ({ url }: Props) => {
         setEncoded(enc);
         setEndpoint(describeEndpoint(url, relay.url, enc));
         setStatus('loading');
-        // Scramjet v1 requires its frame wrapper. Directly assigning an encoded
-        // URL leaves nested frames without the metadata Scramjet needs.
-        requestAnimationFrame(() => {
-          if (cancelled || !ref.current) return;
-          frameRef.current = controller.createFrame(ref.current);
-          frameRef.current.go(target);
-        });
         done({ url, wispPingMs: relay.pingMs });
       } catch (e: unknown) {
         if (!cancelled) {
@@ -83,6 +78,15 @@ const ScramjetFrame = ({ url }: Props) => {
 
     return () => { cancelled = true; };
   }, [url, bootKey]);
+
+  useEffect(() => {
+    const controller = controllerRef.current;
+    if (!encoded || !controller || !ref.current) return;
+    // Scramjet v1 requires its frame wrapper. Directly assigning an encoded
+    // URL leaves nested frames without the metadata Scramjet needs.
+    frameRef.current = controller.createFrame(ref.current);
+    frameRef.current.go(url.startsWith('http') ? url : `https://${url}`);
+  }, [encoded, url]);
 
   if (status === 'error') {
     return (
