@@ -83,8 +83,10 @@ try {
           sync: `${BASE}scramjet/scramjet.sync.js`,
         },
       });
-      const reg = await navigator.serviceWorker.register(`${BASE}sw.js`, { scope: BASE });
-      await navigator.serviceWorker.ready;
+       // Controller first avoids a v1 IndexedDB schema race with the worker.
+       await controller.init();
+       const reg = await navigator.serviceWorker.register(`${BASE}sw.js`, { scope: BASE });
+       await navigator.serviceWorker.ready;
        if (!navigator.serviceWorker.controller) {
          await new Promise(resolve => {
            const timer = setTimeout(resolve, 5000);
@@ -94,7 +96,7 @@ try {
            }, { once: true });
          });
        }
-       await controller.init();
+       await controller.modifyConfig({});
        const { BareMuxConnection } = await import(`${BASE}baremux/index.mjs`);
        const conn = new BareMuxConnection(`${BASE}baremux/worker.js`);
        await conn.setTransport(`${BASE}epoxy/index.mjs`, [{ wisp: 'wss://wisp.mercurywork.shop/' }]);

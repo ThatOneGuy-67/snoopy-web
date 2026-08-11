@@ -274,16 +274,19 @@ async function repairLegacyScramjetDatabase(): Promise<void> {
       },
     });
   
+    // Initialize IndexedDB before installing the worker. If both start at once,
+    // the worker can win the v1 database upgrade race and leave required stores
+    // absent, which makes controller.init() fail with NotFoundError.
+    await controller.init();
+
     await navigator.serviceWorker.register(
       `${BASE}sw.js`,
       { scope: BASE }
     );
     await navigator.serviceWorker.ready;
     await waitForServiceWorkerControl();
-
-    // ScramjetFrame requires the controller config in IDB before navigation.
-    // Register first so controller.init() can also notify an already-active SW.
-    await controller.init();
+    // Push the persisted config to the now-controlling worker as well.
+    await controller.modifyConfig({});
   
     const { BareMuxConnection } =
       await import('@mercuryworkshop/bare-mux');
