@@ -21,10 +21,14 @@ function isScramjetAsset(pathname) {
 // Cache-Control headers, so the service worker owns caching for these: game
 // bundles never change once published, and games.json is refreshed in the
 // background (stale-while-revalidate).
-const ASSET_CACHE = 'tog-assets-v1';
+const ASSET_CACHE = 'tog-assets-v2';
 
 function isGameAsset(pathname) {
-  return /\/Games\/[^/]+\.html$/i.test(pathname) || /games\.json$/i.test(pathname);
+  return (
+    /\/Games\/.*\.html$/i.test(pathname) ||
+    /\/games\.json$/i.test(pathname) ||
+    /\/covers?\/.*\.(?:avif|webp|png|jpe?g|gif)$/i.test(pathname)
+  );
 }
 
 function withCacheHeaders(response, maxAge) {
@@ -90,7 +94,12 @@ self.addEventListener('install', () => {
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(Promise.all([
+    self.clients.claim(),
+    caches.keys().then(keys => Promise.all(
+      keys.filter(key => key.startsWith('tog-assets-') && key !== ASSET_CACHE).map(key => caches.delete(key))
+    )),
+  ]));
 });
 
 self.addEventListener('fetch', (event) => {

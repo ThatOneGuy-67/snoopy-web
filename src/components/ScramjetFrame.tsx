@@ -17,6 +17,7 @@ type Status = 'checking' | 'booting' | 'loading' | 'ready' | 'error';
 
 const ScramjetFrame = ({ url }: Props) => {
   const ref = useRef<HTMLIFrameElement>(null);
+  const frameRef = useRef<{ go: (target: string) => void } | null>(null);
   const [status, setStatus] = useState<Status>('checking');
   const [error, setError] = useState<string | null>(null);
   const [encoded, setEncoded] = useState<string | null>(null);
@@ -62,6 +63,13 @@ const ScramjetFrame = ({ url }: Props) => {
         setEncoded(enc);
         setEndpoint(describeEndpoint(url, relay.url, enc));
         setStatus('loading');
+        // Scramjet v1 requires its frame wrapper. Directly assigning an encoded
+        // URL leaves nested frames without the metadata Scramjet needs.
+        requestAnimationFrame(() => {
+          if (cancelled || !ref.current) return;
+          frameRef.current = controller.createFrame(ref.current);
+          frameRef.current.go(target);
+        });
         done({ url, wispPingMs: relay.pingMs });
       } catch (e: unknown) {
         if (!cancelled) {
@@ -127,7 +135,6 @@ const ScramjetFrame = ({ url }: Props) => {
       {encoded && (
         <iframe
           ref={ref}
-          src={encoded}
           onLoad={() => {
             // Detect Scramjet's built-in error page and surface our recovery UI
             try {

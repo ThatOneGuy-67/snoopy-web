@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Gamepad2, Search, Loader2, RefreshCw, Star, X } from 'lucide-react';
 import GameCard from '../games/GameCard';
 import GameDetailsModal from '../games/GameDetailsModal';
+import CacheStatus from '@/components/CacheStatus';
 import {
   GAME_CATEGORIES,
   gameUrl,
@@ -174,6 +175,10 @@ const GamesPage = () => {
           })}
         </div>
       </section>
+
+      <div className="mb-6">
+        <CacheStatus />
+      </div>
 
       {/* Recently played */}
       {recentGames.length > 0 && (

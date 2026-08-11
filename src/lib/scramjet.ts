@@ -12,7 +12,6 @@ export const DEFAULT_WISP_URL = 'wss://wisp.mercurywork.shop/';
 export const RELAY_PRESETS: { name: string; url: string }[] = [
   { name: 'Mercury (default)', url: 'wss://wisp.mercurywork.shop/' },
   { name: 'Anura', url: 'wss://anura.pro/' },
-  { name: 'Echo (test only)', url: 'wss://echo.websocket.events/' },
 ];
 
 export function getWispUrl(): string {
@@ -217,9 +216,6 @@ function loadScript(src: string): Promise<void> {
   
     const { ScramjetController } = window.$scramjetLoadController();
   
-    console.log('Scramjet BASE:', BASE);
-    console.log('Scramjet prefix:', `${BASE}scramjet/service/`);
-    
     const controller = new ScramjetController({
       prefix: `${BASE}scramjet/service/`,
       files: {
@@ -234,14 +230,15 @@ function loadScript(src: string): Promise<void> {
       },
     });
   
-    await controller.init();
-  
     await navigator.serviceWorker.register(
       `${BASE}sw.js`,
       { scope: BASE }
     );
-  
     await navigator.serviceWorker.ready;
+
+    // ScramjetFrame requires the controller config in IDB before navigation.
+    // Register first so controller.init() can also notify an already-active SW.
+    await controller.init();
   
     const { BareMuxConnection } =
       await import('@mercuryworkshop/bare-mux');

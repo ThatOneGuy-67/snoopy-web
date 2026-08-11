@@ -9,6 +9,7 @@ import {
 } from '@/lib/scramjet';
 
 import { loadSettings, saveSettings, openAboutBlank } from '@/lib/settings';
+import CacheStatus from './CacheStatus';
 
 interface Props {
   url: string;
@@ -152,6 +153,8 @@ const ProxyErrorScreen = ({ url, errorMessage, onRetry, endpoint }: Props) => {
               ))}
             </dl>
           )}
+
+          <CacheStatus compact />
 
 
           {/* live status box */}
