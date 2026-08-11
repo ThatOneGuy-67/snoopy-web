@@ -213,6 +213,33 @@ async function waitForServiceWorkerControl(timeoutMs = 6000): Promise<void> {
   });
 }
 
+const SCRAMJET_STORES = ['config', 'cookies', 'redirectTrackers', 'referrerPolicies', 'publicSuffixList'];
+
+/** Remove databases created by older Scramjet builds with an incomplete v1 schema. */
+async function repairLegacyScramjetDatabase(): Promise<void> {
+  await new Promise<void>(resolve => {
+    const request = indexedDB.open('$scramjet');
+    request.onerror = () => resolve();
+    request.onupgradeneeded = () => {
+      // A fresh database is completed by controller.init(); don't keep this
+      // temporary connection open and block its upgrade transaction.
+    };
+    request.onsuccess = () => {
+      const db = request.result;
+      const complete = SCRAMJET_STORES.every(store => db.objectStoreNames.contains(store));
+      db.close();
+      if (complete) {
+        resolve();
+        return;
+      }
+      const removal = indexedDB.deleteDatabase('$scramjet');
+      removal.onsuccess = () => resolve();
+      removal.onerror = () => resolve();
+      removal.onblocked = () => resolve();
+    };
+  });
+}
+
   async function init(wispUrl: string) {
     const { perfStart } = await import('./perf');
     const done = perfStart('scramjet.init');
@@ -222,6 +249,8 @@ async function waitForServiceWorkerControl(timeoutMs = 6000): Promise<void> {
     }
   
     const BASE = import.meta.env.BASE_URL;
+
+    await repairLegacyScramjetDatabase();
   
     await loadScript(`${BASE}scramjet/scramjet.all.js`);
   
@@ -299,8 +328,9 @@ export async function clearProxyCache(): Promise<{ cleared: string[]; errors: st
     }
   } catch (e: any) { errors.push(`caches: ${e?.message}`); }
   try {
+    indexedDB.deleteDatabase('$scramjet');
     indexedDB.deleteDatabase('scramjet');
-    cleared.push('scramjet IDB');
+    cleared.push('Scramjet databases');
   } catch (e: any) { errors.push(`idb: ${e?.message}`); }
   try {
     if ('serviceWorker' in navigator) {
