@@ -89,9 +89,18 @@ const ALIASES: Record<string, string[]> = {
   smash: ['smash karts'],
 };
 
-function categorize(title: string, file: string): GameCategory {
+function categorize(
+  title: string,
+  file: string,
+  offline = false,
+): GameCategory {
+  if (offline) return 'Offline';
+
   const hay = `${title} ${file}`;
-  for (const [cat, re] of RULES) if (re.test(hay)) return cat;
+  for (const [cat, re] of RULES) {
+    if (re.test(hay)) return cat;
+  }
+
   return 'Other';
 }
 
@@ -125,7 +134,7 @@ function tagsOf(title: string, category: GameCategory): string[] {
 
 export function decorate(entry: GameEntry): Game {
   const h = hash(entry.f);
-  const category = categorize(entry.t, entry.f);
+  const category = categorize(entry.t, entry.f, entry.offline);
   const nTitle = normalize(entry.t);
   return {
     ...entry,
@@ -141,7 +150,7 @@ export function decorate(entry: GameEntry): Game {
 
 /* -------------------------------- loading -------------------------------- */
 
-const CACHE_KEY = 'tog-games-cache-v1';
+const CACHE_KEY = 'tog-games-cache-v2';
 const CACHE_TTL = 6 * 60 * 60 * 1000; // 6h
 
 function readCache(): GameEntry[] | null {
@@ -171,27 +180,53 @@ export function loadGames(): Promise<Game[]> {
   if (cache) return Promise.resolve(cache);
   if (inflight) return inflight;
 
+  const loadCatalogs = async (): Promise<GameEntry[]> => {
+    const [gamesResult, offlineResult] = await Promise.all([
+      fetch(`${import.meta.env.BASE_URL}games.json`, {
+        cache: 'force-cache',
+      }),
+      fetch(`${import.meta.env.BASE_URL}offline-games.json`, {
+        cache: 'force-cache',
+      }),
+    ]);
+
+    if (!gamesResult.ok) {
+      throw new Error(`games.json ${gamesResult.status}`);
+    }
+
+    const games = (await gamesResult.json()) as GameEntry[];
+
+    let offline: GameEntry[] = [];
+
+    if (offlineResult.ok) {
+      offline = (await offlineResult.json()) as GameEntry[];
+    }
+
+    return [
+      ...offline.map(game => ({
+        ...game,
+        offline: true,
+      })),
+      ...games,
+    ];
+  };
+
   const cached = readCache();
+
   if (cached) {
     cache = cached.map(decorate);
-    // Refresh in the background so the catalog stays current.
-    void fetch(`${import.meta.env.BASE_URL}games.json`, { cache: 'force-cache' })
-      .then(r => (r.ok ? r.json() : null))
-      .then((list: GameEntry[] | null) => {
-        if (list?.length) {
-          writeCache(list);
-          cache = list.map(decorate);
-        }
+
+    void loadCatalogs()
+      .then(list => {
+        writeCache(list);
+        cache = list.map(decorate);
       })
       .catch(() => undefined);
+
     return Promise.resolve(cache);
   }
 
-  inflight = fetch(`${import.meta.env.BASE_URL}games.json`, { cache: 'force-cache' })
-    .then(r => {
-      if (!r.ok) throw new Error(`games.json ${r.status}`);
-      return r.json() as Promise<GameEntry[]>;
-    })
+  inflight = loadCatalogs()
     .then(list => {
       writeCache(list);
       cache = list.map(decorate);
@@ -200,6 +235,7 @@ export function loadGames(): Promise<Game[]> {
     .finally(() => {
       inflight = null;
     });
+
   return inflight;
 }
 
