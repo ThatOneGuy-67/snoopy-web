@@ -6,10 +6,9 @@
  */
 
 export interface GameEntry {
-  /** Display title */
   t: string;
-  /** Playable file: local /Games/... path or CDN url */
   f: string;
+  offline?: boolean;
 }
 
 export interface Game extends GameEntry {
@@ -27,6 +26,7 @@ export interface Game extends GameEntry {
 export const GAME_CATEGORIES = [
   'All',
   'Favorites',
+  'Offline',
   'Minecraft',
   'Retro',
   'Shooter',
@@ -56,6 +56,7 @@ const RULES: [GameCategory, RegExp][] = [
 const CATEGORY_BLURB: Record<GameCategory, string> = {
   All: 'A classic from the library.',
   Favorites: 'One of your saved favorites.',
+  Offline: 'Games stored locally in TOG Web and playable from the offline game library.',
   Minecraft: 'A browser-playable Minecraft / Eaglercraft client — build, mine and survive with no install.',
   Retro: 'An old-school arcade or console throwback, emulated straight in the browser.',
   Shooter: 'Fast-paced action shooting — aim, react and outlast everyone else.',
