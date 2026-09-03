@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Loader2, ImageOff } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { perfStart } from '@/lib/perf';
+import { resolveWallpaperUrl } from '@/lib/settings';
 
 /**
  * Wallpaper
@@ -58,7 +59,7 @@ export function Wallpaper({
 }: WallpaperProps) {
   const [loading, setLoading] = useState(true);
   const [errored, setErrored] = useState(false);
-  const [activeUrl, setActiveUrl] = useState(url);
+  const [activeUrl, setActiveUrl] = useState(() => resolveWallpaperUrl(url));
   const triedFallback = useRef(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -74,7 +75,7 @@ export function Wallpaper({
     triedFallback.current = false;
     setErrored(false);
     setLoading(true);
-    setActiveUrl(url);
+    setActiveUrl(resolveWallpaperUrl(url));
     perfEnd.current = perfStart(`wallpaper.load ${isVideoUrl(url) ? 'video' : 'image'}`);
   }, [url]);
 
@@ -157,7 +158,8 @@ export function Wallpaper({
   const handleError = () => {
     perfEnd.current?.({ url: activeUrl, ok: false });
     perfEnd.current = null;
-    if (!triedFallback.current && fallbackUrl && fallbackUrl !== activeUrl) {
+    const resolvedFallback = resolveWallpaperUrl(fallbackUrl);
+    if (!triedFallback.current && resolvedFallback && resolvedFallback !== activeUrl) {
       triedFallback.current = true;
       toast({
         title: 'Wallpaper failed to load',
@@ -166,7 +168,7 @@ export function Wallpaper({
       onFailover?.(activeUrl, fallbackUrl);
       setLoading(true);
       setErrored(false);
-      setActiveUrl(fallbackUrl);
+      setActiveUrl(resolvedFallback);
       return;
     }
     setLoading(false);

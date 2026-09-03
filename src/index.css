@@ -174,16 +174,6 @@ html[data-anim="off"] *::after {
   z-index: 0;
 }
 
-.chat-ambient::before {
-  /* soft glow accents */
-  content: '';
-  position: absolute;
-  inset: -20%;
-  background:
-    radial-gradient(40% 40% at 15% 10%, hsl(var(--glow-primary) / 0.10) 0%, transparent 70%),
-    radial-gradient(45% 45% at 85% 90%, hsl(var(--glow-secondary, var(--glow-primary)) / 0.08) 0%, transparent 70%);
-}
-
 .chat-ambient::after {
   /* noise texture, matching .noise-overlay */
   content: '';

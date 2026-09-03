@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import {
   useSettings, AppSettings, testProxyReachable, BACKGROUND_PRESETS,
-  LIVE_WALLPAPERS, downloadExport, applyImport, openAboutBlank,
+  LIVE_WALLPAPERS, resolveWallpaperUrl, downloadExport, applyImport, openAboutBlank,
 } from '@/lib/settings';
 import { THEMES } from '@/lib/themes';
 import {
@@ -497,7 +497,7 @@ const SettingsPage = () => {
                             settings.backgroundImage === b.url ? 'border-primary' : 'border-border hover:border-primary/50'
                           }`}
                           style={{
-                            backgroundImage: `url(${b.url})`,
+                            backgroundImage: `url(${resolveWallpaperUrl(b.url)})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                           }}>
