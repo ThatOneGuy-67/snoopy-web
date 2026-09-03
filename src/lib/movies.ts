@@ -35,31 +35,54 @@ const base = import.meta.env.BASE_URL || '/';
 
 let inflight: Promise<MovieCatalog> | null = null;
 
+/** Normalize raw JSON so counts (e.g. episode totals) always follow the file. */
+function normalize(data: MovieCatalog): MovieCatalog {
+  return {
+    updated: data.updated ?? '',
+    movies: (data.movies ?? []).map((m) => ({ ...m, type: 'movie' as const })),
+    shows: (data.shows ?? []).map((s) => ({
+      ...s,
+      type: 'show' as const,
+      episodes: s.episodes ?? [],
+    })),
+  };
+}
+
+/**
+ * Load the catalog straight from `public/movies.json`.
+ *
+ * Always network-first with `cache: 'no-store'` so newly added movies and
+ * episodes show up immediately — the localStorage copy is only a fallback for
+ * offline/failed loads, never a source of stale episode counts.
+ */
 export async function loadCatalog(): Promise<MovieCatalog> {
   if (inflight) return inflight;
   inflight = (async () => {
-    const res = await fetch(`${base}movies.json`, { cache: 'force-cache' });
-    if (!res.ok) throw new Error(`movies.json ${res.status}`);
-    const data = (await res.json()) as MovieCatalog;
     try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-    } catch {
-      /* quota — ignore */
+      const res = await fetch(`${base}movies.json?t=${Date.now()}`, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`movies.json ${res.status}`);
+      const data = normalize((await res.json()) as MovieCatalog);
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      } catch {
+        /* quota — ignore */
+      }
+      return data;
+    } catch (err) {
+      const cached = readCache();
+      if (cached) return cached;
+      throw err;
+    } finally {
+      inflight = null; // never sticky: a remount refetches the latest file
     }
-    return data;
-  })().catch((err) => {
-    inflight = null;
-    const cached = readCache();
-    if (cached) return cached;
-    throw err;
-  });
+  })();
   return inflight;
 }
 
 export function readCache(): MovieCatalog | null {
   try {
     const raw = localStorage.getItem(CACHE_KEY);
-    return raw ? (JSON.parse(raw) as MovieCatalog) : null;
+    return raw ? normalize(JSON.parse(raw) as MovieCatalog) : null;
   } catch {
     return null;
   }
