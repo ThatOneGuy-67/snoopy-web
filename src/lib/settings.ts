@@ -52,7 +52,7 @@ const DEFAULTS: AppSettings = {
   accentOverride: false,
   glassOpacity: 60,
   uiAnimations: true,
-  layoutStyle: 'browser',
+  layoutStyle: 'hub',
   pauseWallpaperWhenHidden: true,
   wallpaperFps: 'auto',
   chatMatchTheme: true,
@@ -214,6 +214,18 @@ export const LIVE_WALLPAPERS: LiveWallpaper[] = [
   { name: 'Japan House',   url: '/wallpapers/gifs/japan.gif',     category: 'Japan' },
   { name: 'Liquid Waves',  url: '/wallpapers/gifs/abstract.gif',  category: 'Abstract' },
 ];
+
+/**
+ * Resolve a wallpaper URL against the app's base path.
+ * Bundled wallpapers are stored as root-relative paths ("/wallpapers/..."),
+ * which break when the site is served from a sub-path (GitHub Pages).
+ */
+export function resolveWallpaperUrl(url: string): string {
+  if (!url) return '';
+  if (/^(https?:|data:|blob:)/i.test(url)) return url;
+  const base = import.meta.env.BASE_URL || '/';
+  return `${base}${url.replace(/^\/+/, '')}`;
+}
 
 // Guaranteed-good static wallpaper used when a chosen wallpaper fails to load.
 export const DEFAULT_WALLPAPER_FALLBACK =
