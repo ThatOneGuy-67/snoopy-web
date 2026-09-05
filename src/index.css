@@ -223,3 +223,88 @@ html[data-anim="off"] *::after {
   --glow-primary: 140 80% 55%;
   --glow-secondary: 160 60% 50%;
 }
+
+/* ---------------- Music page: Spotify-inspired theme ---------------- */
+
+.music-spotify {
+  --background: 0 0% 7%;
+  --foreground: 0 0% 100%;
+
+  --card: 0 0% 9%;
+  --card-foreground: 0 0% 100%;
+
+  --popover: 0 0% 9%;
+  --popover-foreground: 0 0% 100%;
+
+  --primary: 140 80% 45%;
+  --primary-foreground: 0 0% 0%;
+
+  --secondary: 0 0% 14%;
+  --secondary-foreground: 0 0% 100%;
+
+  --muted: 0 0% 14%;
+  --muted-foreground: 0 0% 60%;
+
+  --accent: 140 80% 45%;
+  --accent-foreground: 0 0% 0%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 0 0% 18%;
+  --input: 0 0% 18%;
+  --ring: 140 80% 45%;
+
+  --glass-bg: 0 0% 9%;
+  --glass-border: 0 0% 18%;
+  --glow-primary: 140 80% 45%;
+  --glow-secondary: 150 60% 40%;
+
+  background: hsl(var(--background));
+}
+
+.music-spotify .glass-panel,
+.music-spotify .glass-card {
+  background: hsl(var(--card));
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.music-spotify .glass-card:hover {
+  background: hsl(0 0% 16%);
+  transform: none;
+  box-shadow: none;
+  border: none;
+}
+
+.music-spotify .hover-glow:hover {
+  background: hsl(0 0% 16%);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.music-spotify .glow-text {
+  text-shadow: none;
+}
+
+.music-spotify .glow-border {
+  box-shadow: none;
+}
+
+.music-spotify input[type="range"] {
+  accent-color: hsl(var(--primary));
+}
+
+.music-spotify ::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+.music-spotify ::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+}
+
+.music-spotify ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
