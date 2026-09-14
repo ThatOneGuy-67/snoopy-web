@@ -1,6 +1,13 @@
 {
-  "updated": "2026-09-02T01:35:34.830Z",
+  "updated": "2026-09-14T00:00:00.000Z",
   "movies": [
+    {
+      "id": "m-spider-man-brand-new-day",
+      "type": "movie",
+      "title": "Spider Man: Brand New Day",
+      "poster": "https://cdn.jsdelivr.net/gh/ThatOneGuy-67/Movies@main/Pics/SMBND.jpg",
+      "link": "https://drive.google.com/file/d/1cBtLxO4XbS7exzq05I4E1fA8IF8cBKT0/preview"
+    },
     {
       "id": "m-minions-monsters",
       "type": "movie",
@@ -646,6 +653,154 @@
         {
           "name": "Episode 37",
           "link": "https://drive.google.com/file/d/1HnnZbJMO8doWvObw2JMshzxY2g1sWnuo/preview"
+        }
+      ]
+    },
+    {
+      "id": "s-family-guy",
+      "type": "show",
+      "title": "Family Guy",
+      "poster": "https://cdn.jsdelivr.net/gh/ThatOneGuy-67/Movies@main/Pics/F-G.jpg",
+      "episodes": [
+        {
+          "name": "Episode 1",
+          "link": "https://drive.google.com/file/d/1MlW9gQUj2awccOkyN5hWsAyHQotqtprs/preview"
+        },
+        {
+          "name": "Episode 2",
+          "link": "https://drive.google.com/file/d/1ugonO8JfU5g5riLKS6LniLQ7z9XKmow_/preview"
+        },
+        {
+          "name": "Episode 3",
+          "link": "https://drive.google.com/file/d/13yOXNF6vgYigu0ota8lUQWx9B7KhW27L/preview"
+        },
+        {
+          "name": "Episode 4",
+          "link": "https://drive.google.com/file/d/1nwkGqoPh7xIkegq6l2g7CtWbFN-dzlmt/preview"
+        },
+        {
+          "name": "Episode 5",
+          "link": "https://drive.google.com/file/d/17NCz9nawhjEzZZWQy1BPUAT6oGH-9HbQ/preview"
+        },
+        {
+          "name": "Episode 6",
+          "link": "https://drive.google.com/file/d/1kxQK0K3Vxfs3YET3RQL5CB2IML_5R2FP/preview"
+        },
+        {
+          "name": "Episode 7",
+          "link": "https://drive.google.com/file/d/1rbEEaViuyaHurRqVTKl6Fi44zWpRCdD2/preview"
+        },
+        {
+          "name": "Episode 8",
+          "link": "https://drive.google.com/file/d/1Z73zMcFUfUHgG6ty5MINjTvc3434wLFE/preview"
+        },
+        {
+          "name": "Episode 9",
+          "link": "https://drive.google.com/file/d/1g1-F6AgjDAmgUqLjulhVIh6fIqPa57iS/preview"
+        },
+        {
+          "name": "Episode 10",
+          "link": "https://drive.google.com/file/d/1BbWjU30OoFrau2hIFVXJ-cm6Kmcqiq9J/preview"
+        },
+        {
+          "name": "Episode 11",
+          "link": "https://drive.google.com/file/d/10xQ9IbYoEmpPZ0M8krCDZmyWvi1qsgbi/preview"
+        },
+        {
+          "name": "Episode 12",
+          "link": "https://drive.google.com/file/d/1SUcDnyvsYR3ecK8rIDwg58m_uTtzcmE5/preview"
+        },
+        {
+          "name": "Episode 13",
+          "link": "https://drive.google.com/file/d/1JUHW30UZpMHiTlRphPVHOH9BIA8nSj42/preview"
+        },
+        {
+          "name": "Episode 14",
+          "link": "https://drive.google.com/file/d/1AOjByRsMAwZJlbUNiVD6dIMEb--ks7R8/preview"
+        },
+        {
+          "name": "Episode 15",
+          "link": "https://drive.google.com/file/d/1tNyaJ7OuzSXQ32nsU5mNrmrlhHEOW6PK/preview"
+        },
+        {
+          "name": "Episode 16",
+          "link": "https://drive.google.com/file/d/1Ao2wOxXZTW8ZtsX5Y30OEnsD4mKsqHEm/preview"
+        },
+        {
+          "name": "Episode 17",
+          "link": "https://drive.google.com/file/d/13sE3D-8OIfSeybGqc1fdT_fh7a0O-NzK/preview"
+        },
+        {
+          "name": "Episode 18",
+          "link": "https://drive.google.com/file/d/11l34i2CHVk_lsEfYlQw1ca0luRZXx6lh/preview"
+        },
+        {
+          "name": "Episode 19",
+          "link": "https://drive.google.com/file/d/105HvwNamsu4b33w00RMw2XzEbZS28LuU/preview"
+        },
+        {
+          "name": "Episode 20",
+          "link": "https://drive.google.com/file/d/1Cm2yjjyeavOUVgfVYXtG9NRF-UJJLibN/preview"
+        },
+        {
+          "name": "Episode 21",
+          "link": "https://drive.google.com/file/d/1z8AWlYG9ZGW72XSAE8g0GYRs6KrI-LQQ/preview"
+        },
+        {
+          "name": "Episode 22",
+          "link": "https://drive.google.com/file/d/1vyDVnJ8hhriAxJytUAPhtmdIDihn9P5l/preview"
+        },
+        {
+          "name": "Episode 23",
+          "link": "https://drive.google.com/file/d/1v3EllI_QDLJMAxXq3PxiDdgrVJcbPWzt/preview"
+        },
+        {
+          "name": "Episode 24",
+          "link": "https://drive.google.com/file/d/1PT8rVEI88sC1PCLdfiyzL7FTfsTsgBaB/preview"
+        },
+        {
+          "name": "Episode 25",
+          "link": "https://drive.google.com/file/d/1Qw8c5E6QRiauXcZMbivB270eCJG-9DWF/preview"
+        },
+        {
+          "name": "Episode 26",
+          "link": "https://drive.google.com/file/d/16td0Z3Cwfc3bHP5qhAT7iAQwC380xy8y/preview"
+        },
+        {
+          "name": "Episode 27",
+          "link": "https://drive.google.com/file/d/1O3FdgTd4CHIPtAIbei4kJJQh5LKXC1a4/preview"
+        },
+        {
+          "name": "Episode 28",
+          "link": "https://drive.google.com/file/d/1P91QL53YdAMty4j-5FPRTXDk7M1DqxG4/preview"
+        },
+        {
+          "name": "Episode 29",
+          "link": "https://drive.google.com/file/d/1IC88Squ5hT0IMHA8yxii41oWA_XVnNKd/preview"
+        },
+        {
+          "name": "Episode 30",
+          "link": "https://drive.google.com/file/d/18OuTzy6Ix0-Lyp4EExjApyAJ1uFFbPR-/preview"
+        },
+        {
+          "name": "Episode 31",
+          "link": "https://drive.google.com/file/d/1T0FUQzw52j3mJ32Im6ROtTz5FxRimWQO/preview"
+        },
+        {
+          "name": "Episode 32",
+          "link": "https://drive.google.com/file/d/1RzdYyGurTxlymr4qf-jcuUMzxzldDDLr/preview"
+        },
+        {
+          "name": "Episode 33",
+          "link": "https://drive.google.com/file/d/1XaC8sHyQ_8o9MncogsF57rEePO4urN27/preview"
+        },
+        {
+          "name": "Episode 34",
+          "link": "https://drive.google.com/file/d/1ecqofpPhmvFHVLHeQrH-kpS3tCp_ZgsN/preview"
+        },
+        {
+          "name": "Episode 35",
+          "link": "https://drive.google.com/file/d/1aRlt8huFZhCvlbAwVcjCya7DO1AA10Bc/preview"
         }
       ]
     },
