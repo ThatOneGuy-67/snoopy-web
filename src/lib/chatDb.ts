@@ -1,19 +1,40 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getDatabase } from 'firebase/database';
+import { getDatabase, type Database } from 'firebase/database';
+import { FIREBASE_CONFIG, HAS_CHAT } from './siteConfig';
 
-const firebaseConfig = {
-  apiKey: 'AIzaSyAUh8VuVTZJ4kPZF203-bml44dtHCDQRl8',
-  authDomain: 'snoopys-chat.firebaseapp.com',
-  databaseURL: 'https://snoopys-chat-default-rtdb.firebaseio.com',
-  projectId: 'snoopys-chat',
-};
+/**
+ * The chat page runs on a Firebase Realtime Database that each deployment
+ * supplies itself (see .env.example). When it isn't configured the page shows
+ * a setup notice instead of connecting to anyone else's database.
+ */
+export const CHAT_CONFIGURED = HAS_CHAT;
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-export const db = getDatabase(app);
+function connect(): Database {
+  if (!HAS_CHAT) {
+    // Never reached: the Chat page guards on CHAT_CONFIGURED first.
+    throw new Error('Chat is not configured. Set the VITE_FIREBASE_* variables in .env.');
+  }
+  const app = getApps().length ? getApp() : initializeApp(FIREBASE_CONFIG);
+  return getDatabase(app);
+}
 
-export const ADMIN_PASSWORD = '104';
-export const MOD_PASSWORD = 'md';
-export const OWNER_PASSWORD = 'th@t';
+let cached: Database | null = null;
+
+/** Lazily-created database handle; throws only if used while unconfigured. */
+export const db = new Proxy({} as Database, {
+  get(_t, prop) {
+    cached ??= connect();
+    const value = (cached as unknown as Record<string | symbol, unknown>)[prop];
+    return typeof value === 'function' ? value.bind(cached) : value;
+  },
+});
+
+const env = import.meta.env as Record<string, string | undefined>;
+
+export const ADMIN_PASSWORD = env.VITE_CHAT_ADMIN_PASSWORD ?? '';
+export const MOD_PASSWORD = env.VITE_CHAT_MOD_PASSWORD ?? '';
+export const OWNER_PASSWORD = env.VITE_CHAT_OWNER_PASSWORD ?? '';
+
 
 export type Role = 'owner' | 'admin' | 'mod' | 'user';
 
