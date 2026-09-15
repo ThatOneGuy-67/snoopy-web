@@ -1,4 +1,5 @@
-# TOG's Web — https://snoopy-web.lovable.app/
+# TOG's Web
+# Sitemap host is injected at build time from VITE_SITE_URL (see .env.example).
 
 User-agent: Googlebot
 Allow: /
@@ -15,4 +16,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://snoopy-web.lovable.app/sitemap.xml
+Sitemap: __SITE_URL__sitemap.xml

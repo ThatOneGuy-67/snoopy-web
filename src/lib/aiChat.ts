@@ -168,12 +168,18 @@ export async function streamAssistantReply(
 ): Promise<string> {
   const spec = getModel(modelId);
 
+  if (!ENDPOINT) {
+    throw new AIError(
+      'AI backend is not configured. Copy .env.example to .env and set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY for your own project, then deploy supabase/functions/ai-chat to it.',
+    );
+  }
+
   const res = await fetch(ENDPOINT, {
     method: 'POST',
     signal,
     headers: {
       'Content-Type': 'application/json',
-      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      apikey: SUPABASE_PUBLISHABLE_KEY,
     },
     body: JSON.stringify({
       system: spec.systemPrompt,

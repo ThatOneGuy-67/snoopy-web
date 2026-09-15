@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- URLs are injected at build time from VITE_SITE_URL (see .env.example). -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://snoopy-web.lovable.app/</loc>
+    <loc>__SITE_URL__</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://snoopy-web.lovable.app/settings</loc>
+    <loc>__SITE_URL__settings</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
