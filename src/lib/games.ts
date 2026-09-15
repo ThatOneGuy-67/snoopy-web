@@ -362,26 +362,21 @@ export function writeFilters(f: GameFilters) {
 }
 
 /**
- * Origin that serves the oversized games which were offloaded to CDN storage
- * (`/__l5e/assets-v1/...`). Those paths only resolve on the Lovable-hosted
- * deployment, so when the app runs anywhere else (GitHub Pages, a Chromebook
- * hitting the Pages build, localhost) we point them back at the canonical
- * origin instead of 404-ing.
+ * Optional origin that serves oversized games offloaded to external storage
+ * (`/__l5e/assets-v1/...`). Configure `VITE_ASSET_ORIGIN` to use one; when it
+ * is empty those paths resolve against the current deployment instead, so a
+ * fork never depends on somebody else's hosting.
  */
-export const ASSET_ORIGIN = 'https://snoopy-web.lovable.app';
-
-function servesLovableAssets(): boolean {
-  if (typeof window === 'undefined') return true;
-  return /(^|\.)lovable\.(app|dev)$/.test(window.location.hostname);
-}
+export { ASSET_ORIGIN } from './siteConfig';
+import { ASSET_ORIGIN } from './siteConfig';
 
 /** Resolve a game's playable URL (CDN or app-relative). */
 export function gameUrl(game: Game): string {
   const f = game.f;
   if (f.startsWith('http')) return f;
-  // CDN-offloaded assets live at a fixed absolute path, never under BASE_URL.
+  // Offloaded assets live at a fixed absolute path, never under BASE_URL.
   if (f.startsWith('/__l5e/')) {
-    return servesLovableAssets() ? f : `${ASSET_ORIGIN}${f}`;
+    return ASSET_ORIGIN ? `${ASSET_ORIGIN}${f}` : f;
   }
   return `${import.meta.env.BASE_URL}${f.replace(/^\/+/, '')}`;
 }

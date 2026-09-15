@@ -1,11 +1,13 @@
 /**
  * Music library for the Hub Music page.
- * Audio + artwork are served from the Snoopys-Spotify repo via jsDelivr,
- * so no large media files live in this project.
+ * Audio + artwork are served from a CDN (jsDelivr over a GitHub repo), so no
+ * large media files live in this project. Point `VITE_MUSIC_CDN` at your own
+ * repo to serve your own library.
  *
  * To add a song: add a `song(...)` entry to a playlist below.
  */
-export const MUSIC_CDN = 'https://cdn.jsdelivr.net/gh/ThatOneGuy-67/Snoopys-Spotify@main/';
+export { MUSIC_CDN } from './siteConfig';
+import { MUSIC_CDN } from './siteConfig';
 
 export const cdn = (path: string) => MUSIC_CDN + encodeURI(path);
 

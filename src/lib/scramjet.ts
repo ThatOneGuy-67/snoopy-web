@@ -7,12 +7,14 @@ declare global {
   }
 }
 
-export const DEFAULT_WISP_URL = 'wss://wisp.mercurywork.shop/';
+export { DEFAULT_WISP_URL } from './siteConfig';
+import { DEFAULT_WISP_URL } from './siteConfig';
 
 export const RELAY_PRESETS: { name: string; url: string }[] = [
-  { name: 'Mercury (default)', url: 'wss://wisp.mercurywork.shop/' },
+  { name: 'Default relay', url: DEFAULT_WISP_URL },
+  { name: 'Mercury', url: 'wss://wisp.mercurywork.shop/' },
   { name: 'Anura', url: 'wss://anura.pro/' },
-];
+].filter((r, i, arr) => arr.findIndex(o => o.url === r.url) === i);
 
 export function getWispUrl(): string {
   try {

@@ -3,7 +3,7 @@
  * (with an in-memory cache), and the real streaming transport that talks to
  * the `ai-chat` edge function.
  */
-import { supabase } from '@/integrations/supabase/client';
+import { HAS_BACKEND, SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from './siteConfig';
 import { DEFAULT_MODEL_ID, getModel } from './aiModels';
 
 export type Role = 'user' | 'assistant';
@@ -146,7 +146,11 @@ export const sortConversations = (list: Conversation[]) =>
 
 /* -------------------------------- transport ------------------------------- */
 
-const ENDPOINT = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
+/** Backend endpoint; empty when this deployment has no backend configured. */
+const ENDPOINT = HAS_BACKEND ? `${SUPABASE_URL}/functions/v1/ai-chat` : '';
+
+/** True when the AI page can actually reach a backend. */
+export const AI_CONFIGURED = HAS_BACKEND;
 
 export class AIError extends Error {}
 
@@ -164,12 +168,18 @@ export async function streamAssistantReply(
 ): Promise<string> {
   const spec = getModel(modelId);
 
+  if (!ENDPOINT) {
+    throw new AIError(
+      'AI backend is not configured. Copy .env.example to .env and set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY for your own project, then deploy supabase/functions/ai-chat to it.',
+    );
+  }
+
   const res = await fetch(ENDPOINT, {
     method: 'POST',
     signal,
     headers: {
       'Content-Type': 'application/json',
-      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      apikey: SUPABASE_PUBLISHABLE_KEY,
     },
     body: JSON.stringify({
       system: spec.systemPrompt,
