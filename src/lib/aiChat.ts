@@ -146,7 +146,11 @@ export const sortConversations = (list: Conversation[]) =>
 
 /* -------------------------------- transport ------------------------------- */
 
-const ENDPOINT = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
+/** Backend endpoint; empty when this deployment has no backend configured. */
+const ENDPOINT = HAS_BACKEND ? `${SUPABASE_URL}/functions/v1/ai-chat` : '';
+
+/** True when the AI page can actually reach a backend. */
+export const AI_CONFIGURED = HAS_BACKEND;
 
 export class AIError extends Error {}
 
