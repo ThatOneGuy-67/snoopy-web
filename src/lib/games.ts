@@ -368,6 +368,7 @@ export function writeFilters(f: GameFilters) {
  * fork never depends on somebody else's hosting.
  */
 export { ASSET_ORIGIN } from './siteConfig';
+import { ASSET_ORIGIN } from './siteConfig';
 
 /** Resolve a game's playable URL (CDN or app-relative). */
 export function gameUrl(game: Game): string {
