@@ -3,7 +3,7 @@
  * (with an in-memory cache), and the real streaming transport that talks to
  * the `ai-chat` edge function.
  */
-import { supabase } from '@/integrations/supabase/client';
+import { HAS_BACKEND, SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from './siteConfig';
 import { DEFAULT_MODEL_ID, getModel } from './aiModels';
 
 export type Role = 'user' | 'assistant';
