@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { applyTheme } from './themes';
+import { DEFAULT_PROXY_URL } from './siteConfig';
 
 export interface AppSettings {
   themeId: string;
@@ -32,7 +33,7 @@ export interface AppSettings {
 
 const DEFAULTS: AppSettings = {
   themeId: 'matrix',
-  proxyUrl: '',
+  proxyUrl: DEFAULT_PROXY_URL,
   proxyPrefix: '/service/',
   openInNewTab: false,
   aboutBlankCloak: false,
