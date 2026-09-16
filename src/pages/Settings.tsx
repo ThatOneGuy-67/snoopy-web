@@ -263,12 +263,12 @@ const SettingsPage = () => {
                 </div>
 
                 <p className="text-sm text-muted-foreground pt-2">
-                  Or paste your own Render-hosted proxy URL (Scramjet / Ultraviolet) below. Used only when the built-in proxy is off.
+                  Or paste your own self-hosted proxy URL (Scramjet / Ultraviolet) below. Used only when the built-in proxy is off.
                 </p>
-                <Field label="Proxy server URL" hint="e.g. https://tog-proxy.onrender.com">
+                <Field label="Proxy server URL" hint="Your own proxy server, e.g. https://my-proxy.example.com">
                   <input type="text" value={settings.proxyUrl}
                     onChange={e => { update('proxyUrl', e.target.value); setTestResult(null); }}
-                    placeholder="https://your-proxy.onrender.com"
+                    placeholder="https://my-proxy.example.com"
                     className="w-full px-4 py-2 rounded-lg bg-input border border-border outline-none" />
                 </Field>
                 <Field label="Proxy path prefix" hint="Default /service/ works for Scramjet & Ultraviolet">
