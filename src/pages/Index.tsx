@@ -6,6 +6,7 @@ import SearchBar from '@/components/SearchBar';
 import TabBar from '@/components/TabBar';
 import ProxyFrame from '@/components/ProxyFrame';
 import BrowserChrome from '@/components/BrowserChrome';
+import { setCanonical } from '@/lib/siteConfig';
 
 import Typewriter from '@/components/Typewriter';
 import RotatingFacts from '@/components/RotatingFacts';

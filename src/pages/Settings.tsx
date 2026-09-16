@@ -42,20 +42,16 @@ type Tab = 'general' | 'proxy' | 'cloak' | 'panic' | 'theme' | 'performance';
 function usePageMeta(title: string, path: string) {
   useEffect(() => {
     const prev = document.title;
+    const prevHref =
+      (document.querySelector("link[rel='canonical']") as HTMLLinkElement | null)?.href ?? '';
     document.title = title;
-    let link = document.querySelector("link[rel='canonical']") as HTMLLinkElement | null;
-    const created = !link;
-    if (!link) {
-      link = document.createElement('link');
-      link.rel = 'canonical';
-      document.head.appendChild(link);
-    }
-    const prevHref = link.href;
-    link.href = `https://snoopy-web.lovable.app${path}`;
+    setCanonical(path);
     return () => {
       document.title = prev;
-      if (created && link) link.remove();
-      else if (link) link.href = prevHref;
+      const link = document.querySelector("link[rel='canonical']") as HTMLLinkElement | null;
+      if (!link) return;
+      if (prevHref) link.href = prevHref;
+      else link.remove();
     };
   }, [title, path]);
 }
