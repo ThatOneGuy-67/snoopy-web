@@ -94,7 +94,21 @@ const injectDeploymentTokens = (env: Record<string, string>, siteUrl: string): P
       for (const file of ["robots.txt", "sitemap.xml", "ai.html", "llms.txt"]) {
         const out = path.resolve(__dirname, "dist", file);
         if (!existsSync(out)) continue;
-        writeFileSync(out, apply(readFileSync(out, "utf8")));
+
+        // A sitemap needs absolute URLs; without a configured public URL we
+        // ship neither the sitemap nor a reference to it.
+        if (!siteUrl && file === "sitemap.xml") {
+          rmSync(out, { force: true });
+          continue;
+        }
+        let content = apply(readFileSync(out, "utf8"));
+        if (!siteUrl && file === "robots.txt") {
+          content = content
+            .split("\n")
+            .filter((line) => !line.startsWith("Sitemap:"))
+            .join("\n");
+        }
+        writeFileSync(out, content);
       }
     },
   };
