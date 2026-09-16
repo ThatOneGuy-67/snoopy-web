@@ -86,7 +86,8 @@ const injectDeploymentTokens = (env: Record<string, string>, siteUrl: string): P
       // No public URL configured: drop the SEO tags that would be empty.
       return replaced
         .split("\n")
-        .filter((line) => !/(href|content)="(\/og-image\.jpg)?"/.test(line))
+        .filter((line) => !/(href|content)="(og-image\.jpg)?"\s*\/?>/.test(line))
+        .filter((line) => !/"url":\s*"",?$/.test(line.trim()))
         .join("\n");
     },
     closeBundle() {
