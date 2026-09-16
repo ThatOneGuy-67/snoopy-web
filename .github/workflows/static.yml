@@ -1,5 +1,15 @@
 name: Deploy Vite site to GitHub Pages
 
+# Deployment is optional and fully self-contained: the base path and public
+# URL are derived from the repository this workflow runs in, so a fork needs
+# no edits. Enable Pages (Settings -> Pages -> Source: GitHub Actions) to use it.
+#
+# Optional repository *variables* (Settings -> Secrets and variables ->
+# Actions -> Variables) override anything that needs your own backend:
+#   VITE_BASE_PATH, VITE_SITE_URL, VITE_SUPABASE_URL,
+#   VITE_SUPABASE_PUBLISHABLE_KEY, VITE_FIREBASE_*, VITE_WISP_URL,
+#   VITE_ASSET_ORIGIN, VITE_MUSIC_CDN
+
 on:
   push:
     branches: ["main"]
@@ -29,10 +39,29 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci --no-audit --no-fund
 
       - name: Build
+        # GITHUB_REPOSITORY is read by vite.config.ts to derive the base path
+        # and public URL automatically for whichever fork is building.
+        env:
+          VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH }}
+          VITE_SITE_URL: ${{ vars.VITE_SITE_URL }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_PROJECT_ID: ${{ vars.VITE_SUPABASE_PROJECT_ID }}
+          VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_DATABASE_URL: ${{ vars.VITE_FIREBASE_DATABASE_URL }}
+          VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
+          VITE_WISP_URL: ${{ vars.VITE_WISP_URL }}
+          VITE_PROXY_URL: ${{ vars.VITE_PROXY_URL }}
+          VITE_ASSET_ORIGIN: ${{ vars.VITE_ASSET_ORIGIN }}
+          VITE_MUSIC_CDN: ${{ vars.VITE_MUSIC_CDN }}
         run: npm run build
+
+      - name: SPA fallback for client-side routes
+        run: cp dist/index.html dist/404.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
