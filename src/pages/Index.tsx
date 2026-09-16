@@ -64,13 +64,7 @@ const Index = () => {
       document.title = "TOG's Web — Access the web without limits";
     }
     // Self-referencing canonical for the homepage.
-    let link = document.querySelector("link[rel='canonical']") as HTMLLinkElement | null;
-    if (!link) {
-      link = document.createElement('link');
-      link.rel = 'canonical';
-      document.head.appendChild(link);
-    }
-    link.href = 'https://snoopy-web.lovable.app/';
+    setCanonical('/');
   }, [settings.autoCloakOnLoad, settings.defaultCloakTitle, settings.defaultCloakFavicon, applyCloak]);
 
   // Panic key

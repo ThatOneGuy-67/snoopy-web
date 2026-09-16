@@ -57,10 +57,17 @@ try {
     const status = await head(url);
     record(`game "${g.t}"`, status >= 200 && status < 400, `HTTP ${status} ${url}`);
   }
-  for (const g of pick(offloaded).slice(0, 3)) {
-    const url = `https://snoopy-web.lovable.app${g.f}`;
-    const status = await head(url);
-    record(`offloaded game "${g.t}"`, status >= 200 && status < 400, `HTTP ${status}`);
+  // Externally offloaded bundles are only checked when this deployment
+  // actually uses an asset origin (ASSET_ORIGIN / VITE_ASSET_ORIGIN).
+  const ASSET_ORIGIN = (process.env.ASSET_ORIGIN || process.env.VITE_ASSET_ORIGIN || '').replace(/\/+$/, '');
+  if (ASSET_ORIGIN) {
+    for (const g of pick(offloaded).slice(0, 3)) {
+      const url = `${ASSET_ORIGIN}${g.f}`;
+      const status = await head(url);
+      record(`offloaded game "${g.t}"`, status >= 200 && status < 400, `HTTP ${status}`);
+    }
+  } else if (offloaded.length) {
+    console.log(`SKIP  ${offloaded.length} offloaded game(s) — no ASSET_ORIGIN configured`);
   }
 
   // 4. Proxy: boot Scramjet in the page and fetch through it
