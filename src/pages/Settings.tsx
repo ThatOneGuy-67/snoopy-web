@@ -14,6 +14,7 @@ import {
   testWispReachable, DEFAULT_WISP_URL, clearCachedWispResult, resetController,
 } from '@/lib/scramjet';
 import RotatingFacts from '@/components/RotatingFacts';
+import { setCanonical } from '@/lib/siteConfig';
 
 /**
  * Full Settings page (replaces the old modal).
@@ -42,20 +43,16 @@ type Tab = 'general' | 'proxy' | 'cloak' | 'panic' | 'theme' | 'performance';
 function usePageMeta(title: string, path: string) {
   useEffect(() => {
     const prev = document.title;
+    const prevHref =
+      (document.querySelector("link[rel='canonical']") as HTMLLinkElement | null)?.href ?? '';
     document.title = title;
-    let link = document.querySelector("link[rel='canonical']") as HTMLLinkElement | null;
-    const created = !link;
-    if (!link) {
-      link = document.createElement('link');
-      link.rel = 'canonical';
-      document.head.appendChild(link);
-    }
-    const prevHref = link.href;
-    link.href = `https://snoopy-web.lovable.app${path}`;
+    setCanonical(path);
     return () => {
       document.title = prev;
-      if (created && link) link.remove();
-      else if (link) link.href = prevHref;
+      const link = document.querySelector("link[rel='canonical']") as HTMLLinkElement | null;
+      if (!link) return;
+      if (prevHref) link.href = prevHref;
+      else link.remove();
     };
   }, [title, path]);
 }
@@ -266,12 +263,12 @@ const SettingsPage = () => {
                 </div>
 
                 <p className="text-sm text-muted-foreground pt-2">
-                  Or paste your own Render-hosted proxy URL (Scramjet / Ultraviolet) below. Used only when the built-in proxy is off.
+                  Or paste your own self-hosted proxy URL (Scramjet / Ultraviolet) below. Used only when the built-in proxy is off.
                 </p>
-                <Field label="Proxy server URL" hint="e.g. https://tog-proxy.onrender.com">
+                <Field label="Proxy server URL" hint="Your own proxy server, e.g. https://my-proxy.example.com">
                   <input type="text" value={settings.proxyUrl}
                     onChange={e => { update('proxyUrl', e.target.value); setTestResult(null); }}
-                    placeholder="https://your-proxy.onrender.com"
+                    placeholder="https://my-proxy.example.com"
                     className="w-full px-4 py-2 rounded-lg bg-input border border-border outline-none" />
                 </Field>
                 <Field label="Proxy path prefix" hint="Default /service/ works for Scramjet & Ultraviolet">

@@ -151,8 +151,20 @@ textarea{flex:1;resize:none;min-height:40px;max-height:170px;border:0;outline:0;
 </div>
 
 <script>
-const ENDPOINT = "https://zwctbszdsekczxudydws.supabase.co/functions/v1/ai-chat";
-const PUBLIC_KEY = "sb_publishable_-ctYGJWekfjkj__4-1daFw_DUYMaoFp";
+/* Backend config. Injected at build time from VITE_SUPABASE_URL /
+   VITE_SUPABASE_PUBLISHABLE_KEY (see .env.example). You can also override it
+   at runtime with ?backend=<url>&key=<publishable key>. */
+const CFG = new URLSearchParams(location.search);
+const SUPABASE_URL = (CFG.get("backend") || "__SUPABASE_URL__").replace(/\/+$/, "");
+const PUBLIC_KEY = CFG.get("key") || "__SUPABASE_PUBLISHABLE_KEY__";
+const ENDPOINT = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/ai-chat` : "";
+if (!ENDPOINT || ENDPOINT.includes("__SUPABASE_URL__")) {
+  document.addEventListener("DOMContentLoaded", () => {
+    alert(
+      "AI backend is not configured.\n\nSet VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in your .env and rebuild, or open this page with ?backend=<url>&key=<publishable key>."
+    );
+  });
+}
 
 const BASE = `You are part of TOG AI. Be accurate, concise and genuinely useful.
 Format with Markdown. Use fenced code blocks with a language tag, tables where they help,
