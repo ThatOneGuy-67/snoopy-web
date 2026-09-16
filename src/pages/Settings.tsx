@@ -14,6 +14,7 @@ import {
   testWispReachable, DEFAULT_WISP_URL, clearCachedWispResult, resetController,
 } from '@/lib/scramjet';
 import RotatingFacts from '@/components/RotatingFacts';
+import { setCanonical } from '@/lib/siteConfig';
 
 /**
  * Full Settings page (replaces the old modal).
