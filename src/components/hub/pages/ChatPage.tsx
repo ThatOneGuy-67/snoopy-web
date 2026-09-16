@@ -24,6 +24,7 @@ import {
   browserFingerprint,
   censor,
   db,
+  CHAT_CONFIGURED,
   type ChatMsg,
   type Role,
   type RoomMeta,
@@ -673,4 +674,26 @@ const ChatPage = () => {
   );
 };
 
-export default ChatPage;
+/**
+ * The chat page needs a Realtime Database that each deployment provides
+ * itself. Without one we render setup instructions instead of connecting to
+ * anybody else's backend.
+ */
+const ChatUnconfigured = () => (
+  <div className="h-full w-full flex items-center justify-center p-8">
+    <div className="glass-panel max-w-md p-8 text-center space-y-3">
+      <MessageCircle className="w-10 h-10 mx-auto text-primary" />
+      <h2 className="text-xl font-semibold">Chat isn't set up yet</h2>
+      <p className="text-sm text-muted-foreground">
+        Create your own Firebase project with Realtime Database enabled, then copy
+        <code className="mx-1 px-1 rounded bg-muted/40 font-mono text-xs">.env.example</code>
+        to <code className="mx-1 px-1 rounded bg-muted/40 font-mono text-xs">.env</code>
+        and fill in the <span className="font-mono text-xs">VITE_FIREBASE_*</span> values.
+      </p>
+    </div>
+  </div>
+);
+
+const ChatPageRoot = () => (CHAT_CONFIGURED ? <ChatPage /> : <ChatUnconfigured />);
+
+export default ChatPageRoot;
