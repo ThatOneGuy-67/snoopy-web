@@ -1,7 +1,7 @@
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { copyFileSync, mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync, existsSync, rmSync } from "node:fs";
 import { componentTagger } from "lovable-tagger";
 
 /**
