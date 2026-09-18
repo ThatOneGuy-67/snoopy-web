@@ -47,11 +47,16 @@ export const HAS_BACKEND = Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
 
 /* -------------------------------- chat ---------------------------------- */
 
+/**
+ * Chat database. Defaults to this deployment's own Realtime Database; a fork
+ * can point it at its own project with the VITE_FIREBASE_* variables.
+ */
 export const FIREBASE_CONFIG = {
-  apiKey: clean(env.VITE_FIREBASE_API_KEY),
-  authDomain: clean(env.VITE_FIREBASE_AUTH_DOMAIN),
-  databaseURL: clean(env.VITE_FIREBASE_DATABASE_URL),
-  projectId: clean(env.VITE_FIREBASE_PROJECT_ID),
+  apiKey: clean(env.VITE_FIREBASE_API_KEY) || 'AIzaSyAUh8VuVTZJ4kPZF203-bml44dtHCDQRl8',
+  authDomain: clean(env.VITE_FIREBASE_AUTH_DOMAIN) || 'snoopys-chat.firebaseapp.com',
+  databaseURL:
+    clean(env.VITE_FIREBASE_DATABASE_URL) || 'https://snoopys-chat-default-rtdb.firebaseio.com',
+  projectId: clean(env.VITE_FIREBASE_PROJECT_ID) || 'snoopys-chat',
 };
 
 /** True when this fork has its own Realtime Database configured. */
