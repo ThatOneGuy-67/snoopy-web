@@ -31,9 +31,9 @@ export const db = new Proxy({} as Database, {
 
 const env = import.meta.env as Record<string, string | undefined>;
 
-export const ADMIN_PASSWORD = (env.cup ?? '').trim();
-export const MOD_PASSWORD = (env.loser ?? '').trim();
-export const OWNER_PASSWORD = (env.alpha ?? '').trim();
+export const ADMIN_PASSWORD = (env.VITE_CUP ?? '').trim();
+export const MOD_PASSWORD = (env.VITE_LOSER ?? '').trim();
+export const OWNER_PASSWORD = (env.VITE_ALPHA ?? '').trim();
 
 
 export type Role = 'owner' | 'admin' | 'mod' | 'user';
