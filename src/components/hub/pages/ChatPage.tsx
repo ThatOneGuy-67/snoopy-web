@@ -97,13 +97,13 @@ const ChatPage = () => {
 
     let nextName = name;
     let nextRole: Role = 'user';
-    if (pass === OWNER_PASSWORD) {
+    if (OWNER_PASSWORD && pass === OWNER_PASSWORD) {
       nextName = name || '👑ThatOneGuy👑';
       nextRole = 'owner';
-    } else if (pass === ADMIN_PASSWORD) {
+    } else if (ADMIN_PASSWORD && pass === ADMIN_PASSWORD) {
       nextName = name || '🥞Admin🥞';
       nextRole = 'admin';
-    } else if (pass === MOD_PASSWORD) {
+    } else if (MOD_PASSWORD && pass === MOD_PASSWORD) {
       nextName = name || '🍔Mod🍔';
       nextRole = 'mod';
     } else if (name.length < 3) {
