@@ -73,12 +73,39 @@ button:hover{ background: rgba(255,255,255,0.35); }
   overflow-y:auto;
   margin-bottom:15px;
   text-align:left;
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
 }
 
-.msg{ 
-  margin-bottom:8px;
-  font-size:16px;
+.msg{
+  width:fit-content;
+  max-width:min(78%, 620px);
+  margin:0;
+  padding:9px 13px;
+  font-size:15px;
   line-height:1.4;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px 16px 16px 5px;
+  background:rgba(255,255,255,.045);
+  box-shadow:0 3px 14px rgba(0,0,0,.14);
+  overflow-wrap:anywhere;
+}
+
+.msg.mine{
+  align-self:flex-end;
+  border-radius:16px 16px 5px 16px;
+  background:rgba(85,232,135,.13);
+  border-color:rgba(85,232,135,.24);
+}
+
+.msg.mine b{
+  color:var(--sw-primary) !important;
+}
+
+.msg .btn{
+  margin-left:7px;
 }
 .msg b{
   font-size:17px;
@@ -164,6 +191,24 @@ button:hover{ background: rgba(255,255,255,0.35); }
   gap:8px;
   align-items:center;
   position:relative;
+  padding-top:4px;
+}
+
+#sendBar input[type=text]{
+  height:42px;
+  border-radius:999px;
+  padding:0 16px;
+}
+
+#sendBar button{
+  height:42px;
+}
+
+#sendBar > button:last-of-type{
+  border-radius:999px;
+  padding:0 18px;
+  background:rgba(85,232,135,.12);
+  border-color:rgba(85,232,135,.3);
 }
 
 #gifPicker{
@@ -264,7 +309,7 @@ button:hover{ background: rgba(255,255,255,0.35); }
 
 #sendBar input[type=text]{
   width:50%;
-  max-width:400px;
+  max-width:520px;
 }
 
 .footer{
@@ -396,7 +441,21 @@ body{
   box-shadow:0 8px 32px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.04);
 }
 #login{min-height:460px;height:auto;padding:32px 22px}
-.chatWrap{max-width:1100px;margin:18px auto}
+.chatWrap{max-width:1100px;margin:10px auto;padding:18px}
+.chatTopBar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:2px 2px 14px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  margin-bottom:14px;
+}
+.chatTitle{font-size:18px;font-weight:700;letter-spacing:-.02em}
+#currentRoomLabel{font-size:12px;color:var(--sw-muted);margin-top:3px}
+.chatTopActions{display:flex;align-items:center;gap:10px}
+.backBtn{margin:0;font-size:12px;padding:8px 12px}
+
 input{
   background:rgba(255,255,255,.055);
   border:1px solid rgba(255,255,255,.12);
@@ -427,8 +486,11 @@ h1{letter-spacing:-.02em}
 ::-webkit-scrollbar-thumb{background:#30373f;border-radius:999px}
 ::-webkit-scrollbar-thumb:hover{background:#4a545e}
 @media(max-width:700px){
-  body{padding:8px}
-  .chatWrap{margin:8px auto}
+  body{padding:6px}
+  .chatWrap{margin:4px auto;padding:12px}
+  .chatTopBar{align-items:flex-start}
+  .chatTopActions{flex-direction:column;align-items:flex-end;gap:6px}
+  .msg{max-width:88%}
   #chatScreen{padding:10px}
   #sendBar{gap:4px}
   #sendBar input[type=text]{width:auto;min-width:0;flex:1}
@@ -463,10 +525,16 @@ h1{letter-spacing:-.02em}
 
 <!-- CHAT -->
 <div id="chatScreen" class="glass chatWrap">
-  <button class="backBtn" onclick="goBack()">← Change Username</button>
-
-  <h1>Snoopy’s Chat</h1>
-  <div id="online">Online: 0</div>  <div id="currentRoomLabel" style="font-size:14px; color:#aaa; margin-bottom:10px;">Room: General</div>
+  <div class="chatTopBar">
+    <div>
+      <div class="chatTitle">Snoopy’s Chat</div>
+      <div id="currentRoomLabel">Room: General</div>
+    </div>
+    <div class="chatTopActions">
+      <div id="online">Online: 0</div>
+      <button class="backBtn" onclick="goBack()">Change Username</button>
+    </div>
+  </div>
 
   <!-- PUBLIC ROOMS -->
   <div style="margin-bottom:15px;">
@@ -1209,7 +1277,7 @@ function renderMessage(snap){
   let text=d.msg;
   badWords.forEach(w=>{text=text.replace(new RegExp(w,"gi"), "***");});
   const div=document.createElement("div");
-  div.className="msg";
+  div.className="msg" + (d.name === username ? " mine" : "");
 
   const roleLabel = d.role && d.role!=="user"? d.role.toUpperCase():null;
   let nameHTML = roleLabel ? `<span class="admin">${d.name} (${roleLabel})</span>`: d.name;
