@@ -441,15 +441,15 @@ body{
   box-shadow:0 8px 32px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.04);
 }
 #login{min-height:460px;height:auto;padding:32px 22px}
-.chatWrap{max-width:1100px;margin:10px auto;padding:18px}
+.chatWrap{max-width:1100px;margin:4px auto;padding:12px}
 .chatTopBar{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:16px;
-  padding:2px 2px 14px;
+  gap:12px;
+  padding:0 2px 8px;
   border-bottom:1px solid rgba(255,255,255,.07);
-  margin-bottom:14px;
+  margin-bottom:8px;
 }
 .chatTitle{font-size:18px;font-weight:700;letter-spacing:-.02em}
 #currentRoomLabel{font-size:12px;color:var(--sw-muted);margin-top:3px}
@@ -470,8 +470,23 @@ button{
   transition:.2s ease;
 }
 button:hover{background:rgba(85,232,135,.12);border-color:rgba(85,232,135,.38);box-shadow:0 0 18px rgba(85,232,135,.09)}
-#chat{background:rgba(8,11,14,.38);border-color:rgba(255,255,255,.08);scrollbar-color:#30373f transparent}
-#online{color:var(--sw-primary)}
+#chat{
+  background:rgba(8,11,14,.38);
+  border-color:rgba(255,255,255,.08);
+  scrollbar-color:#30373f transparent;
+  height:calc(100vh - 250px);
+  min-height:320px;
+  max-height:620px;
+  margin-bottom:8px;
+}
+#online{color:var(--sw-primary);margin:0}
+#chatScreen{min-height:0}
+.chatTitle{font-size:16px}
+.chatTopActions{gap:6px}
+.chatTopActions .backBtn{padding:6px 9px}
+#chatScreen > div[style*="margin-bottom:15px"]{margin-bottom:8px !important}
+#chatScreen > div[style*="margin-bottom:15px"] + div[style*="margin-bottom:15px"]{margin-bottom:8px !important}
+#privateModal{margin-bottom:8px !important;padding:10px !important}
 #adminPanel{background:rgba(80,20,25,.28);border-color:rgba(255,100,110,.35)}
 .adminRight{background:rgba(255,255,255,.035)}
 #gifPicker,#colorOptions{background:rgba(13,16,20,.96);border-color:rgba(85,232,135,.25)}
@@ -487,12 +502,15 @@ h1{letter-spacing:-.02em}
 ::-webkit-scrollbar-thumb:hover{background:#4a545e}
 @media(max-width:700px){
   body{padding:6px}
-  .chatWrap{margin:4px auto;padding:12px}
+  .chatWrap{margin:2px auto;padding:10px}
   .chatTopBar{align-items:flex-start}
   .chatTopActions{flex-direction:column;align-items:flex-end;gap:6px}
   .msg{max-width:88%}
-  #chatScreen{padding:10px}
-  #sendBar{gap:4px}
+  #chatScreen{padding:8px}
+  #chat{height:calc(100vh - 285px);min-height:260px}
+  #sendBar{gap:4px;padding-top:0}
+#sendBar input[type=text]{height:38px}
+#sendBar button{height:38px;padding-top:7px;padding-bottom:7px}
   #sendBar input[type=text]{width:auto;min-width:0;flex:1}
   #gifPicker,#colorOptions{width:min(94vw,380px)}
 }
