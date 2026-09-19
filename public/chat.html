@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+  background:
+    linear-gradient(rgba(50,50,50,0.8), rgba(50,50,50,0.8)),
+    url("https://i.pinimg.com/originals/11/cf/ee/11cfeef9eaa56c71a6eeb9933f933492.gif");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  font-family: Arial, sans-serif;
+  color:#fff;
+  padding:10px;
+  text-align:center;
+}
+
+.glass{
+  background: rgba(30,30,30,0.85);
+  backdrop-filter: blur(10px);
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius:12px;
+  padding:12px;
+}
+
+#login{
+  height:460px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+#chatScreen{ display:none; }
+
+.chatWrap{
+  max-width:900px;
+  margin:30px auto;
+}
+
+.rules{
+  max-width:500px;
+  font-size:13px;
+  margin-bottom:12px;
+  text-align:left;
+}
+
+input{
+  padding:10px;
+  margin:5px;
+  width:80%;
+  max-width:400px;
+  background: rgba(255,255,255,0.15);
+  border:1px solid rgba(255,255,255,0.3);
+  border-radius:8px;
+  color:#fff;
+}
+
+button{
+  padding:10px 18px;
+  margin:5px;
+  background: rgba(255,255,255,0.2);
+  border:1px solid rgba(255,255,255,0.3);
+  border-radius:8px;
+  cursor:pointer;
+  color:#fff;
+}
+
+button:hover{ background: rgba(255,255,255,0.35); }
+
+#chat{
+  height:480px;
+  overflow-y:auto;
+  margin-bottom:15px;
+  text-align:left;
+}
+
+.msg{ 
+  margin-bottom:8px;
+  font-size:16px;
+  line-height:1.4;
+}
+.msg b{
+  font-size:17px;
+}
+.msg img{
+  max-width:300px;
+  max-height:300px;
+  border:2px solid #fff;
+  border-radius:6px;
+  display:block;
+  margin-top:5px;
+}
+
+.admin{ color:#ff5555; }
+
+.btn{
+  font-size:12px;
+  margin-left:6px;
+  cursor:pointer;
+  color:#aaa;
+}
+.btn:hover{ color:red; }
+
+#online{
+  color:#00ff00;
+  font-size:13px;
+  margin-bottom:8px;
+}
+
+#adminPanel{
+  display:none;
+  margin-bottom:12px;
+  background: rgba(50,0,0,0.6);
+  border:1px solid #d88;
+  border-radius:10px;
+  padding:10px;
+}
+
+.adminGrid{
+  display:flex;
+  gap:15px;
+}
+
+.adminLeft{
+  flex:2;
+  text-align:left;
+}
+
+.adminRight{
+  flex:1;
+  background: rgba(80,80,80,0.5);
+  border-radius:8px;
+  padding:8px;
+  font-size:12px;
+  text-align:left;
+}
+
+.adminRight b{
+  display:block;
+  margin-bottom:6px;
+}
+
+#logs{
+  display:none;
+  font-size:12px;
+  max-height:150px;
+  overflow-y:auto;
+  margin-top:8px;
+}
+
+#commandsLog{
+  display:block;
+  font-size:12px;
+  max-height:100px;
+  overflow-y:auto;
+  margin-bottom:6px;
+  color:#0ff;
+}
+
+#sendBar{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  align-items:center;
+  position:relative;
+}
+
+#gifPicker{
+  position:absolute;
+  bottom:60px;
+  left:50%;
+  transform:translateX(-50%);
+  width:380px;
+  max-height:260px;
+  overflow-y:auto;
+  background:rgba(20,20,20,0.98);
+  border:2px solid rgba(255,255,255,0.3);
+  border-radius:12px;
+  padding:12px;
+  display:none;
+  z-index:999;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+}
+
+#colorOptions{
+  position:absolute;
+  bottom:60px;
+  left:50%;
+  transform:translateX(-50%);
+  width:380px;
+  max-height:260px;
+  overflow-y:auto;
+  background:rgba(20,20,20,0.98);
+  border:2px solid rgba(255,255,255,0.3);
+  border-radius:12px;
+  padding:12px;
+  display:none;
+  z-index:999;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+}
+
+.gifGrid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+
+.gifGrid img{
+  width:100%;
+  cursor:pointer;
+  border-radius:8px;
+  border:2px solid #555;
+  transition:all 0.2s ease;
+}
+
+.gifGrid img:hover{
+  border-color:#888;
+  transform:scale(1.05);
+}
+
+.colorGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* 6 colors per row */
+  gap: 8px;
+}
+
+.colorGrid div {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid #555;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.colorGrid div:hover {
+  transform: scale(1.1);
+  border-color: #fff;
+}
+
+
+#gifBtn {
+  padding:10px;
+  font-size:20px;
+  background: rgba(255,255,255,0.2);
+  border:1px solid rgba(255,255,255,0.3);
+  border-radius:6px;
+  cursor:pointer;
+  color:#fff;
+}
+#gifBtn:hover { background: rgba(255,255,255,0.35); }
+
+#colorBtn {
+  padding:10px;
+  font-size:20px;
+  background: rgba(255,255,255,0.2);
+  border:1px solid rgba(255,255,255,0.3);
+  border-radius:6px;
+  cursor:pointer;
+  color:#fff;
+}
+#colorBtn:hover { background: rgba(255,255,255,0.35); }
+
+#sendBar input[type=text]{
+  width:50%;
+  max-width:400px;
+}
+
+.footer{
+  margin-top:15px;
+  font-size:12px;
+  color:#ccc;
+}
+
+.backBtn{
+  font-size:12px;
+  background: rgba(255,255,255,0.2);
+}
+
+/* Shake animation */
+@keyframes shake {
+  0% { transform: translateX(0px); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0px); }
+}
+
+.shake {
+  animation: shake 0.5s;
+}
+
+.gifDivider{
+  grid-column: 1 / -1;
+  margin: 10px 0;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255,255,255,0.3);
+  font-size: 11px;
+  color: #ff7777;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.roomCard{
+  padding:8px 14px;
+  background: rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius:8px;
+  cursor:pointer;
+  color:#fff;
+  font-size:12px;
+  transition:all 0.2s ease;
+}
+
+.roomCard:hover{
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.4);
+}
+
+.roomCard.active{
+  background: rgba(100,200,255,0.3);
+  border-color: rgba(100,200,255,0.8);
+  color:#6cf;
+}
+
+.roomCard small{
+  display:block;
+  font-size:10px;
+  color:#aaa;
+  margin-top:3px;
+}
+
+.statusText{
+  font-size:12px;
+  color:#888;
+  margin-left:5px;
+}
+
+.checkboxUser{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  background: rgba(255,255,255,0.08);
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.checkboxUser input{
+  width:auto;
+  cursor:pointer;
+  margin:0;
+  padding:0;
+}
+
+.checkboxUser span{
+  font-size:13px;
+}
+
+.checkboxUser:hover{
+  background: rgba(255,255,255,0.15);
+}
+
+
+
+/* Snoopy Web theme bridge: keep the original chat structure/functionality,
+   but use the same dark glass + green glow language as the hub. */
+:root{
+  --sw-bg:#0f1217;
+  --sw-panel:rgba(24,28,34,.72);
+  --sw-panel-strong:rgba(20,24,30,.88);
+  --sw-border:rgba(255,255,255,.12);
+  --sw-primary:#55e887;
+  --sw-primary-soft:rgba(85,232,135,.16);
+  --sw-muted:#8f98a3;
+}
+body{
+  background:
+    radial-gradient(ellipse at top,rgba(38,54,46,.38),transparent 52%),
+    radial-gradient(ellipse at bottom,rgba(12,18,15,.72),transparent 58%),
+    #0f1217;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:#f2f5f3;
+  padding:16px;
+  min-height:100vh;
+  box-sizing:border-box;
+}
+*,*:before,*:after{box-sizing:border-box}
+.glass{
+  background:linear-gradient(135deg,var(--sw-panel),rgba(20,24,30,.42));
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--sw-border);
+  border-radius:16px;
+  box-shadow:0 8px 32px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.04);
+}
+#login{min-height:460px;height:auto;padding:32px 22px}
+.chatWrap{max-width:1100px;margin:18px auto}
+input{
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.12);
+  outline:none;
+  transition:.2s;
+}
+input:focus{border-color:rgba(85,232,135,.55);box-shadow:0 0 0 3px rgba(85,232,135,.08)}
+button{
+  background:rgba(255,255,255,.065);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;
+  transition:.2s ease;
+}
+button:hover{background:rgba(85,232,135,.12);border-color:rgba(85,232,135,.38);box-shadow:0 0 18px rgba(85,232,135,.09)}
+#chat{background:rgba(8,11,14,.38);border-color:rgba(255,255,255,.08);scrollbar-color:#30373f transparent}
+#online{color:var(--sw-primary)}
+#adminPanel{background:rgba(80,20,25,.28);border-color:rgba(255,100,110,.35)}
+.adminRight{background:rgba(255,255,255,.035)}
+#gifPicker,#colorOptions{background:rgba(13,16,20,.96);border-color:rgba(85,232,135,.25)}
+.roomCard.active{background:var(--sw-primary-soft);border-color:rgba(85,232,135,.55);color:var(--sw-primary);box-shadow:0 0 18px rgba(85,232,135,.08)}
+.roomCard:hover{background:rgba(255,255,255,.075)}
+#gifBtn,#colorBtn{background:rgba(255,255,255,.065)}
+#sendBar input[type=text]{background:transparent;border-color:rgba(255,255,255,.1)}
+.footer{color:var(--sw-muted)}
+h1{letter-spacing:-.02em}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#30373f;border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:#4a545e}
+@media(max-width:700px){
+  body{padding:8px}
+  .chatWrap{margin:8px auto}
+  #chatScreen{padding:10px}
+  #sendBar{gap:4px}
+  #sendBar input[type=text]{width:auto;min-width:0;flex:1}
+  #gifPicker,#colorOptions{width:min(94vw,380px)}
+}
+
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="glass">
+  <h1>Snoopy’s Chat</h1>
+  <h3>Enter Username</h3>
+
+  <div class="rules glass">
+    <b>Rules:</b><br>
+    • Be respectful<br>
+    • No spamming<br>
+    • No harassment<br>
+    • NO CUSSING<br>
+    • Admins can mute/ban/troll<br>
+    • Have fun : )
+  </div>
+
+  <input id="usernameInput" placeholder="Username (min 3 chars)">
+  <input id="adminPass" type="password" placeholder="Admin password (optional)">
+  <button onclick="enterChat()">ENTER CHAT</button>
+
+  <div class="footer">@Snoopy’s Hub</div>
+</div>
+
+<!-- CHAT -->
+<div id="chatScreen" class="glass chatWrap">
+  <button class="backBtn" onclick="goBack()">← Change Username</button>
+
+  <h1>Snoopy’s Chat</h1>
+  <div id="online">Online: 0</div>  <div id="currentRoomLabel" style="font-size:14px; color:#aaa; margin-bottom:10px;">Room: General</div>
+
+  <!-- PUBLIC ROOMS -->
+  <div style="margin-bottom:15px;">
+    <b style="font-size:13px; margin-left:5px;">📖 Public Chats</b>
+    <div id="publicRooms" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;"></div>
+  </div>
+
+  <!-- PRIVATE ROOMS -->
+  <div style="margin-bottom:15px;">
+    <b style="font-size:13px; margin-left:5px;">💬 Private Chats</b>
+    <div id="privateRooms" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;"></div>
+    <div style="margin-top:8px;">
+      <button onclick="toggleCreatePrivateChat()" style="font-size:12px; padding:6px 12px;">➕ New Private Chat</button>
+    </div>
+  </div>
+
+  <!-- CREATE PRIVATE CHAT MODAL -->
+  <div id="privateModal" style="display:none; margin-bottom:15px; background:rgba(30,50,80,0.8); border:1px solid rgba(100,150,200,0.5); border-radius:10px; padding:15px;">
+    <b>Create Private Chat</b>
+    <small style="display:block; margin-bottom:8px; color:#aaa;">Select one or more people to chat with</small>
+    <div id="privateUsers" style="display:flex; flex-direction:column; gap:6px; max-height:150px; overflow-y:auto; margin-bottom:10px;"></div>
+    <div style="display:flex; gap:8px;">
+      <button onclick="createPrivateChat()" style="flex:1;">Create Chat</button>
+      <button onclick="toggleCreatePrivateChat()" style="flex:1;">Cancel</button>
+    </div>
+  </div>
+  <div id="adminPanel">
+    <b>ADMIN PANEL</b><br><br>
+    <div id="commandsLog"></div>
+    <div class="adminGrid">
+      <div class="adminLeft">
+        <button id="clearChatBtn" onclick="clearChat()">CLEAR USER CHAT</button>
+        <button id="deleteHistoryBtn" onclick="deleteHistory()">💬 DELETE ALL HISTORY</button>
+        <button id="clearGifsBtn" onclick="clearGifs()">🧹 CLEAR ALL GIFS</button>
+        <button id="toggleLogsBtn" onclick="toggleLogs()">TOGGLE LOGS</button>
+        <div id="logs"></div>
+      </div>
+      <div class="adminRight" id="commandsPanel">
+        <b>Commands</b><br>
+        /mute &lt;user&gt;<br>
+        /unmute &lt;user&gt;<br>
+        /ban &lt;user&gt;<br>
+        /unban &lt;user&gt;<br>
+        /kick &lt;user&gt;<br>
+        /clear<br>
+        /deleteall<br>
+        /color &lt;color&gt;<br>
+        /troll &lt;user&gt;<br>
+        /shake &lt;user&gt;<br>
+        /spam &lt;user&gt;<br>
+        /rainbow<br>
+        /del &lt;msgKey&gt;<br>
+      </div>
+    </div>
+  </div>
+
+  <div id="chat" class="glass"></div>
+
+  <div id="sendBar">
+    <button id="colorBtn" onclick="toggleColorOptions()">🎨</button>
+    <button id="gifBtn" onclick="toggleGifPicker()">🎬</button>
+    <input id="msg" type="text" placeholder="Type a message">
+    <button onclick="send()">Send</button>
+
+    <div id="gifPicker">
+      <div class="gifGrid" id="gifGrid"></div>
+    </div>
+
+    <div id="colorOptions"></div>
+  </div>
+
+  <div class="footer">@Snoopy’s Hub</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAUh8VuVTZJ4kPZF203-bml44dtHCDQRl8",
+  authDomain: "snoopys-chat.firebaseapp.com",
+  databaseURL: "https://snoopys-chat-default-rtdb.firebaseio.com",
+  projectId: "snoopys-chat"
+};
+firebase.initializeApp(firebaseConfig);
+
+const adminDB = firebase.database().ref("admin");
+const onlineDB = firebase.database().ref("online");
+const chatsRoot = firebase.database().ref("chats");
+const roomsMetaDB = firebase.database().ref("roomsMeta");
+
+const ADMIN_PASSWORD="__SNOOPY_ADMIN_PASSWORD__";
+const MOD_PASSWORD="__SNOOPY_MOD_PASSWORD__";
+const OWNER_PASSWORD="__SNOOPY_OWNER_PASSWORD__";
+
+let username="";
+let role="user";
+let isAdmin=false;
+let isMod=false;
+let mutedUsers={};
+let userColors={};
+let onlineUsers={};
+let currentRoomId="general";
+let currentRoomMeta=null;
+let currentChatRef=null;
+let currentChatListener=null;
+let privateRoomsListener=null;
+let privateRoomsCache={};
+const badWords=["fuck","shit","bitch","asshole","nigger","nigga","1700300041"];
+const publicRoomList = [
+  { id:"general", name:"General", description:"Main chat for everyone", type:"public", gifOnly:false },
+  { id:"gifs-only", name:"GIFs Only", description:"Only GIFs and image posts", type:"public", gifOnly:true }
+];
+
+// Element references
+const currentRoomLabel = document.getElementById("currentRoomLabel");
+
+
+// OWNER ONLY GIFs
+const ownerGifs = [
+  "https://media.tenor.com/IvMj_IDQHzoAAAAM/kenjou-cat.gif",
+  "https://media.tenor.com/pv0FSK0tt4UAAAAM/cute-cat.gif",
+  "https://media.tenor.com/0jLTYEhwvyYAAAAM/cat-kitty.gif",
+  "https://media.tenor.com/zaulJgJ3xPQAAAAM/cat-flash.gif",
+  "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGtuc3FlOXV0NnRnejU1MTgxZjRhMXJuM2xlOHU1b3Bnb2t5NHBtYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/901mxGLGQN2PyCQpoc/giphy.gif",
+  "https://media.tenor.com/0KfCCLD0HJ0AAAAM/cat-meme-cat-funny.gif",
+  "https://p16-comment-sign-useast8.tiktokcdn-us.com/tos-useast8-i-bwwwqb46tv-tx2/1f6e24fb128f4be992875daf5ea2caaa~tplv-jj85edgx6n-image-origin.jpeg?dr=11732&refresh_token=61c0a34c&x-expires=1800756000&x-signature=XXpAyMiQXPLE6XmuNau1fp6dGdA%3D&t=67a6c45e&ps=a0626fcd&shp=ff37627b&shcp=ff37627b&idc=useast5",
+  "https://media.tenor.com/yPN0L3Bk4QEAAAAm/hashcat-mcdonalds.webp",
+  "https://media.tenor.com/YMj57yPt2SoAAAAM/cat-cat-meme.gif",
+  "https://media.tenor.com/RFLHa8XdOO4AAAAM/cats-rice-hat.gif",
+  "https://media1.tenor.com/m/3uIhN0sm370AAAAd/kitty-minecraft.gif"
+];
+
+// OWNER ONLY GIFs
+const modGifs = [
+  "https://media.tenor.com/HAU_nZjbw9gAAAAm/cat-dance.webp",
+  "https://media.tenor.com/3PzUZlh9nG4AAAAM/oh-wow.gif",
+  "https://media.tenor.com/islKHV6ibh0AAAAM/kitty-cat.gif",
+  "https://media.tenor.com/iALgQGVcpz4AAAAm/scemer-staring-cat.webp",
+  "https://media.tenor.com/0Q5IZ6e9pC8AAAAM/cat-cute-cat.gif",
+  "https://media.tenor.com/2_aRMC55UQsAAAAi/catcoin-cat-meme.gif"
+];
+
+
+// Cat GIFs
+const catGifs=[ 
+  "https://media.tenor.com/_WZy7E7hoTcAAAAM/cat-smile.gif",
+  "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWZyeWczaWFscmEwOGU5Y2Jmempydzhnb2UwdWdybHcwdnhhY2ptMSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/v3Rb7dGuvkmaRi6qei/giphy.gif",
+  "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW56aXVyeTQwNGVodDhzdml1N3NlYmZuaTRiZnpxMjdiMWo1b2gxbCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/In0Lpu4FVivjISX9HT/giphy.webp",
+  "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW56aXVyeTQwNGVodDhzdml1N3NlYmZuaTRiZnpxMjdiMWo1b2gxbCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/OHRF8LZis06OiPDJby/giphy.webp",
+  "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW56aXVyeTQwNGVodDhzdml1N3NlYmZuaTRiZnpxMjdiMWo1b2gxbCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/paf7IOKOacbzPinHQC/giphy.webp",
+  "https://i.giphy.com/fiWRwKU7MgXl750Kfk.webp",
+  "https://media.tenor.com/Ti6AFXIRrGsAAAAM/meme-funny.gif",
+  "https://media.tenor.com/Ikyo4TNzZowAAAAM/cat-cats.gif",
+  "https://media.tenor.com/zQkW73MDUN0AAAAM/haha-so-funny-haha-not-funny.gif",
+  "https://media.tenor.com/2tELXVnbPgcAAAAM/demon-cat.gif",
+  "https://media.tenor.com/QWemspX4xQgAAAAm/cat-eating-chips.webp",
+  "https://media.tenor.com/GJUz8DogSTUAAAAm/cute-cat-cutie.webp",
+  "https://media.tenor.com/Xj0I2vMUoOIAAAAM/qazqaz.gif",
+  "https://media.tenor.com/1XN_85VcCYAAAAAM/masoncord-cat.gif",
+  "https://media.tenor.com/9Ik02IDXcekAAAAM/cat-cat-meme.gif",
+  "https://media.tenor.com/GGU4qDachzwAAAAM/cheese-challenge-cat.gif",
+  "https://media.tenor.com/uF-fNPC2DKMAAAA1/kitty-kiss-cat-kiss.webp",
+  "https://media.tenor.com/4DiFwww6548AAAAm/kitty.webp",
+  "https://media.tenor.com/_JAHu0Z6oIgAAAAM/waffle-cat.gif",
+  "https://media.tenor.com/GAYqzdUDMPIAAAAM/rigby-rigby-cat.gif",
+  "https://media.tenor.com/i9lcgU4sWnkAAAAm/wawa-oh-the-misery.webp",
+  "https://media.tenor.com/aH6qp6K6lO4AAAAm/apple-apple-cat.webp",
+  "https://media.tenor.com/9MlInP80F58AAAAm/cat-tongue-shake-cat-meme.webp",
+  "https://media.tenor.com/5x1_L18QtucAAAAM/silly-cat.gif",
+  "https://media.tenor.com/SuVGs-GL7RoAAAAm/shocked-shocked-cat.webp",
+  "https://media.tenor.com/QIL_2SBkkQ4AAAAm/cat-bleh-meme-cat-blehh.webp",
+  "https://media.tenor.com/sVIdqBeLUyMAAAAM/cat-cats.gif",
+  "https://media.tenor.com/MO2mf7xZUV0AAAA1/cat-dancing-gatinho-dançando.webp",
+  "https://media.tenor.com/yZPGL8Byn2oAAAAM/cat.gif",
+  "https://media.tenor.com/S-Ca_RhnhB4AAAAm/cat-eat-funny-cat.webp",
+  "https://media.tenor.com/Bav2QWeveKgAAAAm/best-banana-cat.webp",
+  "https://media.tenor.com/ahqJraBL8r8AAAAm/cutie-cute-cat.webp",
+  "https://media.tenor.com/yO21gfpez0kAAAAM/sharkcat-memecoin.gif",
+  "https://media.tenor.com/OlCtiChZx_gAAAAM/гта-5.gif",
+  "https://media.tenor.com/ZksJbG5NhIQAAAAm/cat-kitten.webp",
+  "https://media.tenor.com/lWF4dbjLxAoAAAAm/maxwell-maxwell-cat.webp",
+  "https://media.tenor.com/yTY0nDdlAWIAAAAm/catcoin-cat.webp",
+  "https://media.tenor.com/W8T7K5fVzoEAAAAM/cat-vaccum-cat-automatic.gif",
+  "https://media.tenor.com/U8qmomzRKcoAAAAM/cat-cat-dancing.gif",
+  "https://media.tenor.com/WKOv-y9AKrYAAAAM/toes.gif",
+  "https://media.tenor.com/vYt0nB4LceIAAAAM/balls-238.gif",
+  "https://media.tenor.com/GAYqzdUDMPIAAAAM/rigby-rigby-cat.gif",
+  "https://media.tenor.com/f0iVpqQevsQAAAAm/silly-cat.webp",
+  "https://media.tenor.com/opE011ucJ6kAAAAM/dancing-cat.gif",
+  "https://media.tenor.com/tw-XIDnLvzMAAAAM/cat.gif",
+  "https://media.tenor.com/wNA4hiEeUIQAAAAm/cat-meme-cat-dance.webp",
+  "https://media.tenor.com/v300AGRTC7gAAAA1/cat-cat-meme.webp",
+  "https://media.tenor.com/VJpuBvaRK4gAAAAM/cat-cute.gif",
+  "https://media.tenor.com/ULlFZmjJz3kAAAAm/cat.webp",
+  "https://media.tenor.com/6gpOBQhRiy0AAAAm/crazy-cat.webp",
+  "https://media.tenor.com/XIQl6jYxvaUAAAAM/cats-catz.gif",
+  "https://media.tenor.com/wM-zfYHdc1IAAAAM/happybirthdaya-d.gif",
+  "https://media.tenor.com/FZEiIhKTJB0AAAAm/cat-meme-cat.webp",
+  "https://media.tenor.com/Gp_VmQ5pEZIAAAAM/kitty-cat.gif",
+  "https://media.tenor.com/JqZmnztcLWEAAAAM/hey-funny-cat.gif",
+  "https://media.tenor.com/HAU_nZjbw9gAAAAm/cat-dance.webp",
+  "https://media.tenor.com/1W-HKNvj8UoAAAAM/cat.gif",
+  "https://media.tenor.com/6UFW4JcO-fUAAAAm/brick-cat.webp",
+  "https://media.tenor.com/TqNG5XNntroAAAAM/so-tuff.gif",
+  "https://media.tenor.com/3PzUZlh9nG4AAAAM/oh-wow.gif",
+  "https://media.tenor.com/0Q5IZ6e9pC8AAAAM/cat-cute-cat.gif",
+  "https://media.tenor.com/boEdeIotYHUAAAAM/cat-meme.gif",
+  "https://media.tenor.com/nFODQdUDbwoAAAAm/lerolero-dancing-cat.webp",
+  "https://media.tenor.com/zCTU9e8SmVMAAAAM/1000-yard-stare-cat-meme.gif",
+  "https://media.tenor.com/iALgQGVcpz4AAAAm/scemer-staring-cat.webp",
+  "https://media.tenor.com/EqEGS0cSfNUAAAAM/mwah-cat-rose.gif",
+  "https://media.tenor.com/j1bxqoymHhcAAAAM/isthisragebait-ahh-cat.gif",
+  "https://media.tenor.com/AsO2siHj2t0AAAAM/emil-dresden-emil.gif",
+  "https://media.tenor.com/JDTbA8SLcr8AAAAm/cozy-cat-cozy.webp",
+  "https://media.tenor.com/X8z6TXMYm1oAAAAM/cat-middle-finger.gif",
+  "https://media.tenor.com/qOMifW0pukAAAAAm/weird-cute.webp",
+  "https://media.tenor.com/nR70jPJVsZ8AAAAM/salute-military-salute.gif",
+  "https://media.tenor.com/rvwl2nzE9f0AAAAM/cat-cat-meme.gif",
+  "https://media.tenor.com/eZnn1YgfgyMAAAAM/cat.gif",
+  "https://media.tenor.com/ML7P_g1N_0kAAAAm/cat-scary.webp",
+  "https://media.tenor.com/JLfS0zgUuOYAAAAM/gato-cat.gif",
+  "https://media.tenor.com/_whxQHNAYAYAAAAM/spaghetti-mafia-yo-bad-gyal.gif",
+  "https://media.tenor.com/HtqnVrUcTecAAAAm/plink-cat-blink.webp",
+  "https://media.tenor.com/1PlpyzHT2UoAAAAM/happy-catto.gif",
+  "https://media.tenor.com/4aCkAvBWvxIAAAAM/cat.gif",
+  "https://media.tenor.com/a4oMmpcZT_AAAAAM/2.gif",
+  "https://media.tenor.com/TL3jDy5vpHUAAAAM/burrito.gif",
+  "https://media.tenor.com/cCxaXelP8ZYAAAAM/pov-baby-kaiif.gif",
+  "https://media.tenor.com/FLBmfkn2QJ0AAAAM/im-good.gif",
+  "https://media.tenor.com/_sTH2Ou_9iIAAAA1/cat-meme-hehehe.webp",
+  "https://media.tenor.com/JIS1Maf23kgAAAA1/chinese-cat.webp",
+];
+
+function enterChat(){
+  const inputName=usernameInput.value.trim();
+  const pass=adminPass.value;
+
+  if(pass===OWNER_PASSWORD){
+    username=inputName || "👑ThatOneGuy👑";
+    isAdmin=true;
+    isMod=false;
+    role="owner";
+  } else if(pass===ADMIN_PASSWORD){
+    username=inputName || "🥞Admin🥞";
+    isAdmin=true;
+    isMod=false;
+    role="admin";
+  } else if(pass===MOD_PASSWORD){
+    username=inputName || "🍔Mod🍔";
+    isAdmin=false;
+    isMod=true;
+    role="mod";
+  } else {
+    username=inputName;
+    isAdmin=false;
+    isMod=false;
+    role="user";
+    if(username.length<3) return alert("Username too short");
+  }
+
+  adminPanel.style.display = role==="owner" || role==="admin" ? "block" : "none";
+
+  onlineDB.child(username).once("value",o=>{
+    if(o.exists()) return alert("Username already in use");
+    adminDB.child("banned").once("value",s=>{
+      if(s.val() && s.val()[username]) return alert("You are banned");
+
+      login.style.display="none";
+      chatScreen.style.display="block";
+      onlineDB.child(username).set(true);
+      onlineDB.child(username).onDisconnect().remove();
+      localStorage.setItem("savedUsername", username);
+      localStorage.setItem("savedPassword", pass);
+      ensureBaseRooms();
+      renderPublicRooms();
+      renderPrivateUserPicker();
+      subscribeToPrivateRooms();
+      switchRoom("general", publicRoomList[0]);
+    });
+  });
+}
+
+function goBack(){
+  onlineDB.child(username).remove();
+  unsubscribeCurrentRoom();
+  if(privateRoomsListener){
+    roomsMetaDB.off("value", privateRoomsListener);
+    privateRoomsListener = null;
+  }
+  chatScreen.style.display="none";
+  login.style.display="flex";
+}
+
+function ensureBaseRooms(){
+  publicRoomList.forEach(room=>{
+    roomsMetaDB.child(room.id).update({
+      id: room.id,
+      name: room.name,
+      description: room.description,
+      type: room.type,
+      gifOnly: room.gifOnly
+    });
+  });
+}
+
+function unsubscribeCurrentRoom(){
+  if(currentChatRef && currentChatListener){
+    currentChatRef.off("child_added", currentChatListener);
+  }
+  currentChatRef = null;
+  currentChatListener = null;
+}
+
+function getActiveChatRef(){
+  return chatsRoot.child(currentRoomId);
+}
+
+function switchRoom(roomId, roomMeta){
+  currentRoomId = roomId;
+  currentRoomMeta = roomMeta;
+  currentRoomLabel.innerText = `Room: ${roomMeta.name}${roomMeta.gifOnly ? " (GIFs only)" : ""}`;
+  msg.placeholder = roomMeta.gifOnly ? "This room only allows GIFs" : "Type a message";
+  chat.innerHTML = "";
+  unsubscribeCurrentRoom();
+  currentChatRef = getActiveChatRef();
+  currentChatListener = snap => renderMessage(snap);
+  currentChatRef.limitToLast(100).on("child_added", currentChatListener);
+  renderPublicRooms();
+  renderPrivateRooms();
+}
+
+function renderPublicRooms(){
+  const publicRoomsEl = document.getElementById("publicRooms");
+  publicRoomsEl.innerHTML = "";
+
+  publicRoomList.forEach(room=>{
+    const btn = document.createElement("button");
+    btn.className = "roomCard" + (currentRoomId===room.id ? " active" : "");
+    btn.innerHTML = `${room.name}<small>${room.description}</small>`;
+    btn.onclick = ()=>switchRoom(room.id, room);
+    publicRoomsEl.appendChild(btn);
+  });
+}
+
+function renderPrivateRooms(){
+  const privateRoomsEl = document.getElementById("privateRooms");
+  privateRoomsEl.innerHTML = "";
+  const rooms = Object.values(privateRoomsCache).sort((a,b)=>(a.name||"").localeCompare(b.name||""));
+
+  if(!rooms.length){
+    privateRoomsEl.innerHTML = `<div class="statusText">No private chats yet.</div>`;
+    return;
+  }
+
+  rooms.forEach(room=>{
+    const container = document.createElement("div");
+    container.style.display = "flex";
+    container.style.alignItems = "center";
+    container.style.gap = "5px";
+    
+    const btn = document.createElement("button");
+    const members = Object.keys(room.participants || {}).filter(name=>name!==username);
+    btn.className = "roomCard" + (currentRoomId===room.id ? " active" : "");
+    btn.innerHTML = `${room.name || "Private Chat"}<small>${members.join(", ") || "Just you"}</small>`;
+    btn.onclick = ()=>switchRoom(room.id, room);
+    btn.style.flex = "1";
+    
+    container.appendChild(btn);
+    
+    // Leave/Delete buttons
+    const actionContainer = document.createElement("div");
+    actionContainer.style.display = "flex";
+    actionContainer.style.gap = "2px";
+    
+    // Delete button (only for creator)
+    if(room.createdBy === username){
+      const deleteBtn = document.createElement("button");
+      deleteBtn.innerHTML = "🗑️";
+      deleteBtn.title = "Delete Chat";
+      deleteBtn.style.fontSize = "12px";
+      deleteBtn.style.padding = "4px 8px";
+      deleteBtn.style.background = "rgba(255,100,100,0.3)";
+      deleteBtn.style.border = "1px solid rgba(255,100,100,0.5)";
+      deleteBtn.onclick = (e)=>{e.stopPropagation(); deletePrivateChat(room.id);};
+      actionContainer.appendChild(deleteBtn);
+    }
+    
+    // Leave button (don't show if only person left)
+    if(Object.keys(room.participants || {}).length > 1){
+      const leaveBtn = document.createElement("button");
+      leaveBtn.innerHTML = "🚪";
+      leaveBtn.title = "Leave Chat";
+      leaveBtn.style.fontSize = "12px";
+      leaveBtn.style.padding = "4px 8px";
+      leaveBtn.style.background = "rgba(255,200,100,0.3)";
+      leaveBtn.style.border = "1px solid rgba(255,200,100,0.5)";
+      leaveBtn.onclick = (e)=>{e.stopPropagation(); leavePrivateChat(room.id);};
+      actionContainer.appendChild(leaveBtn);
+    }
+    
+    container.appendChild(actionContainer);
+    privateRoomsEl.appendChild(container);
+  });
+}
+
+function renderPrivateUserPicker(){
+  const privateUsersEl = document.getElementById("privateUsers");
+  privateUsersEl.innerHTML = "";
+  const others = Object.keys(onlineUsers).filter(name=>name!==username).sort();
+
+  if(!others.length){
+    privateUsersEl.innerHTML = `<div class="statusText">Nobody else is online.</div>`;
+    return;
+  }
+
+  others.forEach(name=>{
+    const label = document.createElement("label");
+    label.className = "checkboxUser";
+    label.innerHTML = `<input type="checkbox" value="${name}"><span>${name}</span>`;
+    privateUsersEl.appendChild(label);
+  });
+}
+
+function subscribeToPrivateRooms(){
+  if(privateRoomsListener){
+    roomsMetaDB.off("value", privateRoomsListener);
+  }
+
+  privateRoomsListener = snap=>{
+    const allRooms = snap.val() || {};
+    privateRoomsCache = {};
+
+    Object.keys(allRooms).forEach(id=>{
+      const room = allRooms[id];
+      if(room.type !== "private") return;
+      if(!room.participants || !room.participants[username]) return;
+      
+      // Auto-delete empty rooms
+      const participantCount = Object.keys(room.participants || {}).length;
+      if(participantCount === 0){
+        roomsMetaDB.child(id).remove();
+        chatsRoot.child(id).remove();
+        return;
+      }
+      
+      privateRoomsCache[id] = { ...room, id };
+    });
+
+    renderPrivateRooms();
+
+    if(currentRoomMeta && currentRoomMeta.type==="private" && !privateRoomsCache[currentRoomId]){
+      switchRoom("general", publicRoomList[0]);
+    }
+  };
+
+  roomsMetaDB.on("value", privateRoomsListener);
+}
+
+function toggleCreatePrivateChat(){
+  const modal = document.getElementById("privateModal");
+  modal.style.display = modal.style.display === "none" ? "block" : "none";
+}
+
+function createPrivateChat(){
+  const checkboxes = document.querySelectorAll("#privateUsers input:checked");
+  if(!checkboxes.length) return alert("Select at least one person");
+
+  const selectedUsers = Array.from(checkboxes).map(cb => cb.value);
+  const allParticipants = [username, ...selectedUsers];
+  const roomId = "private-" + Date.now() + "-" + Math.random().toString(36).substr(2,9);
+  const participants = {};
+  allParticipants.forEach(u => participants[u] = true);
+
+  const roomName = selectedUsers.length === 1 ? selectedUsers[0] : selectedUsers.join(", ");
+
+  roomsMetaDB.child(roomId).set({
+    id: roomId,
+    type: "private",
+    name: roomName,
+    participants: participants,
+    createdAt: Date.now(),
+    createdBy: username,
+    gifOnly: false
+  });
+
+  toggleCreatePrivateChat();
+  switchRoom(roomId, { id: roomId, type: "private", name: roomName, gifOnly: false });
+}
+
+function leavePrivateChat(roomId){
+  if(!confirm("Are you sure you want to leave this chat?")) return;
+  
+  const roomRef = roomsMetaDB.child(roomId);
+  roomRef.child("participants").child(username).remove();
+  
+  // If this was the current room, switch to general
+  if(currentRoomId === roomId){
+    switchRoom("general", publicRoomList[0]);
+  }
+}
+
+function deletePrivateChat(roomId){
+  if(!confirm("Are you sure you want to delete this chat? This will remove it for everyone.")) return;
+  
+  // Delete the room metadata
+  roomsMetaDB.child(roomId).remove();
+  
+  // Delete all chat messages
+  chatsRoot.child(roomId).remove();
+  
+  // If this was the current room, switch to general
+  if(currentRoomId === roomId){
+    switchRoom("general", publicRoomList[0]);
+  }
+}
+
+onlineDB.on("value",s=>{
+  onlineUsers=s.val()||{};
+  online.innerText="Online: "+(s.numChildren()||0);
+  renderPrivateUserPicker();
+});
+adminDB.child("muted").on("value",s=>mutedUsers=s.val()||{});
+
+// Send handler
+function send(){
+  const m=msg.value.trim();
+  if(!m) return;
+  if(mutedUsers[username]) return alert("You are muted");
+  if(currentRoomMeta && currentRoomMeta.gifOnly) return alert("This room only allows GIFs. Use the GIF button.");
+
+  if(m.startsWith("/")){
+    handleCommand(m);
+  } else {
+    getActiveChatRef().push({name:username,msg:m,admin:isAdmin,role:role,color:userColors[username]||null,time:Date.now(),roomId:currentRoomId});
+  }
+  msg.value="";
+}
+
+// Command handler
+function handleCommand(cmdText){
+  const parts = cmdText.slice(1).split(" ");
+  const command = parts[0].toLowerCase();
+  const args = parts.slice(1);
+  const activeChatRef = getActiveChatRef();
+
+  const roleAllowed={
+    "mute":["admin","owner","mod"],
+    "unmute":["admin","owner","mod"],
+    "ban":["admin","owner"],
+    "unban":["admin","owner"],
+    "kick":["admin","owner"],
+    "clear":["admin","owner"],
+    "deleteall":["admin","owner"],
+    "color":["admin","owner","mod","user"],
+    "troll":["admin","owner","mod"],
+    "shake":["admin","owner","mod"],
+    "spam":["admin","owner"],
+    "rainbow":["admin","owner"],
+    "del":["admin","owner","mod"]
+  };
+
+  if(!roleAllowed[command] || !roleAllowed[command].includes(role)){
+    alert("You cannot use this command");
+    return;
+  }
+
+  // Run commands
+  switch(command){
+    case "mute":
+      if(args[0]) adminDB.child("muted/"+args[0]).set(true);
+      logCommand(cmdText); break;
+    case "unmute":
+      if(args[0]) adminDB.child("muted/"+args[0]).remove();
+      logCommand(cmdText); break;
+    case "ban":
+      if(args[0]){
+        adminDB.child("banned/"+args[0]).set(true);
+        onlineDB.child(args[0]).remove();
+      }
+      logCommand(cmdText); break;
+    case "unban":
+      if(args[0]) adminDB.child("banned/"+args[0]).remove();
+      logCommand(cmdText); break;
+    case "kick":
+      if(args[0]) onlineDB.child(args[0]).remove();
+      logCommand(cmdText); break;
+    case "clear":
+      if(isAdmin || role==="owner"){
+        activeChatRef.once("value",s=>{ s.forEach(c=>{ if(!c.val().admin) activeChatRef.child(c.key).remove(); }); });
+      }
+      logCommand(cmdText); break;
+    case "deleteall":
+      if(isAdmin || role==="owner") activeChatRef.remove();
+      logCommand(cmdText); break;
+    case "color":
+      if(args[0]){
+        if(role==="user" || role==="owner" || role==="mod" || role==="admin"){
+          const safeColors=[
+          "red",
+          "green",
+          "blue",
+          "purple",
+          "orange",
+          "pink",
+          "yellow",
+          "cyan",
+          "magenta",
+          "lime",
+          "teal",
+          "navy",
+          "maroon",
+          "olive",
+          "gray",
+          "silver",
+          "brown",
+          "black",
+          "white",
+          "gold",
+          "silver",
+          "coral",
+          "aqua",
+          "fuchsia",
+          "indigo",
+          "violet",
+          "turquoise",
+          "salmon",
+          "beige",
+          "lavender",
+          "tan",
+          "peach",
+          "mint",
+          "ivory",
+          "chocolate",
+          "crimson",
+          "azure",
+          "amber",
+          "burgundy",
+          "cerulean",
+          "charcoal",
+          "copper",
+          "emerald",
+          "jade",
+          "khaki",
+          "plum",
+          "ruby",
+          "sapphire",
+          "sepia",
+          "topaz",
+          "wine",
+          "bronze",
+          "cream",
+          "denim",
+          "eggplant",
+          "forestgreen",
+          "hotpink",
+          "lemon",
+          "mustard",
+          "orchid",
+          "periwinkle",
+          "rose",
+          "sand",
+          "skyblue",
+          "slate",
+          "steelblue",
+          "taupe",
+          "umber",
+          "zucchini",
+          "babyblue",
+          "blush",
+          "cobalt",
+          "ecru",
+          "garnet",
+          "heliotrope",
+          "lilac",
+          "mauve",
+          "ochre",
+          "pistachio",
+          "quartz",
+          "raspberry",
+          "sangria",
+          "tangerine",
+          "wisteria",
+          "yarrow",
+          "zinnia",
+          "pearl",
+          "onyx",
+          "jade",
+          "amber",
+          "citrine",
+          "aquamarine"];
+          if(safeColors.includes(args[0].toLowerCase())) userColors[username]=args[0].toLowerCase();
+        } else {
+          userColors[username]=args[0];
+        }
+      }
+      logCommand(cmdText); break;
+    case "troll":
+      if(args[0]){
+        const msgs = document.querySelectorAll(".msg");
+        msgs.forEach(m=>{
+          if(m.querySelector("b").innerText.includes(args[0])) m.style.transform="rotate(10deg)";
+        });
+      }
+      logCommand(cmdText); break;
+    case "shake":
+      if(args[0]){
+        const msgs = document.querySelectorAll(".msg");
+        msgs.forEach(m=>{
+          if(m.querySelector("b").innerText.includes(args[0])) m.classList.add("shake");
+          setTimeout(()=>m.classList.remove("shake"),500);
+        });
+      }
+      logCommand(cmdText); break;
+    case "spam":
+      if(args[0]){ for(let i=0;i<5;i++) chatDB.push({name:args[0],msg:"Spam!",role:"system",time:Date.now()}); }
+      logCommand(cmdText); break;
+    case "rainbow":
+      // just toggle a rainbow effect on your name (simple)
+      document.querySelectorAll(".msg b").forEach(el=>{ if(el.innerText.includes(username)) el.style.background="linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)"; });
+      logCommand(cmdText); break;
+    case "del":
+      if(args[0]) chatDB.child(args[0]).remove();
+      logCommand(cmdText); break;
+    default: break;
+  }
+}
+
+// Log commands at the top
+function logCommand(txt){
+  const log = document.createElement("div");
+  log.innerText=`Command executed: ${txt}`;
+  commandsLog.prepend(log);
+}
+
+// Message renderer
+function renderMessage(snap){
+  const d=snap.val();
+  const k=snap.key;
+  let text=d.msg;
+  badWords.forEach(w=>{text=text.replace(new RegExp(w,"gi"), "***");});
+  const div=document.createElement("div");
+  div.className="msg";
+
+  const roleLabel = d.role && d.role!=="user"? d.role.toUpperCase():null;
+  let nameHTML = roleLabel ? `<span class="admin">${d.name} (${roleLabel})</span>`: d.name;
+  let color = (d.color && !d.admin) ? d.color : (d.admin ? "#ff5555" : "#fff");
+
+  if(d.isImage){
+    div.innerHTML=`<b style="color:${color}">${nameHTML}</b>:<br><img src="${text}">`;
+  } else {
+    div.innerHTML=`<b style="color:${color}">${nameHTML}</b>: ${text}`;
+  }
+
+  if(isAdmin){
+    div.innerHTML+=`<span class="btn" onclick="muteUser('${d.name}')">[mute]</span>`+
+                   `<span class="btn" onclick="banUser('${d.name}')">[ban]</span>`+
+                   `<span class="btn" onclick="deleteMsg('${k}')">[del]</span>`;
+    if(logs) logs.innerHTML+=`<div>${d.name}: ${text}</div>`;
+  }
+
+  if(isMod){
+    div.innerHTML+=`<span class="btn" onclick="muteUser('${d.name}')">[mute]</span>`+
+                   `<span class="btn" onclick="deleteMsg('${k}')">[del]</span>`;
+    if(logs) logs.innerHTML+=`<div>${d.name}: ${text}</div>`;
+  }
+
+  chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
+}
+
+// Admin buttons
+function muteUser(u){ adminDB.child("muted/"+u).set(true); }
+function banUser(u){ adminDB.child("banned/"+u).set(true); onlineDB.child(u).remove(); }
+function deleteMsg(k){ getActiveChatRef().child(k).remove(); }
+function clearChat(){ if(isAdmin){ getActiveChatRef().once("value",s=>{ s.forEach(c=>{ if(!c.val().admin) getActiveChatRef().child(c.key).remove(); }); }); } }
+function deleteHistory(){ if(isAdmin) getActiveChatRef().remove(); }
+function clearGifs(){ if(isAdmin){ getActiveChatRef().once("value",s=>{ s.forEach(c=>{ if(c.val().isImage) getActiveChatRef().child(c.key).remove(); }); }); } }
+function toggleLogs(){ logs.style.display=logs.style.display==="none"?"block":"none"; }
+
+function toggleGifPicker(){
+  loadGifPicker();
+  gifPicker.style.display =
+    gifPicker.style.display==="block" ? "none" : "block";
+}
+
+function toggleColorOptions(){
+  loadColorOptions();
+  colorOptions.style.display =
+    colorOptions.style.display==="block" ? "none" : "block";
+}
+
+function loadGifPicker(){
+  gifGrid.innerHTML = "";
+
+  // 👑 OWNER ONLY GIFS
+  if(role === "owner"){
+    ownerGifs.forEach(g=>{
+      const img=document.createElement("img");
+      img.src=g;
+      img.title="OWNER ONLY";
+      img.onclick=()=>sendGif(g);
+      gifGrid.appendChild(img);
+    });
+
+    const divider=document.createElement("div");
+    divider.className="gifDivider";
+    divider.innerText="OWNER ONLY";
+    gifGrid.appendChild(divider);
+  }
+
+  // Mods ONLY GIFS
+  if(role === "mod"){
+    modGifs.forEach(g=>{
+      const img=document.createElement("img");
+      img.src=g;
+      img.title="MODS ONLY";
+      img.onclick=()=>sendGif(g);
+      gifGrid.appendChild(img);
+    });
+
+    const divider=document.createElement("div");
+    divider.className="gifDivider";
+    divider.innerText="MODS ONLY";
+    gifGrid.appendChild(divider);
+  }
+
+  // NORMAL GIFS
+  catGifs.forEach(g=>{
+    const img=document.createElement("img");
+    img.src=g;
+    img.onclick=()=>sendGif(g);
+    gifGrid.appendChild(img);
+  });
+}
+
+const colorsList = [
+  "red","#00FF00","blue","purple","orange","pink","yellow","cyan","magenta","lime",
+  "teal","navy","maroon","olive","gray","silver","brown","black","white","#FFD700", // gold
+  "coral","aqua","#FF00FF","#4B0082","violet","#40E0D0","salmon","#F5F5DC","lavender",
+  "tan","#FFDAB9","#98FF98","#FFFFF0","#D2691E","#DC143C","#007FFF","#FFBF00","#800020",
+  "#007BA7","#36454F","#B87333","#50C878","#00A86B","#F0E68C","#DDA0DD","#E0115F","#0F52BA",
+  "#8A2BE2","#30D5C8","#FA8072","#87CEEB","#708090","#4682B4","#483C32","#E97451","#89CFF0",
+  "#DE5D83","#FFC0CB","#1E90FF","#F0FFF0","#D2B48C","#FFE4C4","#00CED1","#BA55D3","#FF69B4",
+  "#FFFACD","#FFDB58","#DA70D6","#CCCCFF","#FF007F","#FFDEAD","#FFFF00","#B0E0E6","#BC8F8F"
+];
+
+
+function loadColorOptions(){
+  colorOptions.innerHTML = "";
+
+  const grid = document.createElement("div");
+  grid.className = "colorGrid";
+
+  colorsList.forEach(c => {
+    const btn = document.createElement("div");
+    btn.style.background = c;
+    btn.title = c;
+    btn.onclick = () => {
+      userColors[username] = c;
+      colorOptions.style.display = "none";
+    };
+    grid.appendChild(btn);
+  });
+
+  colorOptions.appendChild(grid);
+}
+
+
+
+function sendGif(g){ getActiveChatRef().push({name:username,msg:g,admin:isAdmin,role:role,isImage:true,time:Date.now(),roomId:currentRoomId}); gifPicker.style.display="none"; }
+
+// Load saved username and password on page load
+const savedUsername = localStorage.getItem("savedUsername");
+const savedPassword = localStorage.getItem("savedPassword");
+if(savedUsername){
+  usernameInput.value = savedUsername;
+}
+if(savedPassword){
+  adminPass.value = savedPassword;
+}
+
+const msgInput = document.getElementById("msg");
+
+msgInput.addEventListener("keydown", function(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    send();
+  }
+});
+
+loadGifPicker();
+loadColorOptions();
+</script>
+</body>
+</html>
