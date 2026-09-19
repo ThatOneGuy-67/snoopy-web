@@ -48,6 +48,19 @@ jobs:
           SNOOPY_ADMIN_PASSWORD: ${{ secrets.CUP || vars.CUP }}
           SNOOPY_MOD_PASSWORD: ${{ secrets.LOSER || vars.LOSER }}
           SNOOPY_OWNER_PASSWORD: ${{ secrets.ALPHA || vars.ALPHA }}
+          VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH }}
+          VITE_SITE_URL: ${{ vars.VITE_SITE_URL }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_PROJECT_ID: ${{ vars.VITE_SUPABASE_PROJECT_ID }}
+          VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_DATABASE_URL: ${{ vars.VITE_FIREBASE_DATABASE_URL }}
+          VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
+          VITE_WISP_URL: ${{ vars.VITE_WISP_URL }}
+          VITE_PROXY_URL: ${{ vars.VITE_PROXY_URL }}
+          VITE_ASSET_ORIGIN: ${{ vars.VITE_ASSET_ORIGIN }}
+          VITE_MUSIC_CDN: ${{ vars.VITE_MUSIC_CDN }}
         run: |
           python3 - <<'PY'
           import os
@@ -63,27 +76,7 @@ jobs:
               s = s.replace(old, new.replace("\\", "\\\\").replace('"', '\\"'))
           p.write_text(s)
           PY
-
-          # GITHUB_REPOSITORY is read by vite.config.ts to derive the base path
-        # and public URL automatically for whichever fork is building.
-        env:
-          VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH }}
-          VITE_SITE_URL: ${{ vars.VITE_SITE_URL }}
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
-          VITE_SUPABASE_PROJECT_ID: ${{ vars.VITE_SUPABASE_PROJECT_ID }}
-          VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_DATABASE_URL: ${{ vars.VITE_FIREBASE_DATABASE_URL }}
-          VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
-          VITE_WISP_URL: ${{ vars.VITE_WISP_URL }}
-          VITE_PROXY_URL: ${{ vars.VITE_PROXY_URL }}
-          VITE_ASSET_ORIGIN: ${{ vars.VITE_ASSET_ORIGIN }}
-          VITE_MUSIC_CDN: ${{ vars.VITE_MUSIC_CDN }}
-          VITE_CUP: ${{ vars.VITE_CUP }}
-          VITE_LOSER: ${{ vars.VITE_LOSER }}
-          VITE_ALPHA: ${{ vars.VITE_ALPHA }}
-        run: npm run build
+          npm run build
 
       - name: SPA fallback for client-side routes
         run: cp dist/index.html dist/404.html
