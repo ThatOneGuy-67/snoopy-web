@@ -1,4 +1,4 @@
-import { ExternalLink, MessageCircle } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 
 const CHAT_URL = `${import.meta.env.BASE_URL}chat.html`;
 
@@ -7,24 +7,15 @@ const ChatPage = () => {
     <div className="relative w-full h-[calc(100vh-5rem)] min-h-[620px]">
       <div className="absolute inset-0 pointer-events-none rounded-2xl bg-[radial-gradient(ellipse_at_top,rgba(85,232,135,0.08),transparent_50%)]" />
       <div className="relative z-10 h-full overflow-hidden rounded-2xl border border-border/50 bg-background/30 shadow-2xl backdrop-blur-sm">
-        <div className="h-10 px-3 flex items-center justify-between border-b border-border/50 bg-background/50">
-          <div className="flex items-center gap-2 text-sm font-medium">
-            <MessageCircle className="w-4 h-4 text-primary" />
-            Snoopy's Chat
-          </div>
-          <a
-            href={CHAT_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition"
-          >
-            Open full chat <ExternalLink className="w-3.5 h-3.5" />
-          </a>
+        <div className="h-12 px-4 flex items-center gap-2 border-b border-border/50 bg-background/50">
+          <MessageCircle className="w-4 h-4 text-primary" />
+          <span className="text-sm font-semibold tracking-tight">Snoopy's Chat</span>
+          <span className="ml-auto text-xs text-muted-foreground">Live chat</span>
         </div>
         <iframe
           title="Snoopy's Chat"
           src={CHAT_URL}
-          className="block w-full h-[calc(100%-2.5rem)] border-0"
+          className="block w-full h-[calc(100%-3rem)] border-0 bg-background"
           allow="clipboard-read; clipboard-write"
         />
       </div>
