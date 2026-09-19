@@ -58,6 +58,9 @@ jobs:
           VITE_PROXY_URL: ${{ vars.VITE_PROXY_URL }}
           VITE_ASSET_ORIGIN: ${{ vars.VITE_ASSET_ORIGIN }}
           VITE_MUSIC_CDN: ${{ vars.VITE_MUSIC_CDN }}
+          VITE_CUP: ${{ vars.VITE_CUP }}
+          VITE_LOSER: ${{ vars.VITE_LOSER }}
+          VITE_ALPHA: ${{ vars.VITE_ALPHA }}
         run: npm run build
 
       - name: SPA fallback for client-side routes
