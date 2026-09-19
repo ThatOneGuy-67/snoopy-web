@@ -31,9 +31,9 @@ export const db = new Proxy({} as Database, {
 
 const env = import.meta.env as Record<string, string | undefined>;
 
-export const ADMIN_PASSWORD = env.VITE_CHAT_ADMIN_PASSWORD ?? '';
-export const MOD_PASSWORD = env.VITE_CHAT_MOD_PASSWORD ?? '';
-export const OWNER_PASSWORD = env.VITE_CHAT_OWNER_PASSWORD ?? '';
+export const ADMIN_PASSWORD = (env.VITE_CHAT_ADMIN_PASSWORD ?? '').trim();
+export const MOD_PASSWORD = (env.VITE_CHAT_MOD_PASSWORD ?? '').trim();
+export const OWNER_PASSWORD = (env.VITE_CHAT_OWNER_PASSWORD ?? '').trim();
 
 
 export type Role = 'owner' | 'admin' | 'mod' | 'user';
