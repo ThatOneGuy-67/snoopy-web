@@ -409,6 +409,72 @@ button:hover{ background: rgba(255,255,255,0.35); }
 
 
 
+/* Compact chat layout: keep the message scroller and composer inside one viewport. */
+.chatWrap{
+  height:calc(100vh - 28px);
+  max-height:calc(100vh - 28px);
+  margin:2px auto;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.chatTopBar{flex:0 0 auto}
+#chatScreen > div[style*="margin-bottom:15px"]{
+  margin-bottom:5px !important;
+  flex:0 0 auto;
+}
+#chatScreen > div[style*="margin-bottom:15px"] > b{
+  font-size:11px !important;
+}
+#publicRooms,#privateRooms{
+  gap:4px !important;
+  margin-top:4px !important;
+  max-height:38px;
+  overflow-y:auto;
+}
+.roomCard{
+  padding:5px 9px !important;
+  font-size:11px !important;
+}
+.roomCard small{display:none !important}
+#privateModal{flex:0 0 auto}
+#adminPanel{flex:0 0 auto;max-height:150px;overflow:auto}
+#chat{
+  flex:1 1 auto;
+  width:100%;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  margin:5px 0 !important;
+  overflow-y:auto;
+}
+#sendBar{
+  flex:0 0 auto;
+  width:100%;
+  min-height:42px;
+  padding:0 !important;
+}
+#sendBar input[type=text]{
+  height:38px !important;
+}
+#sendBar button{
+  height:38px !important;
+  margin:2px !important;
+}
+.footer{display:none}
+@media(max-width:700px){
+  .chatWrap{
+    height:calc(100vh - 12px);
+    max-height:calc(100vh - 12px);
+    padding:7px;
+  }
+  .chatTopBar{padding-bottom:5px;margin-bottom:5px}
+  #publicRooms,#privateRooms{max-height:34px}
+  #chat{margin:4px 0 !important}
+  #sendBar input[type=text]{font-size:14px}
+}
+
 /* Snoopy Web theme bridge: keep the original chat structure/functionality,
    but use the same dark glass + green glow language as the hub. */
 :root{
