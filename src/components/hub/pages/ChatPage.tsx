@@ -1,5 +1,7 @@
 import { ExternalLink, MessageCircle } from 'lucide-react';
 
+const CHAT_URL = `${import.meta.env.BASE_URL}chat.html`;
+
 const ChatPage = () => {
   return (
     <div className="relative w-full h-[calc(100vh-5rem)] min-h-[620px]">
@@ -11,7 +13,7 @@ const ChatPage = () => {
             Snoopy's Chat
           </div>
           <a
-            href="/chat.html"
+            href={CHAT_URL}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition"
@@ -21,7 +23,7 @@ const ChatPage = () => {
         </div>
         <iframe
           title="Snoopy's Chat"
-          src="/chat.html"
+          src={CHAT_URL}
           className="block w-full h-[calc(100%-2.5rem)] border-0"
           allow="clipboard-read; clipboard-write"
         />
