@@ -998,3 +998,1888 @@ body{
   display:flex;
   flex-direction:column;
   background:#0e1117;
+  border-right:1px solid var(--line);
+  overflow:hidden;
+}
+.sideBrand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:3px 7px 15px;
+  border-bottom:1px solid var(--line);
+}
+.sideBrandIcon{
+  width:34px;height:34px;display:grid;place-items:center;
+  border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  font-size:17px;box-shadow:0 7px 18px rgba(99,215,255,.12)
+}
+.sideBrandTitle{font-size:13px;font-weight:750;color:#f4f6fa}
+.sideBrandSub{font-size:9px;color:var(--muted);margin-top:2px}
+.sideSection{margin-top:14px;min-height:0}
+.sideSectionHead{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 7px 6px;color:#697382;font-size:9px;font-weight:800;letter-spacing:.1em
+}
+.sectionCount{font-size:8px;color:#687181}
+.roomList{display:flex;flex-direction:column;gap:2px;min-height:0;overflow:auto}
+.roomCard{
+  width:100%;min-width:0;height:34px;
+  display:flex;align-items:center;
+  padding:0 9px !important;margin:0 !important;
+  border:1px solid transparent !important;border-radius:8px !important;
+  background:transparent !important;color:#a7afbc !important;
+  font-size:11px !important;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  box-shadow:none !important;
+}
+.roomCard::before{content:'#';margin-right:8px;color:#626c7b;font-weight:800}
+.roomCard:hover{background:#171b24 !important;color:#e7eaf0 !important}
+.roomCard.active{background:rgba(124,140,255,.13) !important;color:#aeb8ff !important;border-color:rgba(124,140,255,.15) !important;box-shadow:inset 2px 0 var(--accent) !important}
+.roomCard.active::before{color:var(--accent)}
+.roomCard small{display:none!important}
+#privateRooms > div{display:flex !important;gap:3px;min-width:0}
+#privateRooms > div .roomCard{flex:1;min-width:0}
+#privateRooms > div button:not(.roomCard){width:30px;height:30px;padding:0!important;margin:2px 0!important;font-size:11px!important;border-radius:7px!important}
+.newPrivateBtn{
+  width:100%;height:31px;margin:7px 0 0!important;padding:0 9px!important;
+  background:#141820!important;border:1px dashed #2d3440!important;border-radius:8px!important;
+  color:#8791a0!important;font-size:10px!important;text-align:left
+}
+.newPrivateBtn:hover{color:#cbd1db!important;border-color:#465063!important}
+
+/* Owner/admin controls live in a small panel at the bottom of navigation */
+#adminPanel{
+  display:none;
+  margin:12px 0 0!important;padding:9px!important;
+  border:1px solid rgba(255,104,120,.2)!important;
+  border-radius:10px!important;background:#171216!important;
+  max-height:230px;overflow:auto;flex:0 0 auto
+}
+.adminHeader{margin-bottom:7px}
+.adminTitle{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#dce0e7}
+.adminDot{width:6px;height:6px;border-radius:50%;background:var(--red);box-shadow:0 0 7px rgba(255,104,120,.5)}
+.adminRole{margin-left:auto;padding:2px 5px;border-radius:5px;font-size:7px;color:#ff9da8;background:rgba(255,104,120,.08);border:1px solid rgba(255,104,120,.16)}
+.adminToolbar{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.adminAction{margin:0!important;height:29px;padding:0 5px!important;border-radius:7px!important;font-size:8px!important;background:#1c171b!important;border:1px solid #30272b!important;color:#aeb5bf!important;box-shadow:none!important}
+.adminAction:hover{background:#241b20!important;color:#fff!important}
+.adminAction.danger{color:#ff8d99!important}
+.commandHelp{grid-column:1/-1;margin:0;font-size:8px}
+.commandHelp summary{height:27px;display:grid;place-items:center;cursor:pointer;list-style:none;border:1px solid #30272b;border-radius:7px;color:#9da6b2;background:#18161a}
+.commandHelp summary::-webkit-details-marker{display:none}
+.commandList{position:absolute;z-index:500;left:8px;bottom:calc(100% + 5px);width:210px;padding:7px;display:flex;flex-wrap:wrap;gap:3px;background:#0c0f14;border:1px solid var(--line2);border-radius:9px;box-shadow:0 18px 45px rgba(0,0,0,.55)}
+.commandList code{padding:4px 5px;border-radius:5px;background:#171b22;color:#b8c0cc;font-size:8px}
+.commandsLog{display:flex;gap:3px;overflow:auto;white-space:nowrap;margin-top:5px;font-size:7px;color:#71d9ff}
+.commandsLog:empty{display:none}
+.commandsLog div{padding:3px 5px;border-radius:5px;background:#101d24}
+#logs{max-height:70px!important;margin-top:5px!important;padding:5px;background:#0e1116;border:1px solid var(--line);border-radius:6px;font-size:8px!important}
+.sidebarFooter{margin-top:auto;padding:10px 6px 2px;display:flex;align-items:center;gap:6px;color:#606a78;font-size:8px;border-top:1px solid var(--line)}
+.statusDot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+
+/* Main chat */
+.chatMain{min-width:0;min-height:0;display:grid;grid-template-rows:52px minmax(0,1fr) 54px;padding:0;background:#0b0e13}
+.chatTopBar{height:52px;min-width:0;margin:0!important;padding:0 15px!important;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:#0e1117}
+.roomHeading{min-width:0}.roomHeadingTitle{display:flex;align-items:center;gap:7px;min-width:0;font-size:13px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.roomHeadingTitle #currentRoomLabel{font-size:13px;color:#edf0f5;overflow:hidden;text-overflow:ellipsis}
+.roomHeadingSub{font-size:9px;color:#697382;margin-top:3px}
+.roomLiveDot{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(85,217,139,.4)}
+.chatTopActions{display:flex;align-items:center;gap:7px;flex:0 0 auto}
+.chatTopActions #online{margin:0;padding:5px 8px!important;border:1px solid #26352d;background:#111a15;border-radius:7px;color:#72df9b;font-size:9px;white-space:nowrap}
+.chatTopActions .backBtn{height:29px;margin:0!important;padding:0 9px!important;border-radius:7px!important;background:#171b22!important;border:1px solid #29303a!important;font-size:9px!important;color:#aeb6c2}
+.chatTopActions .backBtn:hover{color:#fff;background:#1c212a!important;box-shadow:none!important}
+
+#chat{
+  min-width:0!important;
+  min-height:0!important;
+  height:auto!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:15px 18px!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  display:flex;
+  flex-direction:column;
+  gap:1px;
+  background:#0b0e13!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+.msg{
+  width:100%;max-width:none!important;margin:0!important;padding:7px 9px!important;
+  border:1px solid transparent!important;border-radius:8px!important;
+  background:transparent!important;box-shadow:none!important;
+  font-size:12px!important;line-height:1.45!important;color:#d5dae2
+}
+.msg:hover{background:#11151c!important;border-color:#181d25!important}
+.msg.mine{align-self:stretch!important;background:rgba(124,140,255,.035)!important;border-color:transparent!important;border-radius:8px!important}
+.msg b{font-size:11px!important;color:#cbd2dc}
+.msg.mine b{color:#aeb8ff!important}
+.msg img{max-width:280px;max-height:280px;border:1px solid #2b323e;border-radius:9px}
+.msg .btn{font-size:8px!important;color:#697383!important}
+.msg .btn:hover{color:var(--red)!important}
+
+/* Composer */
+.composerWrap{min-width:0;padding:8px 12px;background:#0e1117;border-top:1px solid var(--line)}
+.composerWrap #sendBar{width:100%;height:38px;display:flex;align-items:center;gap:5px;padding:0!important;position:relative}
+.composerWrap #sendBar input[type=text]{flex:1;min-width:0;width:auto;max-width:none;height:38px!important;margin:0!important;padding:0 12px!important;background:#151922!important;border:1px solid #2a303b!important;border-radius:9px!important;color:#edf0f5;font-size:11px}
+.composerWrap #sendBar input[type=text]:focus{border-color:#4653a0!important;box-shadow:0 0 0 2px rgba(124,140,255,.08)!important}
+.composerWrap #sendBar button{height:38px!important;margin:0!important;border-radius:9px!important;box-shadow:none!important}
+.composerWrap #gifBtn,.composerWrap #colorBtn{width:38px;flex:0 0 38px;padding:0!important;font-size:15px;background:#151922!important;border:1px solid #2a303b!important}
+.composerWrap #gifBtn:hover,.composerWrap #colorBtn:hover{background:#1b202b!important}
+.composerWrap .sendButton{padding:0 14px!important;background:var(--accent)!important;border:0!important;color:#fff;font-size:10px;font-weight:700}
+.composerWrap .sendButton:hover{background:#8b99ff!important}
+
+#gifPicker,#colorOptions{z-index:1000;background:#0d1016!important;border:1px solid #303744!important;box-shadow:0 20px 50px rgba(0,0,0,.55)!important}
+#gifPicker{width:min(430px,80vw);max-height:300px;border-radius:12px;padding:10px}
+.pickerTitle{font-size:10px;color:#7f8998;margin-bottom:7px;text-align:left}
+.gifGrid{grid-template-columns:repeat(5,1fr);gap:6px}
+.gifGrid img{border-radius:6px;border:1px solid #303744}
+
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#252c37;border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:#353e4d}
+
+@media(max-width:800px){
+  body{padding:5px}
+  #chatScreen{height:calc(100vh - 10px);grid-template-columns:1fr;border-radius:12px}
+  .chatSidebar{display:none}
+  .chatMain{grid-template-rows:48px minmax(0,1fr) 52px}
+  .chatTopBar{height:48px;padding:0 10px!important}
+  .roomHeadingSub{display:none}
+  .chatTopActions #online{display:none}
+  .chatTopActions .backBtn{font-size:8px!important}
+  #chat{padding:10px!important}
+  .msg{font-size:12px!important}
+  .composerWrap{padding:7px}
+  .composerWrap #sendBar{height:38px}
+  .composerWrap #sendBar input[type=text]{font-size:11px}
+}
+
+@media(min-width:801px) and (max-height:700px){
+  #chatScreen{grid-template-columns:215px minmax(0,1fr)}
+  .chatSidebar{padding:10px 8px}
+  .sideBrand{padding-bottom:10px}
+  .sideSection{margin-top:9px}
+  #adminPanel{max-height:190px}
+  .chatMain{grid-template-rows:46px minmax(0,1fr) 48px}
+  .chatTopBar{height:46px}
+  #chat{padding:10px 14px!important}
+  .composerWrap{padding:5px 9px}
+}
+
+
+
+/* ===== FINAL REQUESTED STYLE =====
+   Return to the original dark-gray glass theme while keeping the compact layout.
+   All messages, including the current user's, stay on the LEFT.
+*/
+:root{
+  --sw-bg:#101114;
+  --sw-panel:rgba(30,30,30,.86);
+  --sw-panel-strong:rgba(24,24,26,.94);
+  --sw-border:rgba(255,255,255,.16);
+  --sw-primary:#9aa4b2;
+  --sw-primary-soft:rgba(154,164,178,.13);
+  --sw-muted:#8f939b;
+}
+body{
+  background:
+    linear-gradient(rgba(50,50,50,.84),rgba(50,50,50,.84)),
+    url("https://i.pinimg.com/originals/11/cf/ee/11cfeef9eaa56c71a6eeb9933f933492.gif");
+  background-size:cover;
+  background-position:center;
+  background-attachment:fixed;
+  color:#fff;
+  padding:12px;
+}
+.glass{
+  background:rgba(30,30,30,.85)!important;
+  backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+  border:1px solid rgba(255,255,255,.2)!important;
+  border-radius:12px!important;
+  box-shadow:0 8px 28px rgba(0,0,0,.28)!important;
+}
+#chatScreen{
+  width:min(1180px,calc(100vw - 24px));
+  height:calc(100vh - 24px);
+  grid-template-columns:190px minmax(0,1fr)!important;
+  background:rgba(30,30,30,.84)!important;
+}
+.chatSidebar{
+  background:rgba(22,22,22,.62)!important;
+  border-right:1px solid rgba(255,255,255,.12)!important;
+  padding:10px!important;
+}
+.sideSection{margin-top:10px!important}
+.sideSectionHead{color:#a8adb5!important;font-size:9px!important}
+.sectionCount{background:rgba(255,255,255,.08)!important;color:#aaa!important}
+.roomCard{
+  color:#c8cbd0!important;
+  background:rgba(255,255,255,.025)!important;
+  border:1px solid transparent!important;
+}
+.roomCard::before{color:#858b93!important}
+.roomCard:hover{
+  background:rgba(255,255,255,.08)!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.12)!important;
+}
+.roomCard.active{
+  background:rgba(154,164,178,.16)!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.22)!important;
+  box-shadow:inset 2px 0 #9aa4b2!important;
+}
+.roomCard.active::before{color:#d2d6dc!important}
+.newPrivateBtn{
+  background:rgba(255,255,255,.05)!important;
+  color:#b7bbc1!important;
+  border-color:rgba(255,255,255,.14)!important;
+}
+.newPrivateBtn:hover{color:#fff!important;background:rgba(255,255,255,.1)!important}
+.adminPanelNew{
+  background:rgba(50,20,20,.38)!important;
+  border-color:rgba(255,130,130,.28)!important;
+}
+.adminAction{background:rgba(255,255,255,.07)!important;border-color:rgba(255,255,255,.13)!important}
+.adminAction:hover{background:rgba(255,255,255,.13)!important}
+.adminAction.danger{background:rgba(150,50,55,.14)!important;border-color:rgba(255,100,110,.25)!important}
+.chatMain{background:rgba(18,18,20,.55)!important}
+.chatTopBar{background:rgba(30,30,30,.42)!important;border-bottom-color:rgba(255,255,255,.1)!important}
+.roomHeadingTitle #currentRoomLabel{color:#f1f1f1!important}
+.roomHeadingSub{color:#92969d!important}
+.roomLiveDot{background:#aaa!important;box-shadow:0 0 7px rgba(255,255,255,.3)!important}
+.chatTopActions #online{
+  color:#c8cdd3!important;
+  background:rgba(255,255,255,.06)!important;
+  border-color:rgba(255,255,255,.14)!important;
+}
+.chatTopActions .backBtn{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.15)!important;color:#d0d3d7!important}
+.chatTopActions .backBtn:hover{background:rgba(255,255,255,.14)!important}
+#chat{
+  background:rgba(18,18,20,.28)!important;
+  padding:12px 16px!important;
+}
+/* Every message stays on the left, including your own messages. */
+.msg,
+.msg.mine{
+  align-self:flex-start!important;
+  width:fit-content!important;
+  max-width:min(78%,680px)!important;
+  background:rgba(255,255,255,.055)!important;
+  border:1px solid rgba(255,255,255,.1)!important;
+  border-radius:12px 12px 12px 4px!important;
+  box-shadow:0 2px 10px rgba(0,0,0,.12)!important;
+  color:#eee!important;
+}
+.msg:hover,.msg.mine:hover{background:rgba(255,255,255,.085)!important}
+.msg b,.msg.mine b{color:var(--msg-color,#fff)!important}
+.msg img{border-color:rgba(255,255,255,.2)!important}
+.composerWrap{background:rgba(28,28,30,.76)!important;border-top-color:rgba(255,255,255,.1)!important}
+.composerWrap #sendBar input[type=text]{background:rgba(255,255,255,.07)!important;border-color:rgba(255,255,255,.15)!important}
+.composerWrap #sendBar input[type=text]:focus{border-color:rgba(255,255,255,.35)!important;box-shadow:0 0 0 2px rgba(255,255,255,.06)!important}
+.composerWrap #gifBtn,.composerWrap #colorBtn{background:rgba(255,255,255,.07)!important;border-color:rgba(255,255,255,.14)!important}
+.composerWrap .sendButton{background:rgba(255,255,255,.14)!important;border:1px solid rgba(255,255,255,.2)!important}
+.composerWrap .sendButton:hover{background:rgba(255,255,255,.22)!important}
+#gifPicker,#colorOptions{background:rgba(25,25,27,.98)!important;border-color:rgba(255,255,255,.18)!important}
+::-webkit-scrollbar-thumb{background:#4a4d52!important}
+::-webkit-scrollbar-thumb:hover{background:#666a70!important}
+@media(max-width:800px){
+  #chatScreen{grid-template-columns:1fr!important}
+  .msg,.msg.mine{max-width:90%!important}
+}
+/* ===== Spacious admin panel ===== */
+.openAdminBtn{
+  display:none;
+  width:100%;
+  margin:12px 0 0;
+  padding:10px 12px;
+  text-align:left;
+  border:1px solid #303744;
+  border-radius:9px;
+  background:#151922;
+  color:#dfe4eb;
+  font-size:11px;
+  font-weight:700;
+  cursor:pointer;
+}
+.openAdminBtn:hover{background:#1b202a;border-color:#465064}
+.adminPanelNew{
+  display:none !important;
+  position:fixed !important;
+  z-index:1000 !important;
+  left:50% !important;
+  top:50% !important;
+  transform:translate(-50%,-50%) !important;
+  width:min(720px,calc(100vw - 40px)) !important;
+  max-height:min(760px,calc(100vh - 70px)) !important;
+  overflow-y:auto !important;
+  margin:0 !important;
+  padding:20px !important;
+  background:#11141b !important;
+  border:1px solid #343b49 !important;
+  border-radius:16px !important;
+  box-shadow:0 30px 90px rgba(0,0,0,.7) !important;
+}
+.adminPanelNew.open{display:block !important}
+.adminPanelNew::before{
+  content:"";position:fixed;inset:0;z-index:-1;
+  background:rgba(0,0,0,.58);
+  backdrop-filter:blur(4px);
+}
+.adminHeader{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  padding-bottom:14px !important;
+  margin-bottom:16px !important;
+  border-bottom:1px solid #252b36;
+}
+.adminTitle{font-size:13px !important;gap:8px !important}
+.adminClose{
+  width:32px !important;height:32px !important;
+  margin:0 !important;padding:0 !important;
+  border:1px solid #303744 !important;
+  border-radius:8px !important;
+  background:#181c24 !important;
+  color:#aab2be !important;
+  font-size:20px !important;line-height:30px !important;
+}
+.adminClose:hover{color:#fff !important;background:#232936 !important}
+.adminToolbar{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:8px !important;
+  margin-bottom:16px !important;
+}
+.adminToolbar .adminAction{
+  min-height:42px !important;
+  padding:9px 10px !important;
+  font-size:11px !important;
+}
+.commandHelp{grid-column:1/-1 !important;margin-top:2px !important}
+.commandHelp summary{padding:10px !important;text-align:left !important;font-size:11px !important}
+.commandList{position:static !important;width:100% !important;margin-top:7px !important;box-shadow:none !important}
+.adminToolsRow{
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:12px !important;
+  margin:0 !important;
+}
+.adminToolGroup{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:8px !important;
+  padding:13px !important;
+  border:1px solid #252b36 !important;
+  border-radius:11px !important;
+  background:#0d1016 !important;
+}
+.adminToolGroup label{
+  grid-column:1 !important;
+  font-size:10px !important;
+  font-weight:800 !important;
+  color:#aeb6c3 !important;
+  letter-spacing:.07em !important;
+}
+.adminToolGroup select{
+  width:100% !important;height:38px !important;
+  padding:0 9px !important;
+  border:1px solid #303744 !important;
+  border-radius:8px !important;
+  background:#151922 !important;color:#eef1f6 !important;
+  font-size:11px !important;
+}
+.adminToolGroup .adminAction{
+  width:100% !important;
+  min-height:38px !important;
+  padding:8px !important;
+  font-size:11px !important;
+}
+.commandsLog{margin-top:14px !important;padding-top:10px !important;border-top:1px solid #252b36}
+#logs{max-height:160px !important;margin-top:10px !important;padding:9px !important;background:#0d1016 !important;border:1px solid #252b36 !important}
+@media(max-width:700px){
+  .adminPanelNew{width:calc(100vw - 18px) !important;max-height:calc(100vh - 30px) !important;padding:14px !important}
+  .adminToolbar{grid-template-columns:1fr 1fr !important}
+  .adminToolsRow{grid-template-columns:1fr !important}
+}
+
+\n/* ===== FINAL POLISH ===== */\n/* Your messages belong on the RIGHT; other people's messages stay LEFT. */\n#chat .msg.mine{\n  align-self:flex-end !important;\n  margin-left:auto !important;\n  margin-right:0 !important;\n  border-radius:12px 12px 4px 12px !important;\n  background:#18233a !important;\n  border-color:#2d4268 !important;\n}\n#chat .msg:not(.mine){\n  align-self:flex-start !important;\n  margin-right:auto !important;\n  margin-left:0 !important;\n}\n\n/* Make the moderation buttons tiny and unobtrusive. */\n.messageActions{\n  display:inline-flex !important;\n  align-items:center;\n  gap:3px;\n  margin-left:7px;\n  vertical-align:middle;\n}\n.messageAction{\n  width:auto !important;\n  min-width:0 !important;\n  height:20px !important;\n  margin:0 !important;\n  padding:0 6px !important;\n  border-radius:5px !important;\n  border:1px solid #303744 !important;\n  background:#171b23 !important;\n  color:#8f99a8 !important;\n  font-size:8px !important;\n  line-height:18px !important;\n  font-weight:500 !important;\n  box-shadow:none !important;\n}\n.messageAction:hover{background:#232936 !important;color:#fff !important;border-color:#485160 !important}\n.messageAction.danger:hover{background:rgba(255,104,120,.12) !important;color:#ff8794 !important;border-color:rgba(255,104,120,.35) !important}\n\n/* Give the owner/admin area room instead of cramming controls together. */\n.chatSidebar{\n  width:260px;\n  padding:14px 12px 12px;\n}\n#chatScreen{grid-template-columns:260px minmax(0,1fr) !important}\n.adminPanelNew{\n  margin-top:14px !important;\n  padding:11px !important;\n  max-height:none !important;\n  overflow:visible !important;\n}\n.adminHeader{margin-bottom:10px !important}\n.adminToolbar{gap:6px !important}\n.adminToolbar .adminAction{\n  min-height:30px !important;\n  padding:7px 8px !important;\n  font-size:9px !important;\n}\n.adminToolsRow{\n  display:flex !important;\n  flex-direction:column !important;\n  gap:8px !important;\n  margin-top:9px !important;\n}\n.adminToolGroup{\n  display:grid !important;\n  grid-template-columns:minmax(0,1fr) 92px !important;\n  gap:5px !important;\n  padding:8px !important;\n}\n.adminToolGroup label{grid-column:1/-1 !important;margin-bottom:1px}\n.adminToolGroup button{grid-column:1/-1 !important;width:100% !important}\n.adminToolGroup select{width:100% !important;height:29px !important}\n.commandHelp{margin-top:2px}\n\n/* Never let a delete click submit the composer or bubble into another control. */\n.messageActions button{pointer-events:auto !important}\n#sendBar button{type:button}\n\n@media(max-width:800px){\n  #chatScreen{grid-template-columns:1fr !important}\n  .chatSidebar{display:none !important}\n}\n
+/* =========================================================
+   FINAL THEME
+   Layout/functionality stays from the first version.
+   Colors/visual style come from the second version.
+   ========================================================= */
+:root{
+  --glass-bg:rgba(30,30,30,.85);
+  --glass-border:rgba(255,255,255,.20);
+  --glass-soft:rgba(255,255,255,.10);
+  --glass-hover:rgba(255,255,255,.35);
+  --text:#fff;
+  --muted:#ccc;
+  --green:#55e887;
+  --red:#ff7777;
+  --blue:#6cf;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  margin:0;
+}
+
+body{
+  background:
+    linear-gradient(rgba(50,50,50,.80),rgba(50,50,50,.80)),
+    url("https://i.pinimg.com/originals/11/cf/ee/11cfeef9eaa56c71a6eeb9933f933492.gif");
+  background-size:cover;
+  background-position:center;
+  background-attachment:fixed;
+  font-family:Arial,sans-serif;
+  color:var(--text);
+  padding:10px;
+  text-align:center;
+}
+
+*,*:before,*:after{box-sizing:border-box}
+
+.glass{
+  background:rgba(30,30,30,.85) !important;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.20) !important;
+  border-radius:12px;
+  box-shadow:none;
+}
+
+/* Preserve the first version's dashboard layout. */
+#chatScreen{
+  background:rgba(30,30,30,.85) !important;
+  border-color:rgba(255,255,255,.20) !important;
+}
+
+.chatSidebar{
+  background:rgba(20,20,20,.58) !important;
+  border-right:1px solid rgba(255,255,255,.15) !important;
+}
+
+.chatMain{
+  background:transparent !important;
+}
+
+.sideBrandIcon{
+  background:rgba(255,255,255,.12) !important;
+  border-color:rgba(255,255,255,.22) !important;
+}
+
+.sideBrandTitle,
+.chatTitle,
+.roomHeadingTitle,
+.adminTitle{
+  color:#fff !important;
+}
+
+.sideBrandSub,
+.sideSectionHead,
+.roomHeadingSub,
+.adminHeaderHint,
+.statusText{
+  color:#aaa !important;
+}
+
+.roomCard{
+  background:rgba(255,255,255,.08) !important;
+  border-color:rgba(255,255,255,.14) !important;
+  color:#fff !important;
+}
+
+.roomCard:hover{
+  background:rgba(255,255,255,.15) !important;
+  border-color:rgba(255,255,255,.30) !important;
+  color:#fff !important;
+}
+
+.roomCard.active{
+  background:rgba(100,200,255,.25) !important;
+  border-color:rgba(100,200,255,.65) !important;
+  color:#6cf !important;
+  box-shadow:none !important;
+}
+
+.roomCard.active::before{color:#6cf !important}
+
+.newPrivateBtn{
+  background:rgba(255,255,255,.08) !important;
+  border-color:rgba(255,255,255,.20) !important;
+  color:#ddd !important;
+}
+
+.newPrivateBtn:hover{
+  background:rgba(255,255,255,.15) !important;
+  color:#fff !important;
+}
+
+.sidebarFooter{
+  border-top-color:rgba(255,255,255,.12) !important;
+  color:#aaa !important;
+}
+
+.statusDot{
+  background:#55e887 !important;
+  box-shadow:0 0 7px rgba(85,232,135,.55) !important;
+}
+
+/* Admin keeps its spacious first-version layout, but gets the second theme. */
+.adminPanelNew,
+#adminPanel{
+  background:rgba(50,0,0,.48) !important;
+  border-color:rgba(220,140,140,.45) !important;
+}
+
+.adminRight,
+.adminSection{
+  background:rgba(80,80,80,.45) !important;
+  border-color:rgba(255,255,255,.12) !important;
+}
+
+.adminAction,
+.adminSmallBtn,
+.commandHelp summary,
+button{
+  background:rgba(255,255,255,.20) !important;
+  border-color:rgba(255,255,255,.30) !important;
+  color:#fff !important;
+}
+
+.adminAction:hover,
+.adminSmallBtn:hover,
+.commandHelp summary:hover,
+button:hover{
+  background:rgba(255,255,255,.35) !important;
+  border-color:rgba(255,255,255,.45) !important;
+  box-shadow:none !important;
+}
+
+.adminAction.danger{
+  background:rgba(255,80,80,.12) !important;
+  border-color:rgba(255,130,130,.35) !important;
+}
+
+.adminRole{
+  background:rgba(255,100,110,.14) !important;
+  border-color:rgba(255,150,150,.25) !important;
+  color:#ffaaaa !important;
+}
+
+.adminDot{background:#ff7777 !important;box-shadow:0 0 8px rgba(255,80,80,.55) !important}
+
+.commandList{
+  background:rgba(20,20,20,.98) !important;
+  border-color:rgba(255,255,255,.25) !important;
+}
+
+.commandList code{
+  background:rgba(255,255,255,.08) !important;
+  color:#ddd !important;
+}
+
+.commandsLog{color:#0ff !important}
+.commandsLog div{background:rgba(0,180,220,.07) !important}
+
+/* Chat/message area */
+#chat{
+  background:rgba(20,20,20,.58) !important;
+  border-color:rgba(255,255,255,.15) !important;
+}
+
+.msg{
+  background:rgba(255,255,255,.045) !important;
+  border-color:rgba(255,255,255,.08) !important;
+  color:#fff !important;
+  box-shadow:0 3px 14px rgba(0,0,0,.14) !important;
+}
+
+.msg.mine{
+  align-self:flex-end !important;
+  background:rgba(85,232,135,.13) !important;
+  border-color:rgba(85,232,135,.24) !important;
+}
+
+.msg b{
+  color:var(--msg-color,#fff);
+}
+
+.msg.mine b{
+  color:var(--msg-color,var(--green)) !important;
+}
+
+.messageAction{
+  background:rgba(255,255,255,.18) !important;
+  border-color:rgba(255,255,255,.25) !important;
+  color:#fff !important;
+}
+
+.messageAction:hover{
+  background:rgba(255,255,255,.35) !important;
+}
+
+/* Top status/buttons */
+#online{
+  color:#00ff00 !important;
+  background:rgba(0,255,0,.06) !important;
+  border-color:rgba(0,255,0,.18) !important;
+}
+
+.backBtn{
+  background:rgba(255,255,255,.20) !important;
+  border-color:rgba(255,255,255,.30) !important;
+}
+
+/* Composer */
+.composerWrap #sendBar input[type=text],
+#sendBar input[type=text],
+input{
+  background:rgba(255,255,255,.15) !important;
+  border-color:rgba(255,255,255,.30) !important;
+  color:#fff !important;
+}
+
+input::placeholder{
+  color:#bbb !important;
+}
+
+.composerWrap #gifBtn,
+.composerWrap #colorBtn,
+#gifBtn,#colorBtn{
+  background:rgba(255,255,255,.20) !important;
+  border-color:rgba(255,255,255,.30) !important;
+}
+
+.composerWrap .sendButton,
+#sendBar > button:last-of-type{
+  background:rgba(85,232,135,.12) !important;
+  border-color:rgba(85,232,135,.30) !important;
+  color:#fff !important;
+}
+
+/* Pickers */
+#gifPicker,#colorOptions{
+  background:rgba(20,20,20,.98) !important;
+  border-color:rgba(255,255,255,.30) !important;
+  box-shadow:0 8px 32px rgba(0,0,0,.5) !important;
+}
+
+.gifGrid img{
+  border-color:#555 !important;
+}
+
+.gifGrid img:hover{
+  border-color:#888 !important;
+}
+
+.colorGrid div{
+  border-color:#555 !important;
+}
+
+.colorGrid div:hover{
+  border-color:#fff !important;
+}
+
+/* Login */
+#login{
+  background:rgba(30,30,30,.85) !important;
+}
+
+.rules{
+  background:rgba(30,30,30,.70) !important;
+  border-color:rgba(255,255,255,.20) !important;
+  color:#ccc !important;
+}
+
+#login > button{
+  background:rgba(255,255,255,.20) !important;
+  border:1px solid rgba(255,255,255,.30) !important;
+  color:#fff !important;
+}
+
+#login > button:hover{
+  background:rgba(255,255,255,.35) !important;
+}
+
+.footer{color:#ccc !important}
+
+/* Scrollbars */
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#555;border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:#777}
+
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="glass">
+  <h1>Snoopy’s Chat</h1>
+  <h3>Enter Username</h3>
+
+  <div class="rules glass">
+    <b>Rules:</b><br>
+    • Be respectful<br>
+    • No spam or harassment<br>
+    • Have fun!
+  </div>
+
+  <input id="usernameInput" placeholder="Username (min 3 chars)">
+  <input id="adminPass" type="password" placeholder="Admin password (optional)">
+  <button onclick="enterChat()">ENTER CHAT</button>
+</div>
+
+<!-- CHAT -->
+<div id="chatScreen" class="glass chatWrap">
+  <aside class="chatSidebar">
+    <div class="sideSection">
+      <div class="sideSectionHead"><span>PUBLIC</span><span class="sectionCount">2</span></div>
+      <div id="publicRooms" class="roomList"></div>
+    </div>
+
+    <div class="sideSection privateSection">
+      <div class="sideSectionHead"><span>PRIVATE</span></div>
+      <div id="privateRooms" class="roomList"></div>
+      <button class="newPrivateBtn" onclick="toggleCreatePrivateChat()">＋ New private chat</button>
+    </div>
+
+    <div id="privateModal" class="privateModalNew" style="display:none;">
+      <div class="modalTitle">Create private chat</div>
+      <div class="modalHint">Choose one or more people.</div>
+      <div id="privateUsers" class="privateUsersNew"></div>
+      <div class="modalActions">
+        <button onclick="createPrivateChat()">Create</button>
+        <button onclick="toggleCreatePrivateChat()">Cancel</button>
+      </div>
+    </div>
+
+    <button id="openAdminBtn" class="openAdminBtn" type="button" onclick="toggleAdminPanel()">⚙ Admin Panel</button>
+
+    <div id="adminPanel" class="adminPanelNew">
+      <div class="adminHeader">
+        <div class="adminTitle"><span class="adminDot"></span><span>Admin controls</span><span class="adminRole" id="adminRoleBadge">ADMIN</span></div>
+        <button class="adminClose" type="button" onclick="toggleAdminPanel()" aria-label="Close admin panel">×</button>
+      </div>
+      <div class="adminToolbar">
+        <button id="clearChatBtn" class="adminAction" onclick="clearChat()" title="Remove normal user messages from this room">🧹 Clear</button>
+        <button id="deleteHistoryBtn" class="adminAction danger" onclick="deleteHistory()" title="Delete every message in this room">🗑 History</button>
+        <button id="clearGifsBtn" class="adminAction" onclick="clearGifs()" title="Remove GIF/image messages from this room">🎬 GIFs</button>
+        <button id="toggleLogsBtn" class="adminAction" onclick="toggleLogs()" title="Show or hide the room log">📋 Logs</button>
+        <details class="commandHelp">
+          <summary>⌘ Commands</summary>
+          <div id="commandsPanel" class="commandList">
+            <code>/mute &lt;user&gt;</code><code>/unmute &lt;user&gt;</code><code>/ban &lt;user&gt;</code><code>/unban &lt;user&gt;</code>
+            <code>/kick &lt;user&gt;</code><code>/clear</code><code>/deleteall</code><code>/color &lt;color&gt;</code>
+            <code>/troll &lt;user&gt;</code><code>/shake &lt;user&gt;</code><code>/spam &lt;user&gt;</code><code>/rainbow</code><code>/del &lt;msgKey&gt;</code>
+          </div>
+        </details>
+      </div>
+      <div class="adminToolsRow">
+        <div class="adminToolGroup">
+          <label>Moderate user</label>
+          <select id="adminTargetUser">
+            <option value="">Choose online user…</option>
+          </select>
+          <select id="adminUserAction">
+            <option value="mute">Mute</option>
+            <option value="unmute">Unmute</option>
+            <option value="kick">Kick</option>
+            <option value="ban">Ban</option>
+          </select>
+          <button class="adminAction" onclick="applyUserAction()">Apply</button>
+        </div>
+        <div class="adminToolGroup">
+          <label>Delete a user's messages</label>
+          <select id="deleteUserTarget">
+            <option value="">Choose a user…</option>
+          </select>
+          <button class="adminAction danger" onclick="deleteUserMessages()">Delete all</button>
+        </div>
+      </div>
+      <div id="commandsLog" class="commandsLog"></div>
+      <div id="logs"></div>
+    </div>
+
+    <div class="sidebarFooter">
+      <span class="statusDot"></span><span>Connected</span>
+    </div>
+  </aside>
+
+  <main class="chatMain">
+    <header class="chatTopBar">
+      <div class="roomHeading">
+        <div class="roomHeadingTitle"><span class="roomLiveDot"></span><span id="currentRoomLabel">Room: General</span></div>
+        <div class="roomHeadingSub">Messages are kept in this room</div>
+      </div>
+      <div class="chatTopActions">
+        <div id="online" title="Users currently online">● Online: 0</div>
+        <button class="backBtn" onclick="goBack()">Change Username</button>
+      </div>
+    </header>
+
+    <section id="chat" class="glass" aria-label="Chat messages"></section>
+
+    <div class="composerWrap">
+      <div id="sendBar">
+        <button id="colorBtn" onclick="toggleColorOptions()" title="Text color">🎨</button>
+        <button id="gifBtn" onclick="toggleGifPicker()" title="GIFs">🎬</button>
+        <input id="msg" type="text" placeholder="Type a message…" autocomplete="off">
+        <button class="sendButton" onclick="send()">Send <span>↵</span></button>
+
+        <div id="gifPicker">
+          <div class="pickerTitle">Choose a GIF</div>
+          <div class="gifGrid" id="gifGrid"></div>
+        </div>
+        <div id="colorOptions"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAUh8VuVTZJ4kPZF203-bml44dtHCDQRl8",
+  authDomain: "snoopys-chat.firebaseapp.com",
+  databaseURL: "https://snoopys-chat-default-rtdb.firebaseio.com",
+  projectId: "snoopys-chat"
+};
+firebase.initializeApp(firebaseConfig);
+
+const adminDB = firebase.database().ref("admin");
+const onlineDB = firebase.database().ref("online");
+const chatsRoot = firebase.database().ref("chats");
+const roomsMetaDB = firebase.database().ref("roomsMeta");
+
+const ADMIN_PASSWORD="__SNOOPY_ADMIN_PASSWORD__";
+const MOD_PASSWORD="__SNOOPY_MOD_PASSWORD__";
+const OWNER_PASSWORD="__SNOOPY_OWNER_PASSWORD__";
+
+let username="";
+let role="user";
+let isAdmin=false;
+let isMod=false;
+let mutedUsers={};
+let userColors={};
+let onlineUsers={};
+let currentRoomId="general";
+let currentRoomMeta=null;
+let currentChatRef=null;
+let currentChatListener=null;
+let privateRoomsListener=null;
+let privateRoomsCache={};
+const badWords=["1700300041", "rape", "sex", "porn", "fuck", "shit", "bitch", "asshole", "cunt", "dick", "cock", "pussy", "nigger", "nigga", "faggot", "slut", "whore", "cum", "blowjob", "handjob", "anal", "vagina", "penis"];
+const publicRoomList = [
+  { id:"general", name:"General", description:"Main chat for everyone", type:"public", gifOnly:false },
+  { id:"gifs-only", name:"GIFs Only", description:"Only GIFs and image posts", type:"public", gifOnly:true }
+];
+
+// Element references
+const currentRoomLabel = document.getElementById("currentRoomLabel");
+
+
+// OWNER ONLY GIFs
+const ownerGifs = [
+  "https://media.tenor.com/IvMj_IDQHzoAAAAM/kenjou-cat.gif",
+  "https://media.tenor.com/pv0FSK0tt4UAAAAM/cute-cat.gif",
+  "https://media.tenor.com/0jLTYEhwvyYAAAAM/cat-kitty.gif",
+  "https://media.tenor.com/zaulJgJ3xPQAAAAM/cat-flash.gif",
+  "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGtuc3FlOXV0NnRnejU1MTgxZjRhMXJuM2xlOHU1b3Bnb2t5NHBtYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/901mxGLGQN2PyCQpoc/giphy.gif",
+  "https://media.tenor.com/0KfCCLD0HJ0AAAAM/cat-meme-cat-funny.gif",
+  "https://p16-comment-sign-useast8.tiktokcdn-us.com/tos-useast8-i-bwwwqb46tv-tx2/1f6e24fb128f4be992875daf5ea2caaa~tplv-jj85edgx6n-image-origin.jpeg?dr=11732&refresh_token=61c0a34c&x-expires=1800756000&x-signature=XXpAyMiQXPLE6XmuNau1fp6dGdA%3D&t=67a6c45e&ps=a0626fcd&shp=ff37627b&shcp=ff37627b&idc=useast5",
+  "https://media.tenor.com/yPN0L3Bk4QEAAAAm/hashcat-mcdonalds.webp",
+  "https://media.tenor.com/YMj57yPt2SoAAAAM/cat-cat-meme.gif",
+  "https://media.tenor.com/RFLHa8XdOO4AAAAM/cats-rice-hat.gif",
+  "https://media1.tenor.com/m/3uIhN0sm370AAAAd/kitty-minecraft.gif"
+];
+
+// OWNER ONLY GIFs
+const modGifs = [
+  "https://media.tenor.com/HAU_nZjbw9gAAAAm/cat-dance.webp",
+  "https://media.tenor.com/3PzUZlh9nG4AAAAM/oh-wow.gif",
+  "https://media.tenor.com/islKHV6ibh0AAAAM/kitty-cat.gif",
+  "https://media.tenor.com/iALgQGVcpz4AAAAm/scemer-staring-cat.webp",
+  "https://media.tenor.com/0Q5IZ6e9pC8AAAAM/cat-cute-cat.gif",
+  "https://media.tenor.com/2_aRMC55UQsAAAAi/catcoin-cat-meme.gif"
+];
+
+
+// Cat GIFs
+const catGifs=[ 
+  "https://media.tenor.com/_WZy7E7hoTcAAAAM/cat-smile.gif",
+  "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWZyeWczaWFscmEwOGU5Y2Jmempydzhnb2UwdWdybHcwdnhhY2ptMSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/v3Rb7dGuvkmaRi6qei/giphy.gif",
+  "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW56aXVyeTQwNGVodDhzdml1N3NlYmZuaTRiZnpxMjdiMWo1b2gxbCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/In0Lpu4FVivjISX9HT/giphy.webp",
+  "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW56aXVyeTQwNGVodDhzdml1N3NlYmZuaTRiZnpxMjdiMWo1b2gxbCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/OHRF8LZis06OiPDJby/giphy.webp",
+  "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW56aXVyeTQwNGVodDhzdml1N3NlYmZuaTRiZnpxMjdiMWo1b2gxbCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/paf7IOKOacbzPinHQC/giphy.webp",
+  "https://i.giphy.com/fiWRwKU7MgXl750Kfk.webp",
+  "https://media.tenor.com/Ti6AFXIRrGsAAAAM/meme-funny.gif",
+  "https://media.tenor.com/Ikyo4TNzZowAAAAM/cat-cats.gif",
+  "https://media.tenor.com/zQkW73MDUN0AAAAM/haha-so-funny-haha-not-funny.gif",
+  "https://media.tenor.com/2tELXVnbPgcAAAAM/demon-cat.gif",
+  "https://media.tenor.com/QWemspX4xQgAAAAm/cat-eating-chips.webp",
+  "https://media.tenor.com/GJUz8DogSTUAAAAm/cute-cat-cutie.webp",
+  "https://media.tenor.com/Xj0I2vMUoOIAAAAM/qazqaz.gif",
+  "https://media.tenor.com/1XN_85VcCYAAAAAM/masoncord-cat.gif",
+  "https://media.tenor.com/9Ik02IDXcekAAAAM/cat-cat-meme.gif",
+  "https://media.tenor.com/GGU4qDachzwAAAAM/cheese-challenge-cat.gif",
+  "https://media.tenor.com/uF-fNPC2DKMAAAA1/kitty-kiss-cat-kiss.webp",
+  "https://media.tenor.com/4DiFwww6548AAAAm/kitty.webp",
+  "https://media.tenor.com/_JAHu0Z6oIgAAAAM/waffle-cat.gif",
+  "https://media.tenor.com/GAYqzdUDMPIAAAAM/rigby-rigby-cat.gif",
+  "https://media.tenor.com/i9lcgU4sWnkAAAAm/wawa-oh-the-misery.webp",
+  "https://media.tenor.com/aH6qp6K6lO4AAAAm/apple-apple-cat.webp",
+  "https://media.tenor.com/9MlInP80F58AAAAm/cat-tongue-shake-cat-meme.webp",
+  "https://media.tenor.com/5x1_L18QtucAAAAM/silly-cat.gif",
+  "https://media.tenor.com/SuVGs-GL7RoAAAAm/shocked-shocked-cat.webp",
+  "https://media.tenor.com/QIL_2SBkkQ4AAAAm/cat-bleh-meme-cat-blehh.webp",
+  "https://media.tenor.com/sVIdqBeLUyMAAAAM/cat-cats.gif",
+  "https://media.tenor.com/MO2mf7xZUV0AAAA1/cat-dancing-gatinho-dançando.webp",
+  "https://media.tenor.com/yZPGL8Byn2oAAAAM/cat.gif",
+  "https://media.tenor.com/S-Ca_RhnhB4AAAAm/cat-eat-funny-cat.webp",
+  "https://media.tenor.com/Bav2QWeveKgAAAAm/best-banana-cat.webp",
+  "https://media.tenor.com/ahqJraBL8r8AAAAm/cutie-cute-cat.webp",
+  "https://media.tenor.com/yO21gfpez0kAAAAM/sharkcat-memecoin.gif",
+  "https://media.tenor.com/OlCtiChZx_gAAAAM/гта-5.gif",
+  "https://media.tenor.com/ZksJbG5NhIQAAAAm/cat-kitten.webp",
+  "https://media.tenor.com/lWF4dbjLxAoAAAAm/maxwell-maxwell-cat.webp",
+  "https://media.tenor.com/yTY0nDdlAWIAAAAm/catcoin-cat.webp",
+  "https://media.tenor.com/W8T7K5fVzoEAAAAM/cat-vaccum-cat-automatic.gif",
+  "https://media.tenor.com/U8qmomzRKcoAAAAM/cat-cat-dancing.gif",
+  "https://media.tenor.com/WKOv-y9AKrYAAAAM/toes.gif",
+  "https://media.tenor.com/vYt0nB4LceIAAAAM/balls-238.gif",
+  "https://media.tenor.com/GAYqzdUDMPIAAAAM/rigby-rigby-cat.gif",
+  "https://media.tenor.com/f0iVpqQevsQAAAAm/silly-cat.webp",
+  "https://media.tenor.com/opE011ucJ6kAAAAM/dancing-cat.gif",
+  "https://media.tenor.com/tw-XIDnLvzMAAAAM/cat.gif",
+  "https://media.tenor.com/wNA4hiEeUIQAAAAm/cat-meme-cat-dance.webp",
+  "https://media.tenor.com/v300AGRTC7gAAAA1/cat-cat-meme.webp",
+  "https://media.tenor.com/VJpuBvaRK4gAAAAM/cat-cute.gif",
+  "https://media.tenor.com/ULlFZmjJz3kAAAAm/cat.webp",
+  "https://media.tenor.com/6gpOBQhRiy0AAAAm/crazy-cat.webp",
+  "https://media.tenor.com/XIQl6jYxvaUAAAAM/cats-catz.gif",
+  "https://media.tenor.com/wM-zfYHdc1IAAAAM/happybirthdaya-d.gif",
+  "https://media.tenor.com/FZEiIhKTJB0AAAAm/cat-meme-cat.webp",
+  "https://media.tenor.com/Gp_VmQ5pEZIAAAAM/kitty-cat.gif",
+  "https://media.tenor.com/JqZmnztcLWEAAAAM/hey-funny-cat.gif",
+  "https://media.tenor.com/HAU_nZjbw9gAAAAm/cat-dance.webp",
+  "https://media.tenor.com/1W-HKNvj8UoAAAAM/cat.gif",
+  "https://media.tenor.com/6UFW4JcO-fUAAAAm/brick-cat.webp",
+  "https://media.tenor.com/TqNG5XNntroAAAAM/so-tuff.gif",
+  "https://media.tenor.com/3PzUZlh9nG4AAAAM/oh-wow.gif",
+  "https://media.tenor.com/0Q5IZ6e9pC8AAAAM/cat-cute-cat.gif",
+  "https://media.tenor.com/boEdeIotYHUAAAAM/cat-meme.gif",
+  "https://media.tenor.com/nFODQdUDbwoAAAAm/lerolero-dancing-cat.webp",
+  "https://media.tenor.com/zCTU9e8SmVMAAAAM/1000-yard-stare-cat-meme.gif",
+  "https://media.tenor.com/iALgQGVcpz4AAAAm/scemer-staring-cat.webp",
+  "https://media.tenor.com/EqEGS0cSfNUAAAAM/mwah-cat-rose.gif",
+  "https://media.tenor.com/j1bxqoymHhcAAAAM/isthisragebait-ahh-cat.gif",
+  "https://media.tenor.com/AsO2siHj2t0AAAAM/emil-dresden-emil.gif",
+  "https://media.tenor.com/JDTbA8SLcr8AAAAm/cozy-cat-cozy.webp",
+  "https://media.tenor.com/X8z6TXMYm1oAAAAM/cat-middle-finger.gif",
+  "https://media.tenor.com/qOMifW0pukAAAAAm/weird-cute.webp",
+  "https://media.tenor.com/nR70jPJVsZ8AAAAM/salute-military-salute.gif",
+  "https://media.tenor.com/rvwl2nzE9f0AAAAM/cat-cat-meme.gif",
+  "https://media.tenor.com/eZnn1YgfgyMAAAAM/cat.gif",
+  "https://media.tenor.com/ML7P_g1N_0kAAAAm/cat-scary.webp",
+  "https://media.tenor.com/JLfS0zgUuOYAAAAM/gato-cat.gif",
+  "https://media.tenor.com/_whxQHNAYAYAAAAM/spaghetti-mafia-yo-bad-gyal.gif",
+  "https://media.tenor.com/HtqnVrUcTecAAAAm/plink-cat-blink.webp",
+  "https://media.tenor.com/1PlpyzHT2UoAAAAM/happy-catto.gif",
+  "https://media.tenor.com/4aCkAvBWvxIAAAAM/cat.gif",
+  "https://media.tenor.com/a4oMmpcZT_AAAAAM/2.gif",
+  "https://media.tenor.com/TL3jDy5vpHUAAAAM/burrito.gif",
+  "https://media.tenor.com/cCxaXelP8ZYAAAAM/pov-baby-kaiif.gif",
+  "https://media.tenor.com/FLBmfkn2QJ0AAAAM/im-good.gif",
+  "https://media.tenor.com/_sTH2Ou_9iIAAAA1/cat-meme-hehehe.webp",
+  "https://media.tenor.com/JIS1Maf23kgAAAA1/chinese-cat.webp",
+];
+
+function enterChat(){
+  const inputName=usernameInput.value.trim();
+  const pass=adminPass.value;
+
+  if(pass===OWNER_PASSWORD){
+    username=inputName || "👑ThatOneGuy👑";
+    isAdmin=true;
+    isMod=false;
+    role="owner";
+  } else if(pass===ADMIN_PASSWORD){
+    username=inputName || "🥞Admin🥞";
+    isAdmin=true;
+    isMod=false;
+    role="admin";
+  } else if(pass===MOD_PASSWORD){
+    username=inputName || "🍔Mod🍔";
+    isAdmin=false;
+    isMod=true;
+    role="mod";
+  } else {
+    username=inputName;
+    isAdmin=false;
+    isMod=false;
+    role="user";
+    if(username.length<3) return alert("Username too short");
+  }
+
+  adminPanel.style.display = (role==="owner" || role==="admin") ? "block" : "none";
+  adminPanel.classList.remove("open");
+  openAdminBtn.style.display = (role==="owner" || role==="admin") ? "block" : "none";
+
+  onlineDB.child(username).once("value",o=>{
+    if(o.exists()) return alert("Username already in use");
+    adminDB.child("banned").once("value",s=>{
+      if(s.val() && s.val()[username]) return alert("You are banned");
+
+      login.style.display="none";
+      chatScreen.style.display="grid";
+      onlineDB.child(username).set(true);
+      onlineDB.child(username).onDisconnect().remove();
+      localStorage.setItem("savedUsername", username);
+      localStorage.setItem("savedPassword", pass);
+      ensureBaseRooms();
+      renderPublicRooms();
+      renderPrivateUserPicker();
+      subscribeToPrivateRooms();
+      switchRoom("general", publicRoomList[0]);
+    });
+  });
+}
+
+function goBack(){
+  onlineDB.child(username).remove();
+  unsubscribeCurrentRoom();
+  if(privateRoomsListener){
+    roomsMetaDB.off("value", privateRoomsListener);
+    privateRoomsListener = null;
+  }
+  chatScreen.style.display="none";
+  login.style.display="flex";
+}
+
+function ensureBaseRooms(){
+  publicRoomList.forEach(room=>{
+    roomsMetaDB.child(room.id).update({
+      id: room.id,
+      name: room.name,
+      description: room.description,
+      type: room.type,
+      gifOnly: room.gifOnly
+    });
+  });
+}
+
+let currentChatRemovedListener=null;
+const messageElements = {};
+
+function unsubscribeCurrentRoom(){
+  if(currentChatRef && currentChatListener){
+    currentChatRef.off("child_added", currentChatListener);
+  }
+  if(currentChatRef && currentChatRemovedListener){
+    currentChatRef.off("child_removed", currentChatRemovedListener);
+  }
+  currentChatRef = null;
+  currentChatListener = null;
+  currentChatRemovedListener = null;
+  Object.keys(messageElements).forEach(k=>delete messageElements[k]);
+}
+
+function getActiveChatRef(){
+  return chatsRoot.child(currentRoomId);
+}
+
+function switchRoom(roomId, roomMeta){
+  currentRoomId = roomId;
+  currentRoomMeta = roomMeta;
+  currentRoomLabel.innerText = `Room: ${roomMeta.name}${roomMeta.gifOnly ? " (GIFs only)" : ""}`;
+  msg.placeholder = roomMeta.gifOnly ? "This room only allows GIFs" : "Type a message";
+  chat.innerHTML = "";
+  unsubscribeCurrentRoom();
+  currentChatRef = getActiveChatRef();
+  currentChatListener = snap => renderMessage(snap);
+  currentChatRemovedListener = snap => {
+    const el = messageElements[snap.key];
+    if(el) el.remove();
+    delete messageElements[snap.key];
+  };
+  currentChatRef.limitToLast(100).on("child_added", currentChatListener);
+  currentChatRef.on("child_removed", currentChatRemovedListener);
+  renderPublicRooms();
+  renderPrivateRooms();
+  refreshAdminUserDropdowns();
+}
+
+function renderPublicRooms(){
+  const publicRoomsEl=document.getElementById("publicRooms");
+  if(!publicRoomsEl) return;
+  publicRoomsEl.replaceChildren();
+  publicRoomList.forEach(room=>{
+    const btn=document.createElement("button");
+    btn.className="roomCard"+(currentRoomId===room.id?" active":"");
+    btn.type="button";
+    btn.innerHTML=`<span>${room.name}</span>`;
+    btn.title=room.description;
+    btn.onclick=()=>switchRoom(room.id,room);
+    publicRoomsEl.appendChild(btn);
+  });
+}
+
+function renderPrivateRooms(){
+  const privateRoomsEl = document.getElementById("privateRooms");
+  privateRoomsEl.innerHTML = "";
+  const rooms = Object.values(privateRoomsCache).sort((a,b)=>(a.name||"").localeCompare(b.name||""));
+
+  if(!rooms.length){
+    privateRoomsEl.innerHTML = `<div class="statusText">No private chats yet.</div>`;
+    return;
+  }
+
+  rooms.forEach(room=>{
+    const container = document.createElement("div");
+    container.style.display = "flex";
+    container.style.alignItems = "center";
+    container.style.gap = "5px";
+    
+    const btn = document.createElement("button");
+    const members = Object.keys(room.participants || {}).filter(name=>name!==username);
+    btn.className = "roomCard" + (currentRoomId===room.id ? " active" : "");
+    btn.innerHTML = `${room.name || "Private Chat"}<small>${members.join(", ") || "Just you"}</small>`;
+    btn.onclick = ()=>switchRoom(room.id, room);
+    btn.style.flex = "1";
+    
+    container.appendChild(btn);
+    
+    // Leave/Delete buttons
+    const actionContainer = document.createElement("div");
+    actionContainer.style.display = "flex";
+    actionContainer.style.gap = "2px";
+    
+    // Delete button (only for creator)
+    if(room.createdBy === username){
+      const deleteBtn = document.createElement("button");
+      deleteBtn.innerHTML = "🗑️";
+      deleteBtn.title = "Delete Chat";
+      deleteBtn.style.fontSize = "12px";
+      deleteBtn.style.padding = "4px 8px";
+      deleteBtn.style.background = "rgba(255,100,100,0.3)";
+      deleteBtn.style.border = "1px solid rgba(255,100,100,0.5)";
+      deleteBtn.onclick = (e)=>{e.stopPropagation(); deletePrivateChat(room.id);};
+      actionContainer.appendChild(deleteBtn);
+    }
+    
+    // Leave button (don't show if only person left)
+    if(Object.keys(room.participants || {}).length > 1){
+      const leaveBtn = document.createElement("button");
+      leaveBtn.innerHTML = "🚪";
+      leaveBtn.title = "Leave Chat";
+      leaveBtn.style.fontSize = "12px";
+      leaveBtn.style.padding = "4px 8px";
+      leaveBtn.style.background = "rgba(255,200,100,0.3)";
+      leaveBtn.style.border = "1px solid rgba(255,200,100,0.5)";
+      leaveBtn.onclick = (e)=>{e.stopPropagation(); leavePrivateChat(room.id);};
+      actionContainer.appendChild(leaveBtn);
+    }
+    
+    container.appendChild(actionContainer);
+    privateRoomsEl.appendChild(container);
+  });
+}
+
+function renderPrivateUserPicker(){
+  const privateUsersEl = document.getElementById("privateUsers");
+  privateUsersEl.innerHTML = "";
+  const others = Object.keys(onlineUsers).filter(name=>name!==username).sort();
+
+  if(!others.length){
+    privateUsersEl.innerHTML = `<div class="statusText">Nobody else is online.</div>`;
+    return;
+  }
+
+  others.forEach(name=>{
+    const label = document.createElement("label");
+    label.className = "checkboxUser";
+    label.innerHTML = `<input type="checkbox" value="${name}"><span>${name}</span>`;
+    privateUsersEl.appendChild(label);
+  });
+}
+
+function subscribeToPrivateRooms(){
+  if(privateRoomsListener){
+    roomsMetaDB.off("value", privateRoomsListener);
+  }
+
+  privateRoomsListener = snap=>{
+    const allRooms = snap.val() || {};
+    privateRoomsCache = {};
+
+    Object.keys(allRooms).forEach(id=>{
+      const room = allRooms[id];
+      if(room.type !== "private") return;
+      if(!room.participants || !room.participants[username]) return;
+      
+      // Auto-delete empty rooms
+      const participantCount = Object.keys(room.participants || {}).length;
+      if(participantCount === 0){
+        roomsMetaDB.child(id).remove();
+        chatsRoot.child(id).remove();
+        return;
+      }
+      
+      privateRoomsCache[id] = { ...room, id };
+    });
+
+    renderPrivateRooms();
+
+    if(currentRoomMeta && currentRoomMeta.type==="private" && !privateRoomsCache[currentRoomId]){
+      switchRoom("general", publicRoomList[0]);
+    }
+  };
+
+  roomsMetaDB.on("value", privateRoomsListener);
+}
+
+function toggleCreatePrivateChat(){
+  const modal = document.getElementById("privateModal");
+  modal.style.display = modal.style.display === "none" ? "block" : "none";
+}
+
+function createPrivateChat(){
+  const checkboxes = document.querySelectorAll("#privateUsers input:checked");
+  if(!checkboxes.length) return alert("Select at least one person");
+
+  const selectedUsers = Array.from(checkboxes).map(cb => cb.value);
+  const allParticipants = [username, ...selectedUsers];
+  const roomId = "private-" + Date.now() + "-" + Math.random().toString(36).substr(2,9);
+  const participants = {};
+  allParticipants.forEach(u => participants[u] = true);
+
+  const roomName = selectedUsers.length === 1 ? selectedUsers[0] : selectedUsers.join(", ");
+
+  roomsMetaDB.child(roomId).set({
+    id: roomId,
+    type: "private",
+    name: roomName,
+    participants: participants,
+    createdAt: Date.now(),
+    createdBy: username,
+    gifOnly: false
+  });
+
+  toggleCreatePrivateChat();
+  switchRoom(roomId, { id: roomId, type: "private", name: roomName, gifOnly: false });
+}
+
+function leavePrivateChat(roomId){
+  if(!confirm("Are you sure you want to leave this chat?")) return;
+  
+  const roomRef = roomsMetaDB.child(roomId);
+  roomRef.child("participants").child(username).remove();
+  
+  // If this was the current room, switch to general
+  if(currentRoomId === roomId){
+    switchRoom("general", publicRoomList[0]);
+  }
+}
+
+function deletePrivateChat(roomId){
+  if(!confirm("Are you sure you want to delete this chat? This will remove it for everyone.")) return;
+  
+  // Delete the room metadata
+  roomsMetaDB.child(roomId).remove();
+  
+  // Delete all chat messages
+  chatsRoot.child(roomId).remove();
+  
+  // If this was the current room, switch to general
+  if(currentRoomId === roomId){
+    switchRoom("general", publicRoomList[0]);
+  }
+}
+
+onlineDB.on("value",s=>{
+  onlineUsers=s.val()||{};
+  online.innerText="Online: "+(s.numChildren()||0);
+  renderPrivateUserPicker();
+  refreshAdminUserDropdowns();
+});
+adminDB.child("muted").on("value",s=>mutedUsers=s.val()||{});
+
+// Send handler
+function send(){
+  const m=msg.value.trim();
+  if(!m) return;
+  if(mutedUsers[username]) return alert("You are muted");
+  if(currentRoomMeta && currentRoomMeta.gifOnly) return alert("This room only allows GIFs. Use the GIF button.");
+
+  if(m.startsWith("/")){
+    handleCommand(m);
+  } else {
+    getActiveChatRef().push({name:username,msg:m,admin:isAdmin,role:role,color:userColors[username]||null,time:Date.now(),roomId:currentRoomId});
+  }
+  msg.value="";
+}
+
+// Command handler
+function handleCommand(cmdText){
+  const parts = cmdText.slice(1).split(" ");
+  const command = parts[0].toLowerCase();
+  const args = parts.slice(1);
+  const activeChatRef = getActiveChatRef();
+
+  const roleAllowed={
+    "mute":["admin","owner","mod"],
+    "unmute":["admin","owner","mod"],
+    "ban":["admin","owner"],
+    "unban":["admin","owner"],
+    "kick":["admin","owner"],
+    "clear":["admin","owner"],
+    "deleteall":["admin","owner"],
+    "color":["admin","owner","mod","user"],
+    "troll":["admin","owner","mod"],
+    "shake":["admin","owner","mod"],
+    "spam":["admin","owner"],
+    "rainbow":["admin","owner"],
+    "del":["admin","owner","mod"]
+  };
+
+  if(!roleAllowed[command] || !roleAllowed[command].includes(role)){
+    alert("You cannot use this command");
+    return;
+  }
+
+  // Run commands
+  switch(command){
+    case "mute":
+      if(args[0]) adminDB.child("muted/"+args[0]).set(true);
+      logCommand(cmdText); break;
+    case "unmute":
+      if(args[0]) adminDB.child("muted/"+args[0]).remove();
+      logCommand(cmdText); break;
+    case "ban":
+      if(args[0]){
+        adminDB.child("banned/"+args[0]).set(true);
+        onlineDB.child(args[0]).remove();
+      }
+      logCommand(cmdText); break;
+    case "unban":
+      if(args[0]) adminDB.child("banned/"+args[0]).remove();
+      logCommand(cmdText); break;
+    case "kick":
+      if(args[0]) onlineDB.child(args[0]).remove();
+      logCommand(cmdText); break;
+    case "clear":
+      if(isAdmin || role==="owner"){
+        activeChatRef.once("value",s=>{ s.forEach(c=>{ if(!c.val().admin) activeChatRef.child(c.key).remove(); }); });
+      }
+      logCommand(cmdText); break;
+    case "deleteall":
+      if(isAdmin || role==="owner") activeChatRef.remove();
+      logCommand(cmdText); break;
+    case "color":
+      if(args[0]){
+        if(role==="user" || role==="owner" || role==="mod" || role==="admin"){
+          const safeColors=[
+          "red",
+          "green",
+          "blue",
+          "purple",
+          "orange",
+          "pink",
+          "yellow",
+          "cyan",
+          "magenta",
+          "lime",
+          "teal",
+          "navy",
+          "maroon",
+          "olive",
+          "gray",
+          "silver",
+          "brown",
+          "black",
+          "white",
+          "gold",
+          "silver",
+          "coral",
+          "aqua",
+          "fuchsia",
+          "indigo",
+          "violet",
+          "turquoise",
+          "salmon",
+          "beige",
+          "lavender",
+          "tan",
+          "peach",
+          "mint",
+          "ivory",
+          "chocolate",
+          "crimson",
+          "azure",
+          "amber",
+          "burgundy",
+          "cerulean",
+          "charcoal",
+          "copper",
+          "emerald",
+          "jade",
+          "khaki",
+          "plum",
+          "ruby",
+          "sapphire",
+          "sepia",
+          "topaz",
+          "wine",
+          "bronze",
+          "cream",
+          "denim",
+          "eggplant",
+          "forestgreen",
+          "hotpink",
+          "lemon",
+          "mustard",
+          "orchid",
+          "periwinkle",
+          "rose",
+          "sand",
+          "skyblue",
+          "slate",
+          "steelblue",
+          "taupe",
+          "umber",
+          "zucchini",
+          "babyblue",
+          "blush",
+          "cobalt",
+          "ecru",
+          "garnet",
+          "heliotrope",
+          "lilac",
+          "mauve",
+          "ochre",
+          "pistachio",
+          "quartz",
+          "raspberry",
+          "sangria",
+          "tangerine",
+          "wisteria",
+          "yarrow",
+          "zinnia",
+          "pearl",
+          "onyx",
+          "jade",
+          "amber",
+          "citrine",
+          "aquamarine"];
+          if(safeColors.includes(args[0].toLowerCase())) userColors[username]=args[0].toLowerCase();
+        } else {
+          userColors[username]=args[0];
+        }
+      }
+      logCommand(cmdText); break;
+    case "troll":
+      if(args[0]){
+        const msgs = document.querySelectorAll(".msg");
+        msgs.forEach(m=>{
+          if(m.querySelector("b").innerText.includes(args[0])) m.style.transform="rotate(10deg)";
+        });
+      }
+      logCommand(cmdText); break;
+    case "shake":
+      if(args[0]){
+        const msgs = document.querySelectorAll(".msg");
+        msgs.forEach(m=>{
+          if(m.querySelector("b").innerText.includes(args[0])) m.classList.add("shake");
+          setTimeout(()=>m.classList.remove("shake"),500);
+        });
+      }
+      logCommand(cmdText); break;
+    case "spam":
+      if(args[0]){ for(let i=0;i<5;i++) activeChatRef.push({name:args[0],msg:"Spam!",role:"system",time:Date.now(),roomId:currentRoomId}); }
+      logCommand(cmdText); break;
+    case "rainbow":
+      // just toggle a rainbow effect on your name (simple)
+      document.querySelectorAll(".msg b").forEach(el=>{ if(el.innerText.includes(username)) el.style.background="linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)"; });
+      logCommand(cmdText); break;
+    case "del":
+      if(args[0]) activeChatRef.child(args[0]).remove();
+      logCommand(cmdText); break;
+    default: break;
+  }
+}
+
+// Log commands at the top
+function logCommand(txt){
+  const log = document.createElement("div");
+  log.innerText=`Command executed: ${txt}`;
+  commandsLog.prepend(log);
+}
+
+function toggleAdminPanel(){
+  const panel=document.getElementById("adminPanel");
+  if(!panel || !(role==="owner" || role==="admin")) return;
+  panel.classList.toggle("open");
+}
+
+// Message renderer
+function renderMessage(snap){
+  const d=snap.val() || {};
+  const k=snap.key;
+  let text=String(d.msg ?? "");
+  badWords.forEach(w=>{ text=text.replace(new RegExp(w,"gi"), "***"); });
+
+  const div=document.createElement("div");
+  div.className="msg" + (d.name === username ? " mine" : "");
+  div.dataset.messageKey=k;
+  div.style.setProperty("--msg-color", d.admin ? "#ff5555" : (d.color || "#fff"));
+
+  const name=document.createElement("b");
+  const roleLabel = d.role && d.role!=="user" ? ` (${String(d.role).toUpperCase()})` : "";
+  name.textContent=String(d.name || "Unknown") + roleLabel;
+  div.appendChild(name);
+
+  if(d.isImage){
+    div.appendChild(document.createElement("br"));
+    const img=document.createElement("img");
+    img.src=text;
+    img.alt="GIF";
+    img.loading="lazy";
+    div.appendChild(img);
+  } else {
+    div.appendChild(document.createTextNode(": " + text));
+  }
+
+  // Small moderation controls. Ban is intentionally NOT a quick button.
+  if((isAdmin || isMod) && d.name !== username){
+    const actions=document.createElement("span");
+    actions.className="messageActions";
+
+    const mute=document.createElement("button");
+    mute.type="button";
+    mute.className="messageAction";
+    mute.textContent="Mute";
+    mute.title=`Mute ${d.name}`;
+    mute.onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); muteUser(d.name); };
+    actions.appendChild(mute);
+
+    const del=document.createElement("button");
+    del.type="button";
+    del.className="messageAction danger";
+    del.textContent="Delete";
+    del.title="Delete this message";
+    del.onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); deleteMsg(k); };
+    actions.appendChild(del);
+
+    div.appendChild(actions);
+  }
+
+  messageElements[k]=div;
+  chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
+
+  if(logs){
+    const log=document.createElement("div");
+    log.textContent=`${d.name || "Unknown"}: ${text}`;
+    logs.appendChild(log);
+  }
+}
+
+// Admin actions
+function muteUser(u){ if(!u || u===username) return; adminDB.child("muted").child(u).set(true); }
+function unmuteUser(u){ if(!u || u===username) return; adminDB.child("muted").child(u).remove(); }
+function banUser(u){ if(!u || u===username) return; adminDB.child("banned").child(u).set(true); onlineDB.child(u).remove(); }
+function kickUser(u){ if(!u || u===username) return; onlineDB.child(u).remove(); }
+function deleteMsg(k){
+  if(!k || !currentChatRef) return;
+  // Remove ONLY the selected Firebase message. The child_removed listener
+  // removes its existing DOM element; nothing is sent to the chat.
+  currentChatRef.child(k).remove().catch(err=>console.error("Delete message failed",err));
+}
+function clearChat(){ if(isAdmin){ getActiveChatRef().once("value",s=>{ s.forEach(c=>{ if(!c.val().admin) getActiveChatRef().child(c.key).remove(); }); }); } }
+function deleteHistory(){ if(isAdmin) getActiveChatRef().remove(); }
+function clearGifs(){ if(isAdmin){ getActiveChatRef().once("value",s=>{ s.forEach(c=>{ if(c.val().isImage) getActiveChatRef().child(c.key).remove(); }); }); } }
+function toggleLogs(){ logs.style.display=logs.style.display==="none"?"block":"none"; }
+
+function refreshAdminUserDropdowns(){
+  const modSelect=document.getElementById("adminTargetUser");
+  const deleteSelect=document.getElementById("deleteUserTarget");
+  if(!modSelect || !deleteSelect) return;
+
+  const onlineNames=Object.keys(onlineUsers || {}).filter(n=>n!==username).sort((a,b)=>a.localeCompare(b));
+  const currentMod=modSelect.value;
+  modSelect.innerHTML=`<option value="">Choose online user…</option>`;
+  onlineNames.forEach(n=>{
+    const opt=document.createElement("option"); opt.value=n; opt.textContent=n; modSelect.appendChild(opt);
+  });
+  if(onlineNames.includes(currentMod)) modSelect.value=currentMod;
+
+  const names=new Set(onlineNames);
+  const scanRef=getActiveChatRef();
+  scanRef.once("value",snap=>{
+    snap.forEach(child=>{ const n=child.val()?.name; if(n && n!==username) names.add(n); });
+    const sorted=[...names].sort((a,b)=>a.localeCompare(b));
+    const currentDelete=deleteSelect.value;
+    deleteSelect.innerHTML=`<option value="">Choose a user…</option>`;
+    sorted.forEach(n=>{ const opt=document.createElement("option"); opt.value=n; opt.textContent=n; deleteSelect.appendChild(opt); });
+    if(sorted.includes(currentDelete)) deleteSelect.value=currentDelete;
+  });
+}
+
+function applyUserAction(){
+  const target=document.getElementById("adminTargetUser")?.value;
+  const action=document.getElementById("adminUserAction")?.value;
+  if(!target) return alert("Choose a user first.");
+  if(target===username) return alert("You cannot use this on yourself.");
+  if(action==="mute") muteUser(target);
+  if(action==="unmute") unmuteUser(target);
+  if(action==="kick") kickUser(target);
+  if(action==="ban") banUser(target);
+  logCommand(`/${action} ${target}`);
+}
+
+function deleteUserMessages(){
+  const target=document.getElementById("deleteUserTarget")?.value;
+  if(!target) return alert("Choose a user first.");
+  if(!confirm(`Delete all messages from ${target} in this room?`)) return;
+  getActiveChatRef().once("value",snap=>{
+    const removals=[];
+    snap.forEach(child=>{
+      if(child.val()?.name===target) removals.push(getActiveChatRef().child(child.key).remove());
+    });
+    Promise.all(removals).then(()=>refreshAdminUserDropdowns());
+  });
+}
+
+function toggleGifPicker(){
+  const open=gifPicker.style.display==="block";
+  colorOptions.style.display="none";
+  if(!open) loadGifPicker();
+  gifPicker.style.display=open ? "none" : "block";
+}
+
+function toggleColorOptions(){
+  const open=colorOptions.style.display==="block";
+  gifPicker.style.display="none";
+  if(!open) loadColorOptions();
+  colorOptions.style.display=open ? "none" : "block";
+}
+
+function loadGifPicker(){
+  gifGrid.innerHTML = "";
+
+  // 👑 OWNER ONLY GIFS
+  if(role === "owner"){
+    ownerGifs.forEach(g=>{
+      const img=document.createElement("img");
+      img.src=g;
+      img.title="OWNER ONLY";
+      img.onclick=()=>sendGif(g);
+      gifGrid.appendChild(img);
+    });
+
+    const divider=document.createElement("div");
+    divider.className="gifDivider";
+    divider.innerText="OWNER ONLY";
+    gifGrid.appendChild(divider);
+  }
+
+  // Mods ONLY GIFS
+  if(role === "mod"){
+    modGifs.forEach(g=>{
+      const img=document.createElement("img");
+      img.src=g;
+      img.title="MODS ONLY";
+      img.onclick=()=>sendGif(g);
+      gifGrid.appendChild(img);
+    });
+
+    const divider=document.createElement("div");
+    divider.className="gifDivider";
+    divider.innerText="MODS ONLY";
+    gifGrid.appendChild(divider);
+  }
+
+  // NORMAL GIFS
+  catGifs.forEach(g=>{
+    const img=document.createElement("img");
+    img.src=g;
+    img.onclick=()=>sendGif(g);
+    gifGrid.appendChild(img);
+  });
+}
+
+const colorsList = [
+  "red","#00FF00","blue","purple","orange","pink","yellow","cyan","magenta","lime",
+  "teal","navy","maroon","olive","gray","silver","brown","black","white","#FFD700", // gold
+  "coral","aqua","#FF00FF","#4B0082","violet","#40E0D0","salmon","#F5F5DC","lavender",
+  "tan","#FFDAB9","#98FF98","#FFFFF0","#D2691E","#DC143C","#007FFF","#FFBF00","#800020",
+  "#007BA7","#36454F","#B87333","#50C878","#00A86B","#F0E68C","#DDA0DD","#E0115F","#0F52BA",
+  "#8A2BE2","#30D5C8","#FA8072","#87CEEB","#708090","#4682B4","#483C32","#E97451","#89CFF0",
+  "#DE5D83","#FFC0CB","#1E90FF","#F0FFF0","#D2B48C","#FFE4C4","#00CED1","#BA55D3","#FF69B4",
+  "#FFFACD","#FFDB58","#DA70D6","#CCCCFF","#FF007F","#FFDEAD","#FFFF00","#B0E0E6","#BC8F8F"
+];
+
+
+function loadColorOptions(){
+  colorOptions.innerHTML = "";
+
+  const grid = document.createElement("div");
+  grid.className = "colorGrid";
+
+  colorsList.forEach(c => {
+    const btn = document.createElement("div");
+    btn.style.background = c;
+    btn.title = c;
+    btn.onclick = () => {
+      userColors[username] = c;
+      localStorage.setItem("chatUserColor", c);
+      colorOptions.style.display = "none";
+      const preview=document.getElementById("msg");
+      if(preview) preview.style.caretColor=c;
+    };
+    grid.appendChild(btn);
+  });
+
+  colorOptions.appendChild(grid);
+}
+
+
+
+function sendGif(g){ getActiveChatRef().push({name:username,msg:g,admin:isAdmin,role:role,isImage:true,time:Date.now(),roomId:currentRoomId}); gifPicker.style.display="none"; }
+
+// Load saved username and password on page load
+const savedUsername = localStorage.getItem("savedUsername");
+const savedPassword = localStorage.getItem("savedPassword");
+if(savedUsername){
+  usernameInput.value = savedUsername;
+}
+if(savedPassword){
+  adminPass.value = savedPassword;
+}
+const savedColor=localStorage.getItem("chatUserColor");
+if(savedColor) userColors[usernameInput.value.trim() || ""]=savedColor;
+
+const msgInput = document.getElementById("msg");
+
+msgInput.addEventListener("keydown", function(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    send();
+  }
+});
+
+loadGifPicker();
+loadColorOptions();
+</script>
+
+<style id="snoopy-web-theme">
+:root{
+  --sw-bg:#0f1217;
+  --sw-panel:rgba(24,28,34,.72);
+  --sw-panel-strong:rgba(20,24,30,.90);
+  --sw-border:rgba(255,255,255,.12);
+  --sw-primary:#55e887;
+  --sw-primary-soft:rgba(85,232,135,.14);
+  --sw-muted:#8f98a3;
+}
+html,body{background:#0f1217!important;color:#f2f5f3!important}
+body{
+  background:
+    radial-gradient(ellipse at top,rgba(38,54,46,.38),transparent 52%),
+    radial-gradient(ellipse at bottom,rgba(12,18,15,.72),transparent 58%),
+    #0f1217!important;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+}
+.glass{
+  background:linear-gradient(135deg,var(--sw-panel),rgba(20,24,30,.42))!important;
+  backdrop-filter:blur(20px)!important;
+  -webkit-backdrop-filter:blur(20px)!important;
+  border-color:var(--sw-border)!important;
+  box-shadow:0 8px 32px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.04)!important;
+}
+#chatScreen{
+  background:rgba(15,18,23,.84)!important;
+  border-color:rgba(255,255,255,.12)!important;
+}
+.chatSidebar{background:rgba(12,15,19,.72)!important;border-color:rgba(255,255,255,.10)!important}
+.chatMain{background:rgba(15,18,23,.72)!important}
+.chatTopBar{background:rgba(15,18,23,.58)!important;border-color:rgba(255,255,255,.08)!important}
+.roomHeadingTitle #currentRoomLabel{color:#f2f5f3!important}
+.roomHeadingSub,.sideSectionHead,.sideBrandSub{color:#8f98a3!important}
+.roomLiveDot,.statusDot{background:#55e887!important;box-shadow:0 0 9px rgba(85,232,135,.55)!important}
+.roomCard{color:#aeb7c0!important;background:transparent!important}
+.roomCard:hover{background:rgba(255,255,255,.055)!important;color:#e9eef2!important}
+.roomCard.active{
+  background:rgba(85,232,135,.10)!important;
+  color:#55e887!important;
+  border-color:rgba(85,232,135,.22)!important;
+  box-shadow:inset 2px 0 #55e887!important;
+}
+.roomCard.active::before{color:#55e887!important}
+.newPrivateBtn{background:rgba(255,255,255,.035)!important;color:#9ca6af!important;border-color:rgba(255,255,255,.13)!important}
+.newPrivateBtn:hover{background:rgba(85,232,135,.08)!important;color:#55e887!important;border-color:rgba(85,232,135,.25)!important}
+#online{
+  color:#55e887!important;
+  background:rgba(85,232,135,.06)!important;
+  border-color:rgba(85,232,135,.18)!important;
+}
+.backBtn{background:rgba(255,255,255,.065)!important;border-color:rgba(255,255,255,.12)!important}
+.backBtn:hover{background:rgba(85,232,135,.10)!important;border-color:rgba(85,232,135,.30)!important}
+#chat{background:rgba(8,11,14,.34)!important;border-color:rgba(255,255,255,.08)!important}
+.msg,.msg.mine{
+  background:rgba(255,255,255,.045)!important;
+  border-color:rgba(255,255,255,.09)!important;
+  color:#eef1f6!important;
+}
+.msg:hover,.msg.mine:hover{background:rgba(85,232,135,.055)!important;border-color:rgba(85,232,135,.16)!important}
+.msg.mine b{color:var(--sw-primary)!important}
+.composerWrap{background:rgba(15,18,23,.78)!important;border-color:rgba(255,255,255,.08)!important}
+.composerWrap #sendBar input[type=text],#sendBar input[type=text],input{
+  background:rgba(255,255,255,.055)!important;
+  border-color:rgba(255,255,255,.12)!important;
+  color:#f2f5f3!important;
+}
+input:focus,.composerWrap #sendBar input[type=text]:focus{
+  border-color:rgba(85,232,135,.55)!important;
+  box-shadow:0 0 0 3px rgba(85,232,135,.08)!important;
+}
+.composerWrap #gifBtn,.composerWrap #colorBtn{
+  background:rgba(255,255,255,.065)!important;
+  border-color:rgba(255,255,255,.12)!important;
+}
+.composerWrap #gifBtn:hover,.composerWrap #colorBtn:hover{
+  background:rgba(85,232,135,.10)!important;
+  border-color:rgba(85,232,135,.30)!important;
+}
+.composerWrap .sendButton,#sendBar > button:last-of-type{
+  background:rgba(85,232,135,.14)!important;
+  border-color:rgba(85,232,135,.30)!important;
+  color:#f2f5f3!important;
+}
+.composerWrap .sendButton:hover,#sendBar > button:last-of-type:hover{
+  background:rgba(85,232,135,.22)!important;
+  border-color:rgba(85,232,135,.42)!important;
+}
+#gifPicker,#colorOptions{
+  background:rgba(13,16,20,.98)!important;
+  border-color:rgba(85,232,135,.25)!important;
+}
+.adminPanelNew,#adminPanel{background:rgba(60,25,30,.30)!important;border-color:rgba(255,100,110,.24)!important}
+.adminAction{background:rgba(255,255,255,.065)!important;border-color:rgba(255,255,255,.12)!important}
+.adminAction:hover{background:rgba(85,232,135,.10)!important;border-color:rgba(85,232,135,.25)!important}
+::-webkit-scrollbar-thumb{background:#30373f!important}
+::-webkit-scrollbar-thumb:hover{background:#4a545e!important}
+</style>
+</body>
+</html>
