@@ -4,8 +4,7 @@ name: Deploy Vite site to GitHub Pages
 # URL are derived from the repository this workflow runs in, so a fork needs
 # no edits. Enable Pages (Settings -> Pages -> Source: GitHub Actions) to use it.
 #
-# Optional repository *variables* (Settings -> Secrets and variables ->
-# Actions -> Variables) override anything that needs your own backend:
+# Optional repository variables:
 #   VITE_BASE_PATH, VITE_SITE_URL, VITE_SUPABASE_URL,
 #   VITE_SUPABASE_PUBLISHABLE_KEY, VITE_FIREBASE_*, VITE_WISP_URL,
 #   VITE_ASSET_ORIGIN, VITE_MUSIC_CDN
@@ -41,13 +40,14 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Build
-        # Inject the staff passwords into the original Snoopy's Chat HTML.
-        # Prefer GitHub Secrets; repository Variables also work as a fallback.
+      - name: Inject chat passwords and build
         env:
-          SNOOPY_ADMIN_PASSWORD: ${{ secrets.CUP || vars.CUP }}
-          SNOOPY_MOD_PASSWORD: ${{ secrets.LOSER || vars.LOSER }}
-          SNOOPY_OWNER_PASSWORD: ${{ secrets.ALPHA || vars.ALPHA }}
+          # GitHub Secrets/Variables override these defaults.
+          # If none are configured, these fallback passwords are used.
+          SNOOPY_ADMIN_PASSWORD: ${{ secrets.CUP || vars.CUP || 'cup' }}
+          SNOOPY_MOD_PASSWORD: ${{ secrets.LOSER || vars.LOSER || 'loser' }}
+          SNOOPY_OWNER_PASSWORD: ${{ secrets.ALPHA || vars.ALPHA || 'alpha' }}
+
           VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH }}
           VITE_SITE_URL: ${{ vars.VITE_SITE_URL }}
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
@@ -61,21 +61,34 @@ jobs:
           VITE_PROXY_URL: ${{ vars.VITE_PROXY_URL }}
           VITE_ASSET_ORIGIN: ${{ vars.VITE_ASSET_ORIGIN }}
           VITE_MUSIC_CDN: ${{ vars.VITE_MUSIC_CDN }}
+
         run: |
           python3 - <<'PY'
           import os
           from pathlib import Path
+
           p = Path("public/chat.html")
           s = p.read_text()
+
           replacements = {
-              SNOOPY_ADMIN_PASSWORD: ${{ secrets.CUP || vars.CUP || 'cup' }}
-              SNOOPY_MOD_PASSWORD: ${{ secrets.LOSER || vars.LOSER || 'loser' }}
-              SNOOPY_OWNER_PASSWORD: ${{ secrets.ALPHA || vars.ALPHA || 'alpha' }}
+              "__SNOOPY_ADMIN_PASSWORD__": os.environ.get(
+                  "SNOOPY_ADMIN_PASSWORD", ""
+              ),
+              "__SNOOPY_MOD_PASSWORD__": os.environ.get(
+                  "SNOOPY_MOD_PASSWORD", ""
+              ),
+              "__SNOOPY_OWNER_PASSWORD__": os.environ.get(
+                  "SNOOPY_OWNER_PASSWORD", ""
+              ),
           }
+
           for old, new in replacements.items():
-              s = s.replace(old, new.replace("\\", "\\\\").replace('"', '\\"'))
+              escaped = new.replace("\\", "\\\\").replace('"', '\\"')
+              s = s.replace(old, escaped)
+
           p.write_text(s)
           PY
+
           npm run build
 
       - name: SPA fallback for client-side routes
