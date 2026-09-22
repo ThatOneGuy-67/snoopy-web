@@ -68,9 +68,9 @@ jobs:
           p = Path("public/chat.html")
           s = p.read_text()
           replacements = {
-              "__SNOOPY_ADMIN_PASSWORD__": os.environ.get("SNOOPY_ADMIN_PASSWORD", ""),
-              "__SNOOPY_MOD_PASSWORD__": os.environ.get("SNOOPY_MOD_PASSWORD", ""),
-              "__SNOOPY_OWNER_PASSWORD__": os.environ.get("SNOOPY_OWNER_PASSWORD", ""),
+              SNOOPY_ADMIN_PASSWORD: ${{ secrets.CUP || vars.CUP || 'cup' }}
+              SNOOPY_MOD_PASSWORD: ${{ secrets.LOSER || vars.LOSER || 'loser' }}
+              SNOOPY_OWNER_PASSWORD: ${{ secrets.ALPHA || vars.ALPHA || 'alpha' }}
           }
           for old, new in replacements.items():
               s = s.replace(old, new.replace("\\", "\\\\").replace('"', '\\"'))
