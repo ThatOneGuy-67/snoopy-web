@@ -27,6 +27,7 @@ export const APPS: AppItem[] = [
   // Media
   { id: 'youtube',   name: 'YouTube',   icon: Youtube,        color: '#ff0000', url: 'https://www.youtube.com',         category: 'Media' },
   { id: 'spotify',   name: 'Spotify',   icon: Music,          color: '#1db954', url: 'https://open.spotify.com',        category: 'Media' },
+  { id: 'snoopys-music', name: "Snoopy's Music", icon: Music, color: '#1db954', url: 'https://thatoneguy-67.github.io/Snoopys-Spotify/', category: 'Media' },
   { id: 'twitch',    name: 'Twitch',    icon: Twitch,         color: '#9146ff', url: 'https://www.twitch.tv',           category: 'Media' },
 
   // Productivity
