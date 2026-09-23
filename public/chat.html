@@ -245,6 +245,37 @@ button:hover{ background: rgba(255,255,255,0.35); }
   box-shadow:0 8px 32px rgba(0,0,0,0.5);
 }
 
+.giphySearch{
+  display:flex;
+  gap:6px;
+  margin:8px 0 5px;
+}
+.giphySearch input{
+  flex:1;
+  width:auto;
+  max-width:none;
+  margin:0;
+  min-width:0;
+  padding:8px 10px;
+  border-radius:9px;
+}
+.giphySearch button{
+  margin:0;
+  padding:8px 12px;
+  white-space:nowrap;
+}
+.giphyStatus{
+  min-height:16px;
+  margin:4px 2px 7px;
+  font-size:11px;
+  color:#8f98a3;
+  text-align:left;
+}
+.giphySearch button:disabled{
+  opacity:.55;
+  cursor:wait;
+}
+
 .gifGrid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -1837,6 +1868,11 @@ input::placeholder{
 
         <div id="gifPicker">
           <div class="pickerTitle">Choose a GIF</div>
+          <div class="giphySearch">
+            <input id="giphySearchInput" type="text" placeholder="Search GIPHY…" autocomplete="off">
+            <button id="giphySearchBtn" type="button" onclick="searchGiphy()">Search</button>
+          </div>
+          <div id="giphyStatus" class="giphyStatus"></div>
           <div class="gifGrid" id="gifGrid"></div>
         </div>
         <div id="colorOptions"></div>
@@ -2661,6 +2697,79 @@ function deleteUserMessages(){
   });
 }
 
+// GIPHY API
+const GIPHY_API_KEY = "M227VQ8G5DkNdHUTW2sDsSCymgq9buVB";
+const GIPHY_SEARCH_URL = "https://api.giphy.com/v1/gifs/search";
+
+async function searchGiphy(){
+  const input = document.getElementById("giphySearchInput");
+  const status = document.getElementById("giphyStatus");
+  const query = input?.value.trim();
+
+  if(!query){
+    if(status) status.textContent = "Type something to search.";
+    input?.focus();
+    return;
+  }
+
+  const btn = document.getElementById("giphySearchBtn");
+  if(btn) btn.disabled = true;
+  if(status) status.textContent = "Searching GIPHY…";
+
+  try{
+    const url = GIPHY_SEARCH_URL +
+      "?api_key=" + encodeURIComponent(GIPHY_API_KEY) +
+      "&q=" + encodeURIComponent(query) +
+      "&limit=24&offset=0&rating=pg-13&lang=en";
+
+    const response = await fetch(url);
+    if(!response.ok) throw new Error("GIPHY returned " + response.status);
+
+    const payload = await response.json();
+
+    const results = (payload.data || [])
+      .map(item => item?.images?.fixed_width?.url || item?.images?.original?.url)
+      .filter(Boolean);
+
+    gifGrid.innerHTML = "";
+
+    if(!results.length){
+      if(status) status.textContent = "No GIFs found for “" + query + "”.";
+      return;
+    }
+
+    if(status){
+      status.textContent = results.length + " GIFs found for “" + query + "”. Click one to send it.";
+    }
+
+    addGifDivider("GIPHY RESULTS — " + query);
+    results.forEach(g => addGifToGrid(g, "GIPHY"));
+
+  }catch(error){
+    console.error("GIPHY search failed:", error);
+    if(status) status.textContent = "GIPHY search failed. Check the API key or your connection.";
+  }finally{
+    if(btn) btn.disabled = false;
+  }
+}
+
+function addGifToGrid(g, source="GIPHY"){
+  const img = document.createElement("img");
+  img.src = g;
+  img.alt = source + " GIF";
+  img.title = "Send GIF";
+  img.loading = "lazy";
+  img.onclick = () => sendGif(g);
+  gifGrid.appendChild(img);
+}
+
+function addGifDivider(label){
+  const divider = document.createElement("div");
+  divider.className = "gifDivider";
+  divider.innerText = label;
+  gifGrid.appendChild(divider);
+}
+
 function toggleGifPicker(){
   const open=gifPicker.style.display==="block";
   colorOptions.style.display="none";
@@ -2771,6 +2880,17 @@ const savedColor=localStorage.getItem("chatUserColor");
 if(savedColor) userColors[usernameInput.value.trim() || ""]=savedColor;
 
 const msgInput = document.getElementById("msg");
+
+const giphySearchInput = document.getElementById("giphySearchInput");
+
+if(giphySearchInput){
+  giphySearchInput.addEventListener("keydown", e => {
+    if(e.key === "Enter"){
+      e.preventDefault();
+      searchGiphy();
+    }
+  });
+}
 
 msgInput.addEventListener("keydown", function(e) {
   if (e.key === "Enter" && !e.shiftKey) {
