@@ -227,6 +227,8 @@ html[data-anim="off"] *::after {
 /* ---------------- Music page: Spotify-inspired theme ---------------- */
 
 .music-spotify {
+  min-height: 100%;
+  overflow: visible;
   --background: 0 0% 7%;
   --foreground: 0 0% 100%;
   --card: 0 0% 9%;
