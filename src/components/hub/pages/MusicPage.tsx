@@ -193,6 +193,13 @@ const MusicPage = () => {
               </button>
             </div>
 
+            {customPlaylists.map(pl => (
+              <button key={pl.id} onClick={() => { setActiveCustomId(pl.id); setView('playlist'); setPlaying(false); }} className={`w-full flex items-center gap-3 rounded-md p-2 mb-1 text-left hover:bg-secondary ${activeCustomId === pl.id ? 'bg-primary/20 text-primary' : ''}`}>
+                <div className="w-12 h-12 rounded-md bg-secondary grid place-items-center"><ListMusic className="w-5 h-5 text-primary" /></div>
+                <span className="min-w-0"><span className="block text-sm font-medium truncate">{pl.name}</span><span className="block text-xs text-muted-foreground">{pl.songTitles.length} songs</span></span>
+              </button>
+            ))}
+
             <div className="library-scroll min-h-0 flex-1 overflow-y-auto pr-1">
               {PLAYLISTS.map(pl => (
                 <button
@@ -250,107 +257,76 @@ const MusicPage = () => {
             {query ? (
               <section className="mt-6">
                 <h2 className="text-2xl font-bold mb-4">Search results</h2>
-                <ul className="space-y-2">
-                  {results.map(s => (
-                    <li key={s.title}>
-                      <button
-                        onClick={() => {
-                          const pl = playlistOf(s);
-                          selectTrack(pl, pl.songs.indexOf(s));
-                        }}
-                        className="w-full flex items-center gap-4 rounded-md p-3 text-left hover:bg-secondary transition-colors group"
-                      >
-                        <Play className="w-4 h-4 text-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <img src={s.cover} onError={onCoverError} alt="" className="w-10 h-10 rounded object-cover" />
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-sm text-foreground truncate">{s.title}</span>
-                          <span className="block text-xs text-muted-foreground truncate">{s.artist}</span>
-                        </span>
+                <ul className="space-y-1">
+                  {results.map(song => (
+                    <li key={song.playlistId + '-' + song.title} className="flex items-center gap-3 rounded-md p-3 hover:bg-secondary">
+                      <button onClick={() => { const pl = playlistOf(song); selectTrack(pl, pl.songs.indexOf(song)); }} className="flex items-center gap-4 flex-1 min-w-0 text-left">
+                        <Play className="w-4 h-4" />
+                        <img src={song.cover} onError={onCoverError} alt="" className="w-10 h-10 rounded object-cover" />
+                        <span className="min-w-0 flex-1"><span className="block text-sm truncate">{song.title}</span><span className="block text-xs text-muted-foreground truncate">{song.artist}</span></span>
+                      </button>
+                      <button onClick={() => toggleLike(song.title)} className={liked.includes(song.title) ? 'p-2 text-primary' : 'p-2 text-muted-foreground hover:text-primary'} aria-label="Add to playlist with heart">
+                        <Heart className={`w-5 h-5 ${liked.includes(song.title) ? 'fill-current' : ''}`} />
                       </button>
                     </li>
                   ))}
-                  {results.length === 0 && (
-                    <li className="text-sm text-muted-foreground">No songs matched that search.</li>
-                  )}
+                  {!results.length && <li className="text-sm text-muted-foreground">No songs matched that search.</li>}
                 </ul>
               </section>
-            ) : (
-              ) : view === 'home' ? (
-              <>
-                <section className="pt-6 mb-8">
-                  <h2 className="text-2xl font-bold mb-4">Recently played</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-                    {PLAYLISTS.map(pl => (
-                      <button key={pl.id} onClick={() => openPlaylist(pl)} className="glass-card !p-4 text-left group">
-                        <div className="relative mb-4">
-                          <img src={pl.cover} onError={onCoverError} alt="" className="w-full aspect-square rounded-lg object-cover shadow-lg" />
-                          <div className="absolute bottom-2 right-2 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all shadow-xl">
-                            <Play className="w-5 h-5 ml-0.5" />
-                          </div>
-                        </div>
-                        <p className="text-base font-bold text-foreground truncate mb-1">{pl.name}</p>
-                        <p className="text-sm text-muted-foreground line-clamp-2">{pl.description}</p>
-                      </button>
-                    ))}
-                  </div>
-                </section>
-
-                <section className="glass-panel p-6 rounded-lg">
-                  <div className="flex items-center gap-4 mb-6">
-                    <img src={playlist.cover} onError={onCoverError} alt="" className="w-36 h-36 rounded-lg object-cover shadow-2xl" />
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Playlist</p>
-                      <h2 className="text-4xl md:text-5xl font-black text-foreground truncate mb-2">{playlist.name}</h2>
-                      <p className="text-sm text-muted-foreground">{playlist.description} · {playlist.songs.length} songs</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 mb-6">
-                    <button
-                      onClick={togglePlay}
-                      className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:scale-105 transition-transform shadow-xl"
-                      aria-label={playing ? 'Pause' : 'Play'}
-                    >
-                      {playing ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-1" />}
+            ) : view === 'home' ? (
+              <section className="pt-6">
+                <h2 className="text-2xl font-bold mb-4">Your Music</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                  {PLAYLISTS.map(pl => (
+                    <button key={pl.id} onClick={() => openPlaylist(pl)} className="glass-card !p-4 text-left group">
+                      <div className="relative mb-4">
+                        <img src={pl.cover} onError={onCoverError} alt="" className="w-full aspect-square rounded-lg object-cover shadow-lg" />
+                        <div className="absolute bottom-2 right-2 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all shadow-xl"><Play className="w-5 h-5 ml-0.5" /></div>
+                      </div>
+                      <p className="text-base font-bold truncate mb-1">{pl.name}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{pl.description}</p>
                     </button>
+                  ))}
+                </div>
+              </section>
+            ) : (
+              <section className="pt-6">
+                <div className="flex items-center gap-4 mb-6">
+                  <img src={activeCustom ? FALLBACK_COVER : playlist.cover} onError={onCoverError} alt="" className="w-28 h-28 md:w-36 md:h-36 rounded-lg object-cover shadow-2xl" />
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold uppercase tracking-wider mb-2">Playlist</p>
+                    <h2 className="text-3xl md:text-5xl font-black truncate mb-2">{activeCustom ? activeCustom.name : playlist.name}</h2>
+                    <p className="text-sm text-muted-foreground">{activeCustom ? 'Your custom playlist' : playlist.description} · {displayedSongs.length} songs</p>
                   </div>
-
-                  <ul className="space-y-1">
-                    {displayedSongs.map((s, i) => {
-                      const active = current?.title === s.title;
-                      return (
-                        <li
-                          key={s.title}
-                          className={`flex items-center gap-4 rounded-md px-4 py-3 transition-colors group ${
-                            active ? 'bg-primary/10' : 'hover:bg-secondary'
-                          }`}
-                        >
-                          <button onClick={() => selectTrack(playlist, i)} className="flex items-center gap-4 flex-1 min-w-0 text-left">
-                            <span className="w-5 text-sm font-mono text-muted-foreground group-hover:hidden">{i + 1}</span>
-                            <Play className="w-4 h-4 text-foreground hidden group-hover:block" />
-                            <img src={s.cover} onError={onCoverError} alt="" className="w-10 h-10 rounded object-cover" />
-                            <span className="min-w-0 flex-1">
-                              <span className={`block text-sm truncate ${active ? 'text-primary' : 'text-foreground'}`}>{s.title}</span>
-                              <span className="block text-xs text-muted-foreground truncate">{s.artist}</span>
-                            </span>
-                          </button>
-                          <button
-                            onClick={() => toggleLike(s.title)}
-                            aria-label={liked.includes(s.title) ? `Unlike ${s.title}` : `Like ${s.title}`}
-                            className="p-2 text-muted-foreground hover:text-primary transition-colors"
-                          >
-                            <Heart className={`w-5 h-5 ${liked.includes(s.title) ? 'fill-current text-primary' : ''}`} />
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </section>
-              </>
+                </div>
+                <div className="flex items-center gap-4 mb-5">
+                  <button onClick={() => displayedSongs.length && selectTrack(activeCustom ? playlistOf(displayedSongs[0]) : playlist, activeCustom ? playlistOf(displayedSongs[0]).songs.indexOf(displayedSongs[0]) : 0)} className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:scale-105 transition-transform shadow-xl" aria-label="Play playlist">
+                    <Play className="w-7 h-7 ml-1" />
+                  </button>
+                </div>
+                <ul className="space-y-1">
+                  {displayedSongs.map((song, i) => {
+                    const source = playlistOf(song);
+                    const sourceIndex = source.songs.indexOf(song);
+                    const active = current?.title === song.title;
+                    return (
+                      <li key={song.playlistId + '-' + song.title} className={`flex items-center gap-4 rounded-md px-3 py-2.5 ${active ? 'bg-primary/10' : 'hover:bg-secondary'}`}>
+                        <button onClick={() => selectTrack(source, sourceIndex)} className="flex items-center gap-4 flex-1 min-w-0 text-left">
+                          <span className="w-5 text-sm font-mono text-muted-foreground">{i + 1}</span>
+                          <img src={song.cover} onError={onCoverError} alt="" className="w-10 h-10 rounded object-cover" />
+                          <span className="min-w-0 flex-1"><span className={`block text-sm truncate ${active ? 'text-primary' : 'text-foreground'}`}>{song.title}</span><span className="block text-xs text-muted-foreground truncate">{song.artist}</span></span>
+                        </button>
+                        <button onClick={() => toggleLike(song.title)} className={liked.includes(song.title) ? 'p-2 text-primary' : 'p-2 text-muted-foreground hover:text-primary'} aria-label="Add to playlist with heart">
+                          <Heart className={`w-5 h-5 ${liked.includes(song.title) ? 'fill-current' : ''}`} />
+                        </button>
+                      </li>
+                    );
+                  })}
+                  {!displayedSongs.length && <li className="py-10 text-center text-sm text-muted-foreground">No songs yet. Press the heart on a song to add it.</li>}
+                </ul>
+              </section>
             )}
           </div>
-        </main>
-      </div>
 
       {/* Spotify-style player bar */}
       <div className="fixed bottom-0 left-0 right-0 z-30 px-2 pb-2 pointer-events-none">
