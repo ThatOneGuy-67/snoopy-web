@@ -1,77 +1,240 @@
-/**
- * Music library for the Hub Music page.
- * Audio + artwork are served from a CDN (jsDelivr over a GitHub repo), so no
- * large media files live in this project. Point `VITE_MUSIC_CDN` at your own
- * repo to serve your own library.
- *
- * To add a song: add a `song(...)` entry to a playlist below.
- */
-export { MUSIC_CDN } from './siteConfig';
-import { MUSIC_CDN } from './siteConfig';
+/** Full playlist catalog imported from Snoopys-Spotify. */
 
-export const cdn = (path: string) => MUSIC_CDN + encodeURI(path);
+export const MUSIC_CDN = 'https://raw.githubusercontent.com/ThatOneGuy-67/Snoopys-Spotify/main/';
 
-export interface Song {
-  title: string;
-  artist: string;
-  src: string;
-  cover: string;
-}
+export interface Song { title: string; artist: string; src: string; cover: string; playlistId: string; privacy: string; }
+interface CatalogTrack { title: string; artist: string; file: string; cover?: string; }
+interface CatalogPlaylist { id: string; name: string; description: string; folder: string; cover: string; privacy: string; songs: CatalogTrack[]; }
 
-export interface Playlist {
-  id: string;
-  name: string;
-  description: string;
-  cover: string;
-  songs: Song[];
-}
-
-const song = (title: string, artist: string, src: string, cover = 'assets/EX.jpg'): Song => ({
-  title,
-  artist,
-  src: cdn(src),
-  cover: cdn(cover),
-});
-
-export const PLAYLISTS: Playlist[] = [
-  {
-    id: 'global',
-    name: 'Top 50 - Global',
-    description: 'Your daily update of the most played tracks.',
-    cover: cdn('assets/card1img.jpeg'),
-    songs: [
-      song('California Girls', 'Snoop Dogg / Katy Perry', 'music/California Gurls.mp3', 'assets/Cal.jpg'),
-      song('Never Gonna Give U Up', 'Rick Astley', 'music/Never Gonna Give You Up.mp3', 'assets/rick.jpg'),
-      song('Crank That', 'Soulja Boy', 'music/Crank That.mp3', 'assets/SB.jpg'),
-      song('Stand By Me', 'Ben E. King', 'music/Stand by me.mp3', 'assets/Stan.jpg'),
-      song("Steve's Lava Chicken", 'Mojang', "music/Steve's Lava Chicken.mp3", 'assets/MM.jpg'),
-      song('Murder Business', 'YoungBoy', 'music/Murder business -YoungBoy.mp3', 'assets/YB.jpg'),
-      song('Hot Now', 'YoungBoy', 'music/Hot Now -YoungBoy.mp3', 'assets/YB2.jpg'),
-    ],
-  },
-  {
-    id: 'tupac',
-    name: '2Pac',
-    description: '2Pac essentials.',
-    cover: cdn('assets/2pac.jpg'),
-    songs: [
-      song('Bomb First', '2Pac', 'music/Bomb First (My Second Reply).mp3', 'assets/2pac.jpg'),
-      song("Can't C Me", '2Pac', 'music/Can_t C Me.mp3', 'assets/2pac.jpg'),
-      song('Definition Of A Thug Nigga', '2Pac', 'music/Definition Of A Thug Nigga.mp3', 'assets/2pac.jpg'),
-      song('Ambitionz Az A Ridah', '2Pac', 'music/Ambitionz Az A Ridah.mp3', 'assets/2pac.jpg'),
-      song('Dear Mama', '2Pac', 'music/Dear Mama.mp3', 'assets/2pac.jpg'),
-      song('All Eyez On Me', '2Pac', 'music/All Eyez On Me (ft. Big Syke).mp3', 'assets/2pac.jpg'),
-    ],
-  },
+const playlistCatalog: CatalogPlaylist[] = [
+    {
+        id: "global",
+        name: "Top 50 - Global",
+        description: "Your daily update of the most played tracks ...",
+        folder: "music/public/",
+        cover: "assets/card1img.jpeg",
+        privacy: "public",
+        songs: [
+            { title: "California Girls", artist: "Snoop Dogg/Katy Perry", file: "California Gurls.mp3", cover: "assets/Cal.jpg" },
+            { title: "Never Gonna Give U Up", artist: "Rick Astley", file: "Never Gonna Give You Up.mp3", cover: "assets/rick.jpg" },
+            { title: "Crank That", artist: "Soulja Boy", file: "Crank That.mp3", cover: "assets/SB.jpg" },
+            { title: "Stand by me", artist: "Ben King", file: "Stand by me.mp3", cover: "assets/Stan.jpg" },
+            { title: "Steve's Lava", artist: "Mojang", file: "Steve's Lava Chicken.mp3", cover: "assets/MM.jpg" },
+            { title: "Murder business", artist: "Young Boy", file: "Murder business -YoungBoy.mp3", cover: "assets/YB.jpg" },
+            { title: "Hot Now", artist: "Young Boy", file: "Hot Now -YoungBoy.mp3", cover: "assets/YB2.jpg" },
+            { title: "D Animal", artist: "idk", file: "D Animal.mp3" },
+            { title: "Beat It", artist: "idk", file: "Beat It.mp3" },
+            { title: "drop dead", artist: "idk", file: "drop dead.mp3" },
+            { title: "Jamaican (Bam Bam)", artist: "idk", file: "Jamaican (Bam Bam).mp3" },
+            { title: "No Scrubs", artist: "idk", file: "No Scrubs.mp3" },
+            { title: "Raindance (feat. Tems)", artist: "idk", file: "Raindance (feat. Tems).mp3" },
+            { title: "Riptide", artist: "idk", file: "Riptide.mp3" },
+            { title: "Risk It All", artist: "idk", file: "Risk It All.mp3" },
+            { title: "SaWaDiKa", artist: "idk", file: "SaWaDiKa.mp3" },
+            { title: "Teh Hijau", artist: "idk", file: "Teh Hijau.mp3" },
+            { title: "The Fate of Ophelia", artist: "idk", file: "The Fate of Ophelia.mp3" },
+            { title: "BIRDS OF A FEATHER", artist: "idk", file: "BIRDS OF A FEATHER.mp3" },
+            { title: "Creep", artist: "idk", file: "Creep.mp3" },
+            { title: "Great Expectation", artist: "idk", file: "Great Expectation.mp3" },
+            { title: "Mr. Brightside", artist: "idk", file: "Mr. Brightside.mp3" },
+            { title: "Sign of the Times", artist: "idk", file: "Sign of the Times.mp3" },
+            { title: "Sunflower - Spider-Man_ Into the Spider-Verse", artist: "idk", file: "Sunflower - Spider-Man_ Into the Spider-Verse.mp3" },
+            { title: "Yellow", artist: "idk", file: "Yellow.mp3" },
+            { title: "Babydoll", artist: "idk", file: "Babydoll.mp3" },
+            { title: "Billie Jean", artist: "idk", file: "Billie Jean.mp3" },
+            { title: "Choosin' Texas", artist: "idk", file: "Choosin' Texas.mp3" },
+            { title: "Cinderella (feat. Ty Dolla Sign)", artist: "idk", file: "Cinderella (feat. Ty Dolla Sign).mp3" },
+            { title: "Dai Dai", artist: "idk", file: "Dai Dai.mp3" },
+            { title: "Die With A Smile", artist: "idk", file: "Die With A Smile.mp3" },
+            { title: "End of Beginning", artist: "idk", file: "End of Beginning.mp3" },
+            { title: "Every Breath You Take", artist: "idk", file: "Every Breath You Take.mp3" },
+            { title: "hate that i made you love me", artist: "idk", file: "hate that i made you love me.mp3" },
+            { title: "Iris", artist: "idk", file: "Iris.mp3" },
+            { title: "Locked out of Heaven", artist: "idk", file: "Locked out of Heaven.mp3" },
+            { title: "Man I Need", artist: "idk", file: "Man I Need.mp3" },
+            { title: "Ordinary", artist: "idk", file: "Ordinary.mp3" },
+            { title: "Sailor Song", artist: "idk", file: "Sailor Song.mp3" },
+            { title: "Self Aware", artist: "idk", file: "Self Aware.mp3" },
+            { title: "stupid song", artist: "idk", file: "stupid song.mp3" },
+            { title: "Sweater Weather", artist: "idk", file: "Sweater Weather.mp3" },
+            { title: "SWIM", artist: "idk", file: "SWIM.mp3" },
+            { title: "Training Season", artist: "idk", file: "Training Season.mp3" },
+            { title: "Treat You Better", artist: "idk", file: "Treat You Better.mp3" },
+            { title: "Wonderwall - Remastered", artist: "idk", file: "Wonderwall - Remastered.mp3" },
+            { title: "back to friends", artist: "idk", file: "back to friends.mp3" },
+            { title: "BbY WOW", artist: "idk", file: "BbY WOW.mp3" },
+            { title: "Beauty And A Beat", artist: "idk", file: "Beauty And A Beat.mp3" },
+            { title: "Earrings", artist: "idk", file: "Earrings.mp3" },
+            { title: "Loser", artist: "idk", file: "Loser.mp3" },
+            { title: "Love Me Not", artist: "idk", file: "Love Me Not.mp3" },
+            { title: "the cure", artist: "idk", file: "the cure.mp3" },
+            { title: "The One That Got Away", artist: "idk", file: "The One That Got Away.mp3" },
+        ]
+    },
+    {
+        id: "tupac",
+        name: "2Pac",
+        description: "2Pac songs, I think all songs...",
+        folder: "music/public/",
+        cover: "assets/2pac.jpg",
+        privacy: "public",
+        songs: [
+            { title: "Bomb First", artist: "2Pac", file: "Bomb First (My Second Reply).mp3" },
+            { title: "Can_t C Me", artist: "2Pac", file: "Can_t C Me.mp3" },
+            { title: "Definition Of A Thug Nigga", artist: "2Pac", file: "Definition Of A Thug Nigga.mp3" },
+            { title: "Ambitionz Az A Ridah", artist: "2Pac", file: "Ambitionz Az A Ridah.mp3" },
+            { title: "Dear Mama", artist: "2Pac", file: "Dear Mama.mp3" },
+            { title: "All Eyez On Me", artist: "2Pac", file: "All Eyez On Me (ft. Big Syke).mp3" }
+        ]
+    },
+    {
+        id: "robert",
+        name: "TopOppGen",
+        description: "TopOppGen songs for Robert Reagan.",
+        folder: "music/robert/",
+        cover: "assets/Topoppgen.jpg",
+        privacy: "public",
+        songs: [
+            { title: "0%", artist: "TopOppGen", file: "0.mp3" },
+            { title: "affectionate", artist: "TopOppGen", file: "affectionate.mp3" },
+            { title: "blame yhu", artist: "TopOppGen", file: "blame yhu.mp3" },
+            { title: "blow me away", artist: "TopOppGen", file: "blow me away.mp3" },
+            { title: "bones and all", artist: "TopOppGen", file: "bones and all.mp3" },
+            { title: "cavity", artist: "TopOppGen", file: "cavity.mp3" },
+            { title: "chemistry", artist: "TopOppGen", file: "chemistry.mp3" },
+            { title: "cute like aspen", artist: "TopOppGen", file: "cute like aspen.mp3" },
+            { title: "Damage Here", artist: "TopOppGen", file: "Damage Here.mp3" },
+            { title: "Dior", artist: "TopOppGen", file: "Dior.mp3" },
+            { title: "don't cry", artist: "TopOppGen", file: "don't cry.mp3" },
+            { title: "don't wanna do that", artist: "TopOppGen", file: "don't wanna do that.mp3" },
+            { title: "dontsnow", artist: "TopOppGen", file: "dontsnow.mp3" },
+            { title: "drivemeinsane", artist: "TopOppGen", file: "drivemeinsane.mp3" },
+            { title: "emo girl", artist: "TopOppGen", file: "emo girl.mp3" },
+            { title: "end up dead", artist: "TopOppGen", file: "end up dead.mp3" },
+            { title: "every situation", artist: "TopOppGen", file: "every situation.mp3" },
+            { title: "everything", artist: "TopOppGen", file: "everything.mp3" },
+            { title: "eway", artist: "TopOppGen", file: "eway.mp3" },
+            { title: "fake pills & real scars", artist: "TopOppGen", file: "fake pills & real scars.mp3" },
+            { title: "features", artist: "TopOppGen", file: "features.mp3" },
+            { title: "Feel Like Thugga", artist: "TopOppGen", file: "Feel Like Thugga.mp3" },
+            { title: "happy in my dreams", artist: "TopOppGen", file: "happy in my dreams.mp3" },
+            { title: "Headlights", artist: "TopOppGen", file: "Headlights.mp3" },
+            { title: "heartfelt message", artist: "TopOppGen", file: "heartfelt message.mp3" },
+            { title: "hello ¿.", artist: "TopOppGen", file: "hello.mp3" },
+            { title: "i hate relationships", artist: "TopOppGen", file: "i hate relationships.mp3" },
+            { title: "idaho", artist: "TopOppGen", file: "idaho.mp3" },
+            { title: "JUMP INA CROWD", artist: "TopOppGen", file: "JUMP INA CROWD.mp3" },
+            { title: "kms", artist: "TopOppGen", file: "kms.mp3" },
+            { title: "leave bad bxs on read", artist: "TopOppGen", file: "leave bad bxs on read.mp3" },
+            { title: "lotus", artist: "TopOppGen", file: "lotus.mp3" },
+            { title: "love war", artist: "TopOppGen", file: "love war.mp3" },
+            { title: "lovemeden ¿.", artist: "TopOppGen", file: "lovemeden. mp3" },
+            { title: "luvmethesame", artist: "TopOppGen", file: "luvmethesame.mp3" },
+            { title: "Make It Worse", artist: "TopOppGen", file: "Make It Worse.mp3" },
+            { title: "middle school", artist: "TopOppGen", file: "middle school.mp3" },
+            { title: "No Friends", artist: "TopOppGen", file: "No Friends.mp3" },
+            { title: "numb", artist: "TopOppGen", file: "numb.mp3" },
+            { title: "Nun Such", artist: "TopOppGen", file: "Nun Such.mp3" },
+            { title: "petty $hit", artist: "TopOppGen", file: "petty $hit.mp3" },
+            { title: "Plan B", artist: "TopOppGen", file: "Plan B.mp3" },
+            { title: "purple fluid", artist: "TopOppGen", file: "purple fluid.mp3" },
+            { title: "rampaging", artist: "TopOppGen", file: "rampaging.mp3" },
+            { title: "Ran Thru", artist: "TopOppGen", file: "Ran Thru.mp3" },
+            { title: "Realest $hit I Ever Wrote Pt.2", artist: "TopOppGen", file: "Realest $hit I Ever Wrote Pt.2.mp3" },
+            { title: "rich junkie", artist: "TopOppGen", file: "rich junkie.mp3" },
+            { title: "scrimmage", artist: "TopOppGen", file: "scrimmage.mp3" },
+            { title: "seasick", artist: "TopOppGen", file: "seasick.mp3" },
+            { title: "sedated", artist: "TopOppGen", file: "sedated.mp3" },
+            { title: "she screaming purr (attachments)", artist: "TopOppGen", file: "she screaming purr (attachments).mp3" },
+            { title: "Shooting Star", artist: "TopOppGen", file: "Shooting Star.mp3" },
+            { title: "show me it's over", artist: "TopOppGen", file: "show me it's over.mp3" },
+            { title: "suicide song", artist: "TopOppGen", file: "suicide song.mp3" },
+            { title: "T-O-U-C-H", artist: "TopOppGen", file: "T-O-U-C-H.mp3" },
+            { title: "To Me She a 10", artist: "TopOppGen", file: "To Me She a 10.mp3" },
+            { title: "twin towers", artist: "TopOppGen", file: "twin towers.mp3" },
+            { title: "twofaded", artist: "TopOppGen", file: "twofaded.mp3" },
+            { title: "venom", artist: "TopOppGen", file: "venom.mp3" },
+            { title: "way past 10", artist: "TopOppGen", file: "way past 10.mp3" },
+            { title: "wywdt", artist: "TopOppGen", file: "wywdt.mp3" },
+        ]
+    },
+    {
+        id: "braden",
+        name: "Braden's Playlist",
+        description: "Braden's playlist.",
+        folder: "music/braden/",
+        cover: "assets/braden.jpg",
+        privacy: "public",
+        songs: [
+            { title: "Almost Gone", artist: "Gavin Adcock", file: "Almost Gone.mp3" },
+            { title: "Bad State of Mind", artist: "Treaty Oak Revival", file: "Bad State of Mind.mp3" },
+            { title: "Drunk Driving", artist: "Koe Wetzel", file: "Drunk Driving.mp3" },
+            { title: "Fly Over States", artist: "Jason Aldean", file: "Fly Over States.mp3" },
+            { title: "Heartache Medication", artist: "Jon Pardi", file: "Heartache Medication.mp3" },
+            { title: "House Again", artist: "Hudson Westbrook", file: "House Again.mp3" },
+            { title: "House Fire", artist: "Tyler Childers", file: "House Fire.mp3" },
+            { title: "Indigo (feat. Avery Anna)", artist: "Sam Barber", file: "Indigo (feat. Avery Anna).mp3" },
+            { title: "Ode To Bourbon", artist: "Treaty Oak Revival", file: "Ode To Bourbon.mp3" },
+            { title: "Rollin' Stone", artist: "Blake Whiten", file: "Rollin' Stone.mp3" },
+            { title: "Springsteen", artist: "Eric Church", file: "Springsteen.mp3" },
+            { title: "Sweet Child O' Mine", artist: "Guns N' Roses", file: "Sweet Child O' Mine.mp3" },
+            { title: "Take Your Time", artist: "Hudson Westbrook", file: "Take Your Time.mp3" },
+            { title: "Tennessee Whiskey", artist: "Chris Stapleton", file: "Tennessee Whiskey.mp3" },
+            { title: "Wanna Be Loved", artist: "The Red Clay Strays", file: "Wanna Be Loved.mp3" },
+            { title: "28", artist: "Zach Bryan", file: "28.mp3" },
+            { title: "Arkansas Diamond", artist: "Waylon Wyatt", file: "Arkansas Diamond.mp3" },
+            { title: "Back When We Were Kids", artist: "Bayker Blankenship", file: "Back When We Were Kids.mp3" },
+            { title: "Blue", artist: "Zach Bryan", file: "Blue.mp3" },
+            { title: "Deep End", artist: "Gavin Adcock", file: "Deep End.mp3" },
+            { title: "Ghost Town", artist: "Sam Barber", file: "Ghost Town.mp3" },
+            { title: "Hell or Highwater (Live)", artist: "Zach Bryan", file: "Hell or Highwater - Live.mp3" },
+            { title: "I Remember Everything (feat. Kacey Musgraves)", artist: "Zach Bryan", file: "I Remember Everything (feat. Kacey Musgraves).mp3" },
+            { title: "In Between", artist: "Treaty Oak Revival", file: "In Between.mp3" },
+            { title: "Irish Goodbye", artist: "Treaty Oak Revival", file: "Irish Goodbye.mp3" },
+            { title: "Jailbreak", artist: "Waylon Wyatt & Bayker Blankenship", file: "Jailbreak.mp3" },
+            { title: "Love You, Miss You, Mean It", artist: "Luke Bryan", file: "Love You, Miss You, Mean It.mp3" },
+            { title: "Maxed Out", artist: "Bayker Blankenship", file: "Maxed Out.mp3" },
+            { title: "Motorcycle Drive By", artist: "Zach Bryan", file: "Motorcycle Drive By.mp3" },
+            { title: "Oklahoma Smokeshow", artist: "Zach Bryan", file: "Oklahoma Smokeshow.mp3" },
+            { title: "Phoning Heaven", artist: "Waylon Wyatt", file: "Phoning Heaven.mp3" },
+            { title: "Please Don't Go", artist: "Wyatt Flores", file: "Please Don't Go.mp3" },
+            { title: "Sandpaper (feat. Bruce Springsteen)", artist: "Zach Bryan", file: "Sandpaper (feat. Bruce Springsteen).mp3" },
+            { title: "See You in Court", artist: "Treaty Oak Revival", file: "See You in Court.mp3" },
+            { title: "Sun to Me", artist: "Zach Bryan", file: "Sun to Me.mp3" },
+            { title: "The Painter", artist: "Cody Johnson", file: "The Painter.mp3" },
+            { title: "Your Whereabouts", artist: "Waylon Wyatt", file: "Your Whereabouts.mp3" },
+            { title: "Ain't No Cure", artist: "Gavin Adcock", file: "Ain't No Cure.mp3" },
+            { title: "Drinking Alone", artist: "Cole Phillips", file: "Drinking Alone.mp3" },
+            { title: "Missed Call", artist: "Treaty Oak Revival", file: "Missed Call.mp3" },
+            { title: "Old Farm Drive", artist: "Gavin Adcock", file: "Old Farm Drive.mp3" },
+        ]
+    }
 ];
+const cdn = (path: string) => MUSIC_CDN + path.split('/').map(encodeURIComponent).join('/');
 
-export const ALL_SONGS: Song[] = PLAYLISTS.flatMap(p => p.songs);
+export interface Playlist { id: string; name: string; description: string; cover: string; privacy: string; songs: Song[]; }
 
+export const PLAYLISTS: Playlist[] = playlistCatalog.map((playlist) => ({
+  id: playlist.id,
+  name: playlist.name,
+  description: playlist.description,
+  cover: cdn(playlist.cover || 'assets/EX.jpg'),
+  privacy: playlist.privacy || 'public',
+  songs: playlist.songs.map((track) => ({
+    title: track.title,
+    artist: track.artist,
+    src: cdn(playlist.folder.replace(/\\/?$/, '/') + track.file),
+    cover: cdn(track.cover || playlist.cover || 'assets/EX.jpg'),
+    playlistId: playlist.id,
+    privacy: playlist.privacy || 'public',
+  })),
+}));
+
+export const ALL_SONGS: Song[] = PLAYLISTS.flatMap((playlist) => playlist.songs);
 export const FALLBACK_COVER = cdn('assets/EX.jpg');
-
 export const formatTime = (secs: number) => {
   if (!Number.isFinite(secs) || secs < 0) return '0:00';
-  const m = Math.floor(secs / 60);
-  const s = Math.floor(secs % 60);
-  return `${m}:${s.toString().padStart(2, '0')}`;
+  const minutes = Math.floor(secs / 60);
+  const seconds = Math.floor(secs % 60);
+  return minutes + ':' + seconds.toString().padStart(2, '0');
 };
