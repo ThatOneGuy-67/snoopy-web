@@ -6,11 +6,19 @@ import {
 import { PLAYLISTS, ALL_SONGS, FALLBACK_COVER, formatTime, type Song, type Playlist } from '@/lib/music';
 
 const LIKED_KEY = 'snoopy-music-liked';
+const CUSTOM_PLAYLISTS_KEY = 'snoopy-music-custom-playlists';
+type CustomPlaylist = { id: string; name: string; songTitles: string[] };
+const readJson = <T,>(key: string, fallback: T): T => {
+  try { return JSON.parse(localStorage.getItem(key) || '') as T; } catch { return fallback; }
+};
 
 const MusicPage = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playlist, setPlaylist] = useState<Playlist>(PLAYLISTS[0]);
+  const [view, setView] = useState<'home' | 'playlist'>('home');
   const [index, setIndex] = useState(0);
+  const [customPlaylists, setCustomPlaylists] = useState<CustomPlaylist[]>(() => readJson(CUSTOM_PLAYLISTS_KEY, []));
+  const [activeCustomId, setActiveCustomId] = useState<string | null>(null);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -24,6 +32,9 @@ const MusicPage = () => {
   });
 
   const current: Song | undefined = playlist.songs[index];
+  const activeCustom = customPlaylists.find(p => p.id === activeCustomId) || null;
+  const customSongs = activeCustom ? activeCustom.songTitles.map(title => ALL_SONGS.find(song => song.title === title)).filter((song): song is Song => Boolean(song)) : [];
+  const displayedSongs = activeCustom ? customSongs : playlist.songs;
 
   if (!audioRef.current && typeof Audio !== 'undefined') audioRef.current = new Audio();
 
@@ -43,6 +54,10 @@ const MusicPage = () => {
     if (!audio) return;
     audio.volume = muted ? 0 : volume;
   }, [volume, muted]);
+
+  useEffect(() => {
+    localStorage.setItem(CUSTOM_PLAYLISTS_KEY, JSON.stringify(customPlaylists));
+  }, [customPlaylists]);
 
   const playNext = useCallback(() => {
     setIndex(i => {
@@ -82,8 +97,36 @@ const MusicPage = () => {
 
   const selectTrack = (pl: Playlist, i: number) => {
     setPlaylist(pl);
+    setActiveCustomId(null);
     setIndex(i);
+    setView('playlist');
     setPlaying(true);
+  };
+
+  const openPlaylist = (pl: Playlist) => {
+    setPlaylist(pl);
+    setActiveCustomId(null);
+    setIndex(0);
+    setView('playlist');
+    setPlaying(false);
+  };
+
+  const createPlaylist = () => {
+    const name = window.prompt('Name your new playlist');
+    if (!name?.trim()) return;
+    const id = 'custom-' + Date.now();
+    setCustomPlaylists(prev => [...prev, { id, name: name.trim(), songTitles: [] }]);
+    setActiveCustomId(id);
+    setView('playlist');
+  };
+
+  const addToCustomPlaylist = (song: Song) => {
+    if (!activeCustomId) return;
+    setCustomPlaylists(prev => prev.map(pl =>
+      pl.id === activeCustomId && !pl.songTitles.includes(song.title)
+        ? { ...pl, songTitles: [...pl.songTitles, song.title] }
+        : pl
+    ));
   };
 
   const toggleLike = (title: string) => {
@@ -92,6 +135,8 @@ const MusicPage = () => {
       localStorage.setItem(LIKED_KEY, JSON.stringify(next));
       return next;
     });
+    const song = ALL_SONGS.find(s => s.title === title);
+    if (song && activeCustomId) addToCustomPlaylist(song);
   };
 
   const results = useMemo(() => {
@@ -107,10 +152,10 @@ const MusicPage = () => {
   };
 
   return (
-    <div className="music-spotify min-h-full text-foreground">
-      <div className="flex flex-col lg:flex-row gap-2 p-2 pb-36">
+    <div className="music-spotify h-full min-h-0 text-foreground overflow-hidden">
+      <div className="flex h-full min-h-0 flex-col lg:flex-row gap-2 p-2 pb-2">
         {/* Spotify-style sidebar */}
-        <aside className="w-full lg:w-72 shrink-0 flex flex-col gap-2">
+        <aside className="w-full lg:w-72 shrink-0 flex flex-col gap-2 lg:min-h-0">
           <div className="glass-panel p-5 rounded-lg">
             <nav className="space-y-4">
               <button className="flex items-center gap-4 text-sm font-bold text-foreground hover:text-primary transition-colors">
@@ -124,14 +169,14 @@ const MusicPage = () => {
             </nav>
           </div>
 
-          <div className="glass-panel flex-1 p-4 rounded-lg min-h-[200px]">
+          <div className="glass-panel flex-1 min-h-0 p-4 rounded-lg flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3 text-muted-foreground">
                 <ListMusic className="w-6 h-6" />
                 <span className="text-sm font-bold">Your Library</span>
               </div>
               <div className="flex items-center gap-2">
-                <button className="p-1 text-muted-foreground hover:text-foreground transition-colors" aria-label="Create playlist">
+                <button onClick={createPlaylist} className="p-1 text-muted-foreground hover:text-primary transition-colors" aria-label="Create playlist">
                   <Plus className="w-5 h-5" />
                 </button>
                 <button className="p-1 text-muted-foreground hover:text-foreground transition-colors" aria-label="Open queue">
@@ -143,16 +188,16 @@ const MusicPage = () => {
             <div className="bg-secondary/60 rounded-lg p-4 mb-4">
               <p className="text-sm font-bold mb-1">Create your first playlist</p>
               <p className="text-xs text-muted-foreground mb-4">It's easy, we'll help you</p>
-              <button className="px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-bold hover:scale-105 transition-transform">
+              <button onClick={createPlaylist} className="px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-bold hover:scale-105 transition-transform">
                 Create playlist
               </button>
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div className="library-scroll min-h-0 flex-1 overflow-y-auto pr-1">
               {PLAYLISTS.map(pl => (
                 <button
                   key={pl.id}
-                  onClick={() => setPlaylist(pl)}
+                  onClick={() => openPlaylist(pl)}
                   className={`flex items-center gap-3 rounded-md p-2 text-left transition-colors ${
                     playlist.id === pl.id ? 'bg-primary/20 text-primary' : 'hover:bg-secondary text-foreground'
                   }`}
@@ -169,7 +214,7 @@ const MusicPage = () => {
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 min-w-0 glass-panel rounded-lg overflow-hidden">
+        <main className="flex-1 min-w-0 min-h-0 glass-panel rounded-lg overflow-hidden flex flex-col">
           {/* Sticky nav */}
           <div className="sticky top-0 z-20 flex items-center justify-between px-6 py-4 bg-background/95 backdrop-blur-sm">
             <div className="flex items-center gap-2">
@@ -192,7 +237,7 @@ const MusicPage = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-bold hover:scale-105 transition-transform">
+              <button onClick={createPlaylist} className="px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-bold hover:scale-105 transition-transform">
                 Song Request
               </button>
               <button className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center text-foreground hover:bg-foreground/20 transition-colors" aria-label="Profile">
@@ -201,7 +246,7 @@ const MusicPage = () => {
             </div>
           </div>
 
-          <div className="px-6 pb-8">
+          <div className="music-content-scroll min-h-0 flex-1 overflow-y-auto px-6 pb-8">
             {query ? (
               <section className="mt-6">
                 <h2 className="text-2xl font-bold mb-4">Search results</h2>
@@ -230,12 +275,13 @@ const MusicPage = () => {
                 </ul>
               </section>
             ) : (
+              ) : view === 'home' ? (
               <>
                 <section className="pt-6 mb-8">
                   <h2 className="text-2xl font-bold mb-4">Recently played</h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
                     {PLAYLISTS.map(pl => (
-                      <button key={pl.id} onClick={() => selectTrack(pl, 0)} className="glass-card !p-4 text-left group">
+                      <button key={pl.id} onClick={() => openPlaylist(pl)} className="glass-card !p-4 text-left group">
                         <div className="relative mb-4">
                           <img src={pl.cover} onError={onCoverError} alt="" className="w-full aspect-square rounded-lg object-cover shadow-lg" />
                           <div className="absolute bottom-2 right-2 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all shadow-xl">
@@ -270,7 +316,7 @@ const MusicPage = () => {
                   </div>
 
                   <ul className="space-y-1">
-                    {playlist.songs.map((s, i) => {
+                    {displayedSongs.map((s, i) => {
                       const active = current?.title === s.title;
                       return (
                         <li
@@ -307,8 +353,8 @@ const MusicPage = () => {
       </div>
 
       {/* Spotify-style player bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 px-2 pb-2">
-        <div className="glass-panel p-3 flex flex-col sm:flex-row items-center gap-3 max-w-7xl mx-auto rounded-lg">
+      <div className="fixed bottom-0 left-0 right-0 z-30 px-2 pb-2 pointer-events-none">
+        <div className="music-player glass-panel p-3 flex flex-col sm:flex-row items-center gap-3 max-w-7xl mx-auto rounded-lg pointer-events-auto">
           {/* Album info */}
           <div className="flex items-center gap-3 sm:w-72 w-full min-w-0">
             {current ? (
@@ -364,13 +410,14 @@ const MusicPage = () => {
                 max={duration || 0}
                 step={0.1}
                 value={progress}
+                style={{ '--value': (duration ? Math.min(100, Math.max(0, progress / duration * 100)) : 0) + '%' } as React.CSSProperties}
                 aria-label="Seek"
                 onChange={e => {
                   const t = Number(e.target.value);
                   if (audioRef.current) audioRef.current.currentTime = t;
                   setProgress(t);
                 }}
-                className="flex-1 h-1 bg-foreground/20 rounded-full appearance-none cursor-pointer"
+                className="music-range flex-1 h-1 cursor-pointer"
               />
               <span className="text-[11px] font-mono text-muted-foreground w-10">{formatTime(duration)}</span>
             </div>
@@ -387,9 +434,10 @@ const MusicPage = () => {
               max={1}
               step={0.01}
               value={muted ? 0 : volume}
+              style={{ '--value': ((muted ? 0 : volume) * 100) + '%' } as React.CSSProperties}
               aria-label="Volume"
               onChange={e => { setVolume(Number(e.target.value)); setMuted(false); }}
-              className="flex-1 h-1 bg-foreground/20 rounded-full appearance-none cursor-pointer"
+              className="music-range flex-1 h-1 cursor-pointer"
             />
           </div>
         </div>
