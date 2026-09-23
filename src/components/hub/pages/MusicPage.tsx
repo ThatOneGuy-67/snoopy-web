@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, VolumeX,
-  Search, Music as MusicIcon, ListMusic, Heart, Home, Plus, ArrowRight,
+  Search, Music as MusicIcon, ListMusic, Heart, Home, Plus, ArrowRight, ArrowLeft,
 } from 'lucide-react';
 import { PLAYLISTS, ALL_SONGS, FALLBACK_COVER, formatTime, type Song, type Playlist } from '@/lib/music';
 
@@ -243,9 +243,19 @@ const MusicPage = () => {
           {/* Sticky nav */}
           <div className="sticky top-0 z-20 flex items-center justify-between px-6 py-4 bg-background/95 backdrop-blur-sm">
             <div className="flex items-center gap-2">
-              <button className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors" aria-label="Back">
-                <SkipBack className="w-4 h-4" />
-              </button>
+              {view === 'playlist' && (
+                <button
+                  onClick={() => {
+                    setView('home');
+                    setActiveCustomId(null);
+                  }}
+                  className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Back to music"
+                  title="Back to music"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+              )}
             </div>
 
             <div className="flex-1 max-w-md mx-4">
