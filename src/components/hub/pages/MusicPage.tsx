@@ -7,7 +7,7 @@ import { PLAYLISTS, ALL_SONGS, FALLBACK_COVER, formatTime, type Song, type Playl
 
 const LIKED_KEY = 'snoopy-music-liked';
 const CUSTOM_PLAYLISTS_KEY = 'snoopy-music-custom-playlists';
-type CustomPlaylist = { id: string; name: string; songTitles: string[] };
+type CustomPlaylist = { id: string; name: string; songTitles: string[]; color?: string };
 const readJson = <T,>(key: string, fallback: T): T => {
   try { return JSON.parse(localStorage.getItem(key) || '') as T; } catch { return fallback; }
 };
@@ -19,6 +19,9 @@ const MusicPage = () => {
   const [index, setIndex] = useState(0);
   const [customPlaylists, setCustomPlaylists] = useState<CustomPlaylist[]>(() => readJson(CUSTOM_PLAYLISTS_KEY, []));
   const [activeCustomId, setActiveCustomId] = useState<string | null>(null);
+  const [playlistDialogOpen, setPlaylistDialogOpen] = useState(false);
+  const [playlistNameDraft, setPlaylistNameDraft] = useState('');
+  const [playlistColor, setPlaylistColor] = useState('#1db954');
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -110,13 +113,29 @@ const MusicPage = () => {
     setPlaying(false);
   };
 
+  const openCreatePlaylist = () => {
+    setPlaylistNameDraft('');
+    setPlaylistColor('#1db954');
+    setPlaylistDialogOpen(true);
+  };
+
+  const closeCreatePlaylist = () => {
+    setPlaylistDialogOpen(false);
+    setPlaylistNameDraft('');
+  };
+
   const createPlaylist = () => {
-    const name = window.prompt('Name your new playlist');
-    if (!name?.trim()) return;
+    const name = playlistNameDraft.trim();
+    if (!name) return;
     const id = 'custom-' + Date.now();
-    setCustomPlaylists(prev => [...prev, { id, name: name.trim(), songTitles: [] }]);
+    const initialSongs = current ? [current.title] : [];
+    setCustomPlaylists(prev => [
+      ...prev,
+      { id, name, songTitles: initialSongs, color: playlistColor },
+    ]);
     setActiveCustomId(id);
     setView('playlist');
+    closeCreatePlaylist();
   };
 
   const addToCustomPlaylist = (song: Song) => {
@@ -151,10 +170,10 @@ const MusicPage = () => {
   };
 
   return (
-    <div className="music-spotify h-full min-h-0 text-foreground overflow-hidden">
-      <div className="flex h-full min-h-0 flex-col lg:flex-row gap-2 p-2 pb-2">
+    <div className="music-spotify min-h-full text-foreground">
+      <div className="flex min-h-full flex-col lg:flex-row gap-2 p-2 pb-28">
         {/* Spotify-style sidebar */}
-        <aside className="w-full lg:w-72 shrink-0 flex flex-col gap-2 lg:min-h-0">
+        <aside className="w-full lg:w-72 shrink-0 flex flex-col gap-2">
           <div className="glass-panel p-5 rounded-lg">
             <nav className="space-y-4">
               <button className="flex items-center gap-4 text-sm font-bold text-foreground hover:text-primary transition-colors">
@@ -168,14 +187,14 @@ const MusicPage = () => {
             </nav>
           </div>
 
-          <div className="glass-panel flex-1 min-h-0 p-4 rounded-lg flex flex-col">
+          <div className="glass-panel p-4 rounded-lg flex flex-col lg:sticky lg:top-2">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3 text-muted-foreground">
                 <ListMusic className="w-6 h-6" />
                 <span className="text-sm font-bold">Your Library</span>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={createPlaylist} className="p-1 text-muted-foreground hover:text-primary transition-colors" aria-label="Create playlist">
+                <button onClick={openCreatePlaylist} className="p-1 text-muted-foreground hover:text-primary transition-colors" aria-label="Create playlist">
                   <Plus className="w-5 h-5" />
                 </button>
                 <button className="p-1 text-muted-foreground hover:text-foreground transition-colors" aria-label="Open queue">
@@ -187,19 +206,19 @@ const MusicPage = () => {
             <div className="bg-secondary/60 rounded-lg p-4 mb-4">
               <p className="text-sm font-bold mb-1">Create your first playlist</p>
               <p className="text-xs text-muted-foreground mb-4">It's easy, we'll help you</p>
-              <button onClick={createPlaylist} className="px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-bold hover:scale-105 transition-transform">
+              <button onClick={openCreatePlaylist} className="px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-bold hover:scale-105 transition-transform">
                 Create playlist
               </button>
             </div>
 
             {customPlaylists.map(pl => (
               <button key={pl.id} onClick={() => { setActiveCustomId(pl.id); setView('playlist'); setPlaying(false); }} className={`w-full flex items-center gap-3 rounded-md p-2 mb-1 text-left hover:bg-secondary ${activeCustomId === pl.id ? 'bg-primary/20 text-primary' : ''}`}>
-                <div className="w-12 h-12 rounded-md bg-secondary grid place-items-center"><ListMusic className="w-5 h-5 text-primary" /></div>
+                <div className="w-12 h-12 rounded-md bg-secondary grid place-items-center" style={{ border: `2px solid ${pl.color || '#1db954'}` }}><ListMusic className="w-5 h-5 text-primary" /></div>
                 <span className="min-w-0"><span className="block text-sm font-medium truncate">{pl.name}</span><span className="block text-xs text-muted-foreground">{pl.songTitles.length} songs</span></span>
               </button>
             ))}
 
-            <div className="library-scroll min-h-0 flex-1 overflow-y-auto pr-1">
+            <div className="library-scroll max-h-[42vh] overflow-y-auto pr-1">
               {PLAYLISTS.map(pl => (
                 <button
                   key={pl.id}
@@ -220,7 +239,7 @@ const MusicPage = () => {
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 min-w-0 min-h-0 glass-panel rounded-lg overflow-hidden flex flex-col">
+        <main className="flex-1 min-w-0 glass-panel rounded-lg flex flex-col">
           {/* Sticky nav */}
           <div className="sticky top-0 z-20 flex items-center justify-between px-6 py-4 bg-background/95 backdrop-blur-sm">
             <div className="flex items-center gap-2">
@@ -243,7 +262,7 @@ const MusicPage = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <button onClick={createPlaylist} className="px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-bold hover:scale-105 transition-transform">
+              <button onClick={openCreatePlaylist} className="px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-bold hover:scale-105 transition-transform">
                 Song Request
               </button>
               <button className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center text-foreground hover:bg-foreground/20 transition-colors" aria-label="Profile">
@@ -252,7 +271,7 @@ const MusicPage = () => {
             </div>
           </div>
 
-          <div className="music-content-scroll min-h-0 flex-1 overflow-y-auto px-6 pb-8">
+          <div className="music-content-scroll px-6 pb-8">
             {query ? (
               <section className="mt-6">
                 <h2 className="text-2xl font-bold mb-4">Search results</h2>
@@ -291,7 +310,17 @@ const MusicPage = () => {
             ) : (
               <section className="pt-6">
                 <div className="flex items-center gap-4 mb-6">
-                  <img src={activeCustom ? FALLBACK_COVER : playlist.cover} onError={onCoverError} alt="" className="w-28 h-28 md:w-36 md:h-36 rounded-lg object-cover shadow-2xl" />
+                  {activeCustom ? (
+                    customSongs[0]?.cover ? (
+                      <img src={customSongs[0].cover} onError={onCoverError} alt="" className="w-28 h-28 md:w-36 md:h-36 rounded-lg object-cover shadow-2xl" />
+                    ) : (
+                      <div className="w-28 h-28 md:w-36 md:h-36 rounded-lg bg-secondary grid place-items-center shadow-2xl" style={{ border: `2px solid ${activeCustom.color || '#1db954'}` }}>
+                        <ListMusic className="w-10 h-10 text-primary" />
+                      </div>
+                    )
+                  ) : (
+                    <img src={playlist.cover} onError={onCoverError} alt="" className="w-28 h-28 md:w-36 md:h-36 rounded-lg object-cover shadow-2xl" />
+                  )}
                   <div className="min-w-0">
                     <p className="text-xs font-bold uppercase tracking-wider mb-2">Playlist</p>
                     <h2 className="text-3xl md:text-5xl font-black truncate mb-2">{activeCustom ? activeCustom.name : playlist.name}</h2>
