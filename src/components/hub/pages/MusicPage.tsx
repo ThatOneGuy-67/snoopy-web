@@ -417,6 +417,8 @@ const MusicPage = () => {
           </div>
         </div>
       </div>
+        </main>
+      </div>
     </div>
   );
 };
