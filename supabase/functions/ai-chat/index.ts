@@ -60,9 +60,17 @@ async function callGateway(payload: unknown, apiKey: string, attempt = 0): Promi
     body: JSON.stringify(payload),
   });
 
-  // Retry only transient failures with backoff.
-  if ((res.status === 429 || res.status >= 500) && attempt < 2) {
-    await new Promise((r) => setTimeout(r, 400 * Math.pow(2, attempt)));
+  // No artificial cooldown: keep retrying transient upstream rate limits
+  // and server errors until the gateway accepts the request. Provider-side
+  // limits, credits, and outages still apply.
+  if (res.status === 429 || res.status >= 500) {
+    const retryAfter = Number(res.headers.get('retry-after'));
+    const backoff = Number.isFinite(retryAfter) && retryAfter > 0
+      ? Math.min(retryAfter * 1000, 30000)
+      : Math.min(500 * Math.pow(2, Math.min(attempt, 6)), 30000);
+
+    await res.body?.cancel().catch(() => {});
+    await new Promise((r) => setTimeout(r, backoff));
     return callGateway(payload, apiKey, attempt + 1);
   }
   return res;
