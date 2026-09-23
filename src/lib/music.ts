@@ -223,7 +223,7 @@ export const PLAYLISTS: Playlist[] = playlistCatalog.map((playlist) => ({
   songs: playlist.songs.map((track) => ({
     title: track.title,
     artist: track.artist,
-    src: cdn(playlist.folder.replace(/\\/?$/, '/') + track.file),
+    src: cdn((playlist.folder.endsWith('/') ? playlist.folder : playlist.folder + '/') + track.file),
     cover: cdn(track.cover || playlist.cover || 'assets/EX.jpg'),
     playlistId: playlist.id,
     privacy: playlist.privacy || 'public',
