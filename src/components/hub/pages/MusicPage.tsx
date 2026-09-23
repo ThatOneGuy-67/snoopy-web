@@ -97,7 +97,6 @@ const MusicPage = () => {
 
   const selectTrack = (pl: Playlist, i: number) => {
     setPlaylist(pl);
-    setActiveCustomId(null);
     setIndex(i);
     setView('playlist');
     setPlaying(true);
