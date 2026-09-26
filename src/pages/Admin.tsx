@@ -23,6 +23,8 @@ const Admin = () => {
   const [loginError, setLoginError] = useState("");
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
+  const [startsAt, setStartsAt] = useState("");
+  const [endsAt, setEndsAt] = useState("");
   const [question, setQuestion] = useState("");
   const [optionsText, setOptionsText] = useState("");
 
@@ -63,8 +65,15 @@ const Admin = () => {
 
   const createAnnouncement = async () => {
     if (!title.trim() || !message.trim()) return;
-    const { error } = await (supabase as any).from("announcements").insert({ title: title.trim(), message: message.trim(), enabled: true });
-    if (!error) { setTitle(""); setMessage(""); load(); }
+    const toIso = (value: string) => value ? new Date(value).toISOString() : null;
+    const { error } = await (supabase as any).from("announcements").insert({
+      title: title.trim(),
+      message: message.trim(),
+      enabled: true,
+      starts_at: toIso(startsAt),
+      ends_at: toIso(endsAt),
+    });
+    if (!error) { setTitle(""); setMessage(""); setStartsAt(""); setEndsAt(""); load(); }
   };
 
   const toggleAnnouncement = async (item: any) => {
@@ -159,9 +168,19 @@ const Admin = () => {
           <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5 space-y-3">
             <input className="w-full rounded-lg bg-black/30 border border-white/10 p-3" placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} />
             <textarea className="w-full rounded-lg bg-black/30 border border-white/10 p-3 min-h-28" placeholder="Message" value={message} onChange={e => setMessage(e.target.value)} />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="space-y-2 text-sm text-white/70">
+                Starts at <span className="text-white/40">(optional)</span>
+                <input className="w-full rounded-lg bg-black/30 border border-white/10 p-3 text-white" type="datetime-local" value={startsAt} onChange={e => setStartsAt(e.target.value)} />
+              </label>
+              <label className="space-y-2 text-sm text-white/70">
+                Ends at <span className="text-white/40">(optional)</span>
+                <input className="w-full rounded-lg bg-black/30 border border-white/10 p-3 text-white" type="datetime-local" value={endsAt} onChange={e => setEndsAt(e.target.value)} />
+              </label>
+            </div>
             <button onClick={createAnnouncement} className="rounded-lg bg-white text-black px-4 py-2 font-semibold flex items-center gap-2"><Plus size={17}/>Create</button>
           </div>
-          <div className="mt-6 space-y-3">{announcements.map(a => <div key={a.id} className="rounded-xl border border-white/10 bg-white/5 p-4"><div className="flex justify-between gap-3"><div><b>{a.title}</b><p className="text-white/60 mt-1">{a.message}</p></div><div className="flex gap-2"><button onClick={() => toggleAnnouncement(a)} title="Toggle"><Power size={18}/></button><button onClick={() => deleteAnnouncement(a.id)} title="Delete"><Trash2 size={18}/></button></div></div></div>)}</div>
+          <div className="mt-6 space-y-3">{announcements.map(a => <div key={a.id} className="rounded-xl border border-white/10 bg-white/5 p-4"><div className="flex justify-between gap-3"><div><div className="flex items-center gap-2"><b>{a.title}</b><span className={`rounded-full px-2 py-0.5 text-xs ${a.enabled ? "bg-emerald-400/15 text-emerald-300" : "bg-white/10 text-white/50"}`}>{a.enabled ? "Enabled" : "Disabled"}</span></div><p className="text-white/60 mt-1">{a.message}</p>{(a.starts_at || a.ends_at) && <p className="text-white/40 text-xs mt-2">{a.starts_at ? `Starts ${new Date(a.starts_at).toLocaleString()}` : "No start date"}{" · "}{a.ends_at ? `Ends ${new Date(a.ends_at).toLocaleString()}` : "No end date"}</p>}</div><div className="flex gap-2"><button onClick={() => toggleAnnouncement(a)} title={a.enabled ? "Disable" : "Enable"} aria-label={a.enabled ? "Disable announcement" : "Enable announcement"}><Power size={18}/></button><button onClick={() => deleteAnnouncement(a.id)} title="Delete" aria-label={`Delete ${a.title}`}><Trash2 size={18}/></button></div></div></div>)}</div>
         </>}
 
         {tab === "polls" && <>

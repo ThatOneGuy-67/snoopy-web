@@ -26,6 +26,7 @@ import {
 import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank, extractDominantHue, DEFAULT_WALLPAPER_FALLBACK } from '@/lib/settings';
 import { perfMark } from '@/lib/perf';
 import { Wallpaper } from '@/components/Wallpaper';
+import AnnouncementList from '@/components/AnnouncementList';
 import { THEMES, applyTheme } from '@/lib/themes';
 
 interface Tab { id: string; history: string[]; index: number; title: string; reloadKey: number; }
@@ -301,6 +302,7 @@ const Index = () => {
               </div>
             ) : (
               <div className="h-full overflow-y-auto px-4 pb-8">
+                {view === 'home' && <AnnouncementList />}
                 {view === 'home' && settings.layoutStyle === 'hub' && (
                   <HubShell
                     pinnedIds={pinned.ids}
