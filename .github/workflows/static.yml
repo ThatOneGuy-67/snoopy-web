@@ -47,11 +47,11 @@ jobs:
           SNOOPY_ADMIN_PASSWORD: ${{ secrets.CUP || vars.CUP || 'cup' }}
           SNOOPY_MOD_PASSWORD: ${{ secrets.LOSER || vars.LOSER || 'loser' }}
           SNOOPY_OWNER_PASSWORD: ${{ secrets.ALPHA || vars.ALPHA || 'alpha' }}
-
+        
           VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH }}
           VITE_SITE_URL: ${{ vars.VITE_SITE_URL }}
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
           VITE_SUPABASE_PROJECT_ID: ${{ vars.VITE_SUPABASE_PROJECT_ID }}
           VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
@@ -61,7 +61,7 @@ jobs:
           VITE_PROXY_URL: ${{ vars.VITE_PROXY_URL }}
           VITE_ASSET_ORIGIN: ${{ vars.VITE_ASSET_ORIGIN }}
           VITE_MUSIC_CDN: ${{ vars.VITE_MUSIC_CDN }}
-
+  
         run: |
           python3 - <<'PY'
           import os
