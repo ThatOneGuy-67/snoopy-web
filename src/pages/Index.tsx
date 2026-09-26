@@ -27,6 +27,7 @@ import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank, extractDomi
 import { perfMark } from '@/lib/perf';
 import { Wallpaper } from '@/components/Wallpaper';
 import AnnouncementList from '@/components/AnnouncementList';
+import PollList from '@/components/PollList';
 import { THEMES, applyTheme } from '@/lib/themes';
 
 interface Tab { id: string; history: string[]; index: number; title: string; reloadKey: number; }
@@ -303,6 +304,7 @@ const Index = () => {
             ) : (
               <div className="h-full overflow-y-auto px-4 pb-8">
                 {view === 'home' && <AnnouncementList />}
+                {view === 'home' && <PollList />}
                 {view === 'home' && settings.layoutStyle === 'hub' && (
                   <HubShell
                     pinnedIds={pinned.ids}
