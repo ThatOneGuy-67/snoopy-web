@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getPollOptionResults, isPollActive } from "./polls";
+import { getPollOptionResults, getPollResultsFromRpc, isPollActive } from "./polls";
 
 describe("isPollActive", () => {
   const now = Date.parse("2026-09-26T12:00:00.000Z");
@@ -28,5 +28,25 @@ describe("getPollOptionResults", () => {
       { option: "A", votes: 0, percentage: 0 },
       { option: "B", votes: 0, percentage: 0 },
     ]);
+  });
+});
+
+describe("getPollResultsFromRpc", () => {
+  it("uses returned option indexes and vote counts", () => {
+    expect(getPollResultsFromRpc([
+      { votes: 2, option_index: 0 },
+      { votes: 1, option_index: 1 },
+    ], ["A", "B"])).toEqual([
+      { option: "A", votes: 2, percentage: 67 },
+      { option: "B", votes: 1, percentage: 33 },
+    ]);
+  });
+
+  it("accepts a results wrapper and rejects unsupported data", () => {
+    expect(getPollResultsFromRpc({ results: [{ votes: 0 }, { votes: 0 }] }, ["A", "B"])).toEqual([
+      { option: "A", votes: 0, percentage: 0 },
+      { option: "B", votes: 0, percentage: 0 },
+    ]);
+    expect(getPollResultsFromRpc({ message: "ok" }, ["A", "B"])).toBeNull();
   });
 });

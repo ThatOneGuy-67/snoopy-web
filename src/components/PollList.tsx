@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Check, Vote, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { getPollOptionResults, isPollActive, type PollOptionResult } from '@/lib/polls';
+import { getPollOptionResults, getPollResultsFromRpc, isPollActive, type PollOptionResult } from '@/lib/polls';
 
 const VOTER_ID_KEY = 'snoopy.poll.voter_id';
 const VOTED_POLLS_KEY = 'snoopy.poll.voted_ids';
@@ -22,10 +22,6 @@ type VoteRow = {
   poll_id: string;
   option_index: number;
   voter_id: string;
-};
-
-type SubmitPollVoteRpc = {
-  rpc: (name: 'submit_poll_vote', args: { p_poll_id: string; p_voter_id: string; p_option_index: number }) => Promise<{ error: { message: string } | null }>;
 };
 
 function messageFor(error: unknown, fallback: string): string {
@@ -186,8 +182,8 @@ const PollList = () => {
   }, []);
 
   const submitVote = async (poll: Poll) => {
-    const optionIndex = selections[poll.id];
-    if (voterId === null || !Number.isInteger(optionIndex) || votedPollIds.includes(poll.id) || !isPollActive(poll, Date.now())) return;
+    const selectedOption = selections[poll.id];
+    if (voterId === null || !Number.isInteger(selectedOption) || votedPollIds.includes(poll.id) || !isPollActive(poll, Date.now())) return;
 
     setSubmittingPollId(poll.id);
     setSubmitError('');
@@ -198,12 +194,17 @@ const PollList = () => {
         return;
       }
 
-      const { error } = await (supabase as unknown as SubmitPollVoteRpc).rpc('submit_poll_vote', {
+      const { data, error } = await supabase.rpc("submit_poll_vote", {
         p_poll_id: poll.id,
+        p_option_index: selectedOption,
         p_voter_id: voterId,
-        p_option_index: optionIndex,
       });
       if (error) throw error;
+
+      const returnedResults = getPollResultsFromRpc(data, poll.options);
+      if (returnedResults) {
+        setPolls(current => current.map(item => item.id === poll.id ? { ...item, results: returnedResults } : item));
+      }
 
       const nextVotedIds = [...new Set([...currentVotedIds, poll.id])];
       setVotedPollIds(nextVotedIds);
@@ -223,11 +224,17 @@ const PollList = () => {
         }
         setPolls(current => current.map(item => ({
           ...item,
-          results: getPollOptionResults(item.options, resultsByPoll.get(item.id) ?? []),
+          results: item.id === poll.id && returnedResults
+            ? returnedResults
+            : getPollOptionResults(item.options, resultsByPoll.get(item.id) ?? []),
         })));
         setResultsError('');
       } catch (error) {
-        setResultsError(`Your vote was submitted, but results could not be refreshed: ${messageFor(error, 'Please try again later.')}`);
+        if (!returnedResults) {
+          setResultsError(`Your vote was submitted, but results could not be refreshed: ${messageFor(error, 'Please try again later.')}`);
+        } else {
+          setResultsError('');
+        }
       }
     } catch (error) {
       setSubmitError(messageFor(error, 'Your vote could not be submitted.'));

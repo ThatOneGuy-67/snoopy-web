@@ -35,3 +35,30 @@ export function getPollOptionResults(options: unknown, votes: PollVote[]): PollO
     percentage: totalVotes ? Math.round((counts[index] / totalVotes) * 100) : 0,
   }));
 }
+
+export function getPollResultsFromRpc(data: unknown, optionsValue: unknown): PollOptionResult[] | null {
+  if (!Array.isArray(optionsValue)) return null;
+  const options = optionsValue.map(String);
+  const payload = data && typeof data === 'object' && 'results' in data
+    ? data.results
+    : data;
+  if (!Array.isArray(payload) || payload.length !== options.length || payload.length === 0) return null;
+
+  const counts = options.map(() => 0);
+  for (let index = 0; index < payload.length; index += 1) {
+    const item: unknown = payload[index];
+    if (typeof item !== 'object' || item === null) return null;
+    const record = item as Record<string, unknown>;
+    const optionIndex = Number.isInteger(record.option_index) ? Number(record.option_index) : index;
+    const count = record.votes ?? record.vote_count ?? record.count;
+    if (optionIndex < 0 || optionIndex >= options.length || typeof count !== 'number' || !Number.isFinite(count)) return null;
+    counts[optionIndex] = Math.max(0, Math.floor(count));
+  }
+
+  const totalVotes = counts.reduce((total, count) => total + count, 0);
+  return options.map((option, index) => ({
+    option,
+    votes: counts[index],
+    percentage: totalVotes ? Math.round((counts[index] / totalVotes) * 100) : 0,
+  }));
+}
