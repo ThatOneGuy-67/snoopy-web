@@ -28,6 +28,7 @@ import { perfMark } from '@/lib/perf';
 import { Wallpaper } from '@/components/Wallpaper';
 import { THEMES, applyTheme } from '@/lib/themes';
 import PollList from '@/components/PollList';
+import AnnouncementList from '@/components/AnnouncementList';
 
 interface Tab { id: string; history: string[]; index: number; title: string; reloadKey: number; }
 
@@ -302,6 +303,7 @@ const Index = () => {
               </div>
             ) : (
               <div className="h-full overflow-y-auto px-4 pb-8">
+                {view === 'home' && <AnnouncementList />}
                 {view === 'home' && <PollList />}
                 {view === 'home' && settings.layoutStyle === 'hub' && (
                   <HubShell
