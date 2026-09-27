@@ -4,7 +4,7 @@ export const MUSIC_CDN = 'https://raw.githubusercontent.com/ThatOneGuy-67/Snoopy
 
 export interface Song { title: string; artist: string; src: string; cover: string; playlistId: string; privacy: string; }
 interface CatalogTrack { title: string; artist: string; file: string; cover?: string; }
-interface CatalogPlaylist { id: string; name: string; description: string; folder: string; cover: string; privacy: string; songs: CatalogTrack[]; }
+interface CatalogPlaylist { id: string; name: string; description: string; folder: string; cover: string; privacy: string; password?: string; songs: CatalogTrack[]; }
 
 const playlistCatalog: CatalogPlaylist[] = [
     {
@@ -212,7 +212,7 @@ const playlistCatalog: CatalogPlaylist[] = [
 ];
 const cdn = (path: string) => MUSIC_CDN + path.split('/').map(encodeURIComponent).join('/');
 
-export interface Playlist { id: string; name: string; description: string; cover: string; privacy: string; songs: Song[]; }
+export interface Playlist { id: string; name: string; description: string; cover: string; privacy: string; password?: string; songs: Song[]; }
 
 export const PLAYLISTS: Playlist[] = playlistCatalog.map((playlist) => ({
   id: playlist.id,
@@ -220,6 +220,7 @@ export const PLAYLISTS: Playlist[] = playlistCatalog.map((playlist) => ({
   description: playlist.description,
   cover: cdn(playlist.cover || 'assets/EX.jpg'),
   privacy: playlist.privacy || 'public',
+  password: playlist.password,
   songs: playlist.songs.map((track) => ({
     title: track.title,
     artist: track.artist,
