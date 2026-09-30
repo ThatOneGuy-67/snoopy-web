@@ -195,6 +195,7 @@ export const BACKGROUND_PRESETS: { name: string; url: string }[] = [
   { name: 'City Night', url: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1920&q=80' },
   { name: 'Galaxy', url: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80' },
   { name: 'Sunset', url: 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=80' },
+  { name: 'Dreamy Mountains', url: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=1920&q=80' },
 ];
 
 // Live (animated) wallpaper presets — bundled locally under /public/wallpapers/gifs/
