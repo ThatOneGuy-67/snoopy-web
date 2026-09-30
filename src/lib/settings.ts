@@ -208,6 +208,7 @@ export type LiveWallpaperCategory =
 export interface LiveWallpaper { name: string; url: string; category: LiveWallpaperCategory; }
 
 export const LIVE_WALLPAPERS: LiveWallpaper[] = [
+  { name: 'Snoopy Snow', url: '/wallpapers/gifs/snoopy-snow.gif', category: 'Nature' },
   { name: 'Deep Space',    url: '/wallpapers/gifs/space.gif',     category: 'Space' },
   { name: 'Matrix Rain',   url: '/wallpapers/gifs/matrix.gif',    category: 'Cyberpunk' },
   { name: 'Neon City',     url: '/wallpapers/gifs/cyberpunk.gif', category: 'Cyberpunk' },
