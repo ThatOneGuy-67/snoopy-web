@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Navigate } from "react-router-dom";
 import { BarChart3, ChevronDown, Megaphone, ShieldCheck, Users, Vote, LogOut, Plus, Trash2, Power } from "lucide-react";
 import { getPollOptionResults, isPollActive, type PollOptionResult } from "@/lib/polls";
+import { ref, get } from "firebase/database";
+import { db } from "@/lib/chatDb";
 
 type RecentSession = {
   session_id: string;
@@ -21,6 +23,12 @@ type RecentSession = {
   first_seen: string | null;
   last_seen: string | null;
   visit_count: number | null;
+};
+
+type ChatProfile = {
+  visitorId?: string;
+  currentName?: string;
+  names?: Record<string, boolean>;
 };
 
 type Stats = {
@@ -75,6 +83,7 @@ const Admin = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [tab, setTab] = useState("overview");
   const [stats, setStats] = useState<Stats | null>(null);
+  const [chatProfiles, setChatProfiles] = useState<Record<string, ChatProfile>>({});
   const [expandedSessionId, setExpandedSessionId] = useState<string | null>(null);
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [polls, setPolls] = useState<Poll[]>([]);
@@ -127,6 +136,15 @@ const Admin = () => {
         (supabase as any).from("announcements").select("*").order("created_at", { ascending: false }),
         (supabase as any).from("polls").select("*").order("created_at", { ascending: false }),
       ]);
+
+      try {
+        const profileSnapshot = await get(ref(db, "chatProfiles"));
+        if (profileSnapshot.exists()) {
+          setChatProfiles(profileSnapshot.val() as Record<string, ChatProfile>);
+        }
+      } catch (error) {
+        console.warn("Unable to load chat nickname profiles:", error);
+      }
 
       if (statsResult.error) {
         setStatsError(errorMessage(statsResult.error, "Unable to load site statistics."));
@@ -333,7 +351,13 @@ const Admin = () => {
                       <ChevronDown className={`h-4 w-4 shrink-0 text-white/50 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`} aria-hidden="true" />
                       <span className={`h-2 w-2 shrink-0 rounded-full ${session.is_online ? "bg-emerald-400" : "bg-white/30"}`} aria-hidden="true" />
                       <span className="font-medium">{session.is_online ? "Online" : "Offline"}</span>
-                      <span className="break-all text-white/75">Visitor {session.visitor_id.slice(0, 12)}…</span>
+                      <span className="break-all text-white/75">
+                        {(() => {
+                          const profile = chatProfiles[session.visitor_id];
+                          const names = profile?.names ? Object.keys(profile.names) : [];
+                          return names.length ? names.join(" · ") : `Visitor ${session.visitor_id.slice(0, 12)}…`;
+                        })()}
+                      </span>
                       <span className="text-white/40">·</span>
                       <span className="break-all text-white/55">Session {session.session_id.slice(0, 10)}…</span>
                     </span>
