@@ -1913,24 +1913,6 @@ function getChatVisitorId(){
   return visitorId;
 }
 
-function getChatVisitorId(){
-  const data = [
-    navigator.userAgent,
-    navigator.language,
-    navigator.platform || "",
-    screen.width,
-    screen.height,
-    screen.colorDepth,
-    new Date().getTimezoneOffset(),
-  ].join("||");
-  let hash = 0;
-  for(let i=0;i<data.length;i++){
-    hash=((hash<<5)-hash)+data.charCodeAt(i);
-    hash|=0;
-  }
-  return "u_"+String(Math.abs(hash));
-}
-
 function saveChatNickname(name){
   const cleanName=String(name || "").trim();
   if(!cleanName) return;
