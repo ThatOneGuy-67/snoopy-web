@@ -1900,6 +1900,20 @@ const roomsMetaDB = firebase.database().ref("roomsMeta");
 const chatProfilesDB = firebase.database().ref("chatProfiles");
 
 function getChatVisitorId(){
+  const key = "tog_visitor_id";
+  let visitorId = localStorage.getItem(key);
+
+  if(!visitorId){
+    visitorId = (window.crypto && typeof window.crypto.randomUUID === "function")
+      ? window.crypto.randomUUID()
+      : "u_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+    localStorage.setItem(key, visitorId);
+  }
+
+  return visitorId;
+}
+
+function getChatVisitorId(){
   const data = [
     navigator.userAgent,
     navigator.language,
