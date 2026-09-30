@@ -45,7 +45,7 @@ const DEFAULTS: AppSettings = {
   showParticles: true,
   searchEngine: 'duckduckgo',
   accentHue: 140,
-  backgroundImage: '',
+  backgroundImage: '/wallpapers/gifs/snoopy-snow.gif',
   backgroundDim: 60,
   autoAccentFromBg: false,
   useScramjet: true,
