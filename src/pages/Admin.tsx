@@ -25,6 +25,10 @@ type RecentSession = {
   visit_count: number | null;
 };
 
+type VisitorSummary = Omit<RecentSession, "session_id"> & {
+  session_id: string;
+};
+
 type ChatProfile = {
   visitorId?: string;
   currentName?: string;
@@ -35,7 +39,7 @@ type Stats = {
   online: number;
   visitors: number;
   sessions: number;
-  recent_sessions: RecentSession[];
+  recent_sessions: VisitorSummary[];
 };
 
 type Poll = {
@@ -75,6 +79,32 @@ function formatClockTimestamp(value: string | null | undefined): string {
   if (!value) return "Unknown";
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? "Unknown" : date.toLocaleTimeString();
+}
+
+function statsByVisitor(data: Stats): Stats {
+  const summaries = new Map<string, VisitorSummary>();
+  for (const session of data.recent_sessions ?? []) {
+    const existing = summaries.get(session.visitor_id);
+    if (!existing) {
+      summaries.set(session.visitor_id, { ...session });
+      continue;
+    }
+
+    const sessionActivity = Date.parse(session.last_activity || session.last_heartbeat || "") || 0;
+    const existingActivity = Date.parse(existing.last_activity || existing.last_heartbeat || "") || 0;
+    const newest = sessionActivity >= existingActivity ? session : existing;
+    const firstSeen = [existing.first_seen, session.first_seen].filter(Boolean).sort()[0] ?? null;
+    const lastSeen = [existing.last_seen, session.last_seen].filter(Boolean).sort().at(-1) ?? null;
+
+    summaries.set(session.visitor_id, {
+      ...newest,
+      first_seen: firstSeen,
+      last_seen: lastSeen,
+      visit_count: Math.max(existing.visit_count ?? 0, session.visit_count ?? 0) || null,
+    });
+  }
+
+  return { ...data, recent_sessions: [...summaries.values()] };
 }
 
 const Admin = () => {
@@ -149,7 +179,7 @@ const Admin = () => {
       if (statsResult.error) {
         setStatsError(errorMessage(statsResult.error, "Unable to load site statistics."));
       } else {
-        setStats(statsResult.data as Stats);
+        setStats(statsByVisitor(statsResult.data as Stats));
       }
       if (announcementsResult.data) setAnnouncements(announcementsResult.data);
 
@@ -359,24 +389,18 @@ const Admin = () => {
                         })()}
                       </span>
                       <span className="text-white/40">·</span>
-                      <span className="break-all text-white/55">Session {session.session_id.slice(0, 10)}…</span>
+                      <span className="break-all text-white/55">Visitor {session.visitor_id.slice(0, 12)}…</span>
                     </span>
                     <span className="pl-6 text-sm text-white/45 sm:pl-0">Last activity: {formatClockTimestamp(lastActivity)}</span>
                   </button>
                   {expanded && <div id={detailsId} className="border-t border-white/10 px-4 pb-4 pt-3">
                     <dl className="grid gap-x-5 gap-y-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
-                      <div><dt className="text-white/40">Device</dt><dd className="mt-0.5">{session.device_type || "Unknown"}</dd></div>
-                      <div><dt className="text-white/40">Browser</dt><dd className="mt-0.5">{session.browser || "Unknown"}</dd></div>
-                      <div><dt className="text-white/40">Operating system</dt><dd className="mt-0.5">{session.operating_system || "Unknown"}</dd></div>
-                      <div><dt className="text-white/40">Referrer</dt><dd className="mt-0.5 break-all">{session.referrer_domain || "Direct / unknown"}</dd></div>
-                      <div><dt className="text-white/40">Current page</dt><dd className="mt-0.5 break-all">{session.current_path || "Unknown"}</dd></div>
-                      <div><dt className="text-white/40">Session duration</dt><dd className="mt-0.5">{formatDuration(session.session_duration_seconds)}</dd></div>
-                      <div><dt className="text-white/40">Visit count</dt><dd className="mt-0.5">{session.visit_count ?? "Unknown"}</dd></div>
-                      <div><dt className="text-white/40">Session started</dt><dd className="mt-0.5">{formatTimestamp(session.started_at)}</dd></div>
-                      <div><dt className="text-white/40">First seen</dt><dd className="mt-0.5">{formatTimestamp(session.first_seen)}</dd></div>
-                      <div><dt className="text-white/40">Last seen</dt><dd className="mt-0.5">{formatTimestamp(session.last_seen)}</dd></div>
-                      <div><dt className="text-white/40">Last activity</dt><dd className="mt-0.5">{formatTimestamp(lastActivity)}</dd></div>
-                      <div className="sm:col-span-2 lg:col-span-3"><dt className="text-white/40">Pages visited</dt><dd className="mt-0.5 break-words">{session.pages_visited?.length ? session.pages_visited.join(" · ") : session.current_path || "Unknown"}</dd></div>
+                      {session.visit_count != null && <div><dt className="text-white/40">Visits</dt><dd className="mt-0.5">{session.visit_count}</dd></div>}
+                      {session.session_duration_seconds != null && <div><dt className="text-white/40">Current/last session</dt><dd className="mt-0.5">{formatDuration(session.session_duration_seconds)}</dd></div>}
+                      {session.started_at && <div><dt className="text-white/40">Session started</dt><dd className="mt-0.5">{formatTimestamp(session.started_at)}</dd></div>}
+                      {session.first_seen && <div><dt className="text-white/40">First seen</dt><dd className="mt-0.5">{formatTimestamp(session.first_seen)}</dd></div>}
+                      {session.last_seen && <div><dt className="text-white/40">Last seen</dt><dd className="mt-0.5">{formatTimestamp(session.last_seen)}</dd></div>}
+                      {lastActivity && <div><dt className="text-white/40">Last heartbeat/activity</dt><dd className="mt-0.5">{formatTimestamp(lastActivity)}</dd></div>}
                     </dl>
                   </div>}
                 </article>;
