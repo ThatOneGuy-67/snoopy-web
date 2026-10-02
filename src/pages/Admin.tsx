@@ -27,6 +27,20 @@ type RecentSession = {
 
 type VisitorSummary = Omit<RecentSession, "session_id"> & {
   session_id: string;
+  banned?: boolean;
+};
+
+type AllVisitor = {
+  visitor_id: string;
+  first_seen: string | null;
+  last_seen: string | null;
+  visit_count: number | null;
+  is_online: boolean;
+  session_id: string | null;
+  started_at: string | null;
+  last_heartbeat: string | null;
+  session_duration_seconds: number | null;
+  banned: boolean;
 };
 
 type ChatProfile = {
@@ -40,6 +54,7 @@ type Stats = {
   visitors: number;
   sessions: number;
   recent_sessions: VisitorSummary[];
+  all_visitors: AllVisitor[];
 };
 
 type Poll = {
@@ -115,6 +130,7 @@ const Admin = () => {
   const [stats, setStats] = useState<Stats | null>(null);
   const [chatProfiles, setChatProfiles] = useState<Record<string, ChatProfile>>({});
   const [expandedSessionId, setExpandedSessionId] = useState<string | null>(null);
+  const [banBusy, setBanBusy] = useState<string | null>(null);
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [polls, setPolls] = useState<Poll[]>([]);
   const [statsLoading, setStatsLoading] = useState(true);
@@ -307,6 +323,17 @@ const Admin = () => {
     else await load();
   };
 
+  const setVisitorBan = async (visitorId: string, banned: boolean) => {
+    setBanBusy(visitorId);
+    const { error } = await (supabase as any).rpc("set_visitor_ban", {
+      p_visitor_id: visitorId,
+      p_banned: banned,
+    });
+    setBanBusy(null);
+    if (error) setStatsError(errorMessage(error, "Unable to update visitor ban."));
+    else await load();
+  };
+
   if (checking) return <div className="min-h-screen bg-[#090a0d] text-white grid place-items-center">Checking admin access...</div>;
 
   if (!session) {
@@ -405,6 +432,46 @@ const Admin = () => {
                   </div>}
                 </article>;
               }) : !statsError && <p className="text-white/40">No sessions yet.</p>}
+            </div>
+          </div>
+          <div className="mt-7 rounded-2xl border border-white/10 bg-white/5 p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="font-semibold">Everyone / All People</h3>
+              <span className="text-xs text-white/40">All visitors recorded by the tracker</span>
+            </div>
+            <div className="mt-4 space-y-3">
+              {statsLoading && !stats ? <p className="text-white/40">Loading visitors…</p> : stats?.all_visitors?.length ? stats.all_visitors.map(visitor => {
+                const profile = chatProfiles[visitor.visitor_id];
+                const names = profile?.names ? Object.keys(profile.names) : [];
+                const latest = visitor.last_heartbeat || visitor.last_seen;
+                return <article key={visitor.visitor_id} className="rounded-xl border border-white/10 bg-black/20 p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className={`h-2 w-2 rounded-full ${visitor.is_online ? "bg-emerald-400" : "bg-white/30"}`} />
+                        <span className="font-medium">{visitor.is_online ? "Online" : "Offline"}</span>
+                        <span className="text-white/75">{names.length ? names.join(" · ") : `Visitor ${visitor.visitor_id.slice(0, 12)}…`}</span>
+                        {visitor.banned && <span className="rounded-full bg-red-400/15 px-2 py-0.5 text-xs text-red-300">Banned</span>}
+                      </div>
+                      <p className="mt-1 break-all text-xs text-white/35">{visitor.visitor_id}</p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={banBusy === visitor.visitor_id}
+                      onClick={() => void setVisitorBan(visitor.visitor_id, !visitor.banned)}
+                      className={`rounded-lg px-3 py-2 text-xs font-semibold ${visitor.banned ? "bg-emerald-400/15 text-emerald-300" : "bg-red-400/15 text-red-300"}`}
+                    >{banBusy === visitor.visitor_id ? "Saving…" : visitor.banned ? "Unban" : "Ban"}</button>
+                  </div>
+                  <dl className="mt-4 grid gap-x-5 gap-y-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
+                    {visitor.visit_count != null && <div><dt className="text-white/40">Total visits</dt><dd className="mt-0.5">{visitor.visit_count}</dd></div>}
+                    {visitor.first_seen && <div><dt className="text-white/40">First seen</dt><dd className="mt-0.5">{formatTimestamp(visitor.first_seen)}</dd></div>}
+                    {visitor.last_seen && <div><dt className="text-white/40">Last seen</dt><dd className="mt-0.5">{formatTimestamp(visitor.last_seen)}</dd></div>}
+                    {visitor.started_at && <div><dt className="text-white/40">Current/last session</dt><dd className="mt-0.5">{formatTimestamp(visitor.started_at)}</dd></div>}
+                    {visitor.session_duration_seconds != null && <div><dt className="text-white/40">Session duration</dt><dd className="mt-0.5">{formatDuration(visitor.session_duration_seconds)}</dd></div>}
+                    {latest && <div><dt className="text-white/40">Last heartbeat/activity</dt><dd className="mt-0.5">{formatTimestamp(latest)}</dd></div>}
+                  </dl>
+                </article>;
+              }) : !statsError && <p className="text-white/40">No visitors yet.</p>}
             </div>
           </div>
         </>}
