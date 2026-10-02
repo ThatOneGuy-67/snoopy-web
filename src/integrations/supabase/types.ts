@@ -20,14 +20,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      submit_poll_vote: {
-        Args: {
-          p_poll_id: string
-          p_option_index: number
-          p_voter_id: string
-        }
-        Returns: Json
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
