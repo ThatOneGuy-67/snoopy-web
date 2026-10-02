@@ -202,17 +202,83 @@ function loadScript(src: string): Promise<void> {
 
 async function waitForServiceWorkerControl(timeoutMs = 6000): Promise<void> {
   if (navigator.serviceWorker.controller) return;
-  await new Promise<void>((resolve, reject) => {
-    const timer = window.setTimeout(() => {
-      navigator.serviceWorker.removeEventListener('controllerchange', onChange);
-      reject(new Error('Service worker installed but did not take control. Reload the page and retry.'));
-    }, timeoutMs);
-    const onChange = () => {
-      window.clearTimeout(timer);
-      resolve();
-    };
-    navigator.serviceWorker.addEventListener('controllerchange', onChange, { once: true });
-  });
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const timer = window.setTimeout(() => {
+        navigator.serviceWorker.removeEventListener('controllerchange', onChange);
+        reject(new Error('Service worker installed but did not take control. Reload the page and retry.'));
+      }, timeoutMs);
+      const onChange = () => {
+        window.clearTimeout(timer);
+        resolve();
+      };
+      navigator.serviceWorker.addEventListener('controllerchange', onChange, { once: true });
+    });
+  } catch (e) {
+    // A hard reload (Ctrl+Shift+R) bypasses the worker for this page load and
+    // it can never take control until a normal reload. Do that once, automatically.
+    const KEY = 'tog-sw-reload';
+    if (!sessionStorage.getItem(KEY)) {
+      sessionStorage.setItem(KEY, '1');
+      location.reload();
+      await new Promise(() => {}); // page is going away
+    }
+    throw e;
+  }
+  sessionStorage.removeItem('tog-sw-reload');
+}
+
+let bareConn: any = null;
+let bareWisp = '';
+
+/**
+ * The bare-mux SharedWorker can be restarted by the browser (memory pressure,
+ * Chromebook sleep, tab discard) and loses its transport — that's the
+ * "there are no bare clients" random search failure. Re-apply before each load.
+ */
+export async function ensureTransport(): Promise<void> {
+  if (!bareConn) return;
+  try {
+    const name = await Promise.race([
+      bareConn.getTransport(),
+      new Promise(res => setTimeout(() => res(''), 1500)),
+    ]);
+    if (name) return;
+  } catch { /* fall through and re-set */ }
+  const BASE = import.meta.env.BASE_URL;
+  await bareConn.setTransport(`${BASE}epoxy/index.mjs`, [{ wisp: bareWisp }]);
+}
+
+/** Warm the proxy up in the background so the first search is instant. */
+export function prewarmProxy() {
+  try {
+    if (!checkEnvironment().ok) return;
+    const run = () => { getController().catch(() => {}); };
+    const ric = (window as any).requestIdleCallback as ((cb: () => void) => void) | undefined;
+    ric ? ric(run) : setTimeout(run, 1500);
+  } catch { /* ignore */ }
+}
+
+/**
+ * Open a site in an about:blank tab. Cross-origin sites go through Scramjet,
+ * because almost every real site refuses to be framed directly. The window is
+ * opened synchronously so popup blockers don't eat it.
+ */
+export function openInAboutBlank(target: string, title = document.title, favicon = '') {
+  const win = window.open('about:blank', '_blank');
+  if (!win) { window.open(target, '_blank', 'noopener,noreferrer'); return; }
+  const esc = (s: string) => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+  const icon = favicon || (document.querySelector("link[rel~='icon']") as HTMLLinkElement)?.href || '';
+  win.document.open();
+  win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>${icon ? `<link rel="icon" href="${esc(icon)}">` : ''}</head><body style="margin:0;background:#111;overflow:hidden"><iframe id="f" style="border:0;width:100vw;height:100vh;display:block" allow="fullscreen; autoplay; clipboard-read; clipboard-write; encrypted-media; picture-in-picture"></iframe></body></html>`);
+  win.document.close();
+  const frame = win.document.getElementById('f') as HTMLIFrameElement;
+  let sameOrigin = false;
+  try { sameOrigin = new URL(target, location.href).origin === location.origin; } catch { /* treat as external */ }
+  if (sameOrigin) { frame.src = new URL(target, location.href).href; return; }
+  getController()
+    .then(async c => { await ensureTransport(); frame.src = new URL(c.encodeUrl(target), location.href).href; })
+    .catch(() => { win.location.href = target; });
 }
 
 const SCRAMJET_STORES = ['config', 'cookies', 'redirectTrackers', 'referrerPolicies', 'publicSuffixList'];
@@ -301,6 +367,8 @@ async function repairLegacyScramjetDatabase(): Promise<void> {
       `${BASE}epoxy/index.mjs`,
       [{ wisp: wispUrl }]
     );
+    bareConn = conn;
+    bareWisp = wispUrl;
   
     done({ wispUrl });
   
@@ -310,7 +378,12 @@ export function getController(): Promise<any> {
   const wispUrl = getWispUrl();
   if (!controllerPromise || controllerWispUrl !== wispUrl) {
     controllerWispUrl = wispUrl;
-    controllerPromise = init(wispUrl);
+    const p = init(wispUrl);
+    controllerPromise = p;
+    // A failed boot must not poison every later search until a page reload.
+    p.catch(() => { if (controllerPromise === p) { controllerPromise = null; controllerWispUrl = null; } });
+  } else if (bareConn && bareWisp !== wispUrl) {
+    bareWisp = wispUrl;
   }
   return controllerPromise;
 }
