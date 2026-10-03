@@ -3,11 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Navigate } from "react-router-dom";
 import { BarChart3, ChevronDown, Megaphone, ShieldCheck, Users, Vote, LogOut, Plus, Trash2, Power } from "lucide-react";
 import { getPollOptionResults, isPollActive, type PollOptionResult } from "@/lib/polls";
-<<<<<<< HEAD
-=======
 import { ref, get } from "firebase/database";
 import { db } from "@/lib/chatDb";
->>>>>>> web/main
 
 type RecentSession = {
   session_id: string;
@@ -28,8 +25,6 @@ type RecentSession = {
   visit_count: number | null;
 };
 
-<<<<<<< HEAD
-=======
 type VisitorSummary = Omit<RecentSession, "session_id"> & {
   session_id: string;
   banned?: boolean;
@@ -54,17 +49,12 @@ type ChatProfile = {
   names?: Record<string, boolean>;
 };
 
->>>>>>> web/main
 type Stats = {
   online: number;
   visitors: number;
   sessions: number;
-<<<<<<< HEAD
-  recent_sessions: RecentSession[];
-=======
   recent_sessions: VisitorSummary[];
   all_visitors: AllVisitor[];
->>>>>>> web/main
 };
 
 type Poll = {
@@ -106,8 +96,6 @@ function formatClockTimestamp(value: string | null | undefined): string {
   return Number.isNaN(date.getTime()) ? "Unknown" : date.toLocaleTimeString();
 }
 
-<<<<<<< HEAD
-=======
 function statsByVisitor(data: Stats): Stats {
   const summaries = new Map<string, VisitorSummary>();
   for (const session of data.recent_sessions ?? []) {
@@ -134,20 +122,15 @@ function statsByVisitor(data: Stats): Stats {
   return { ...data, recent_sessions: [...summaries.values()] };
 }
 
->>>>>>> web/main
 const Admin = () => {
   const [session, setSession] = useState<any>(null);
   const [checking, setChecking] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [tab, setTab] = useState("overview");
   const [stats, setStats] = useState<Stats | null>(null);
-<<<<<<< HEAD
-  const [expandedSessionId, setExpandedSessionId] = useState<string | null>(null);
-=======
   const [chatProfiles, setChatProfiles] = useState<Record<string, ChatProfile>>({});
   const [expandedSessionId, setExpandedSessionId] = useState<string | null>(null);
   const [banBusy, setBanBusy] = useState<string | null>(null);
->>>>>>> web/main
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [polls, setPolls] = useState<Poll[]>([]);
   const [statsLoading, setStatsLoading] = useState(true);
@@ -200,12 +183,6 @@ const Admin = () => {
         (supabase as any).from("polls").select("*").order("created_at", { ascending: false }),
       ]);
 
-<<<<<<< HEAD
-      if (statsResult.error) {
-        setStatsError(errorMessage(statsResult.error, "Unable to load site statistics."));
-      } else {
-        setStats(statsResult.data as Stats);
-=======
       try {
         const profileSnapshot = await get(ref(db, "chatProfiles"));
         if (profileSnapshot.exists()) {
@@ -219,7 +196,6 @@ const Admin = () => {
         setStatsError(errorMessage(statsResult.error, "Unable to load site statistics."));
       } else {
         setStats(statsByVisitor(statsResult.data as Stats));
->>>>>>> web/main
       }
       if (announcementsResult.data) setAnnouncements(announcementsResult.data);
 
@@ -347,8 +323,6 @@ const Admin = () => {
     else await load();
   };
 
-<<<<<<< HEAD
-=======
   const setVisitorBan = async (visitorId: string, banned: boolean) => {
     setBanBusy(visitorId);
     const { error } = await (supabase as any).rpc("set_visitor_ban", {
@@ -360,7 +334,6 @@ const Admin = () => {
     else await load();
   };
 
->>>>>>> web/main
   if (checking) return <div className="min-h-screen bg-[#090a0d] text-white grid place-items-center">Checking admin access...</div>;
 
   if (!session) {
@@ -435,11 +408,6 @@ const Admin = () => {
                       <ChevronDown className={`h-4 w-4 shrink-0 text-white/50 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`} aria-hidden="true" />
                       <span className={`h-2 w-2 shrink-0 rounded-full ${session.is_online ? "bg-emerald-400" : "bg-white/30"}`} aria-hidden="true" />
                       <span className="font-medium">{session.is_online ? "Online" : "Offline"}</span>
-<<<<<<< HEAD
-                      <span className="break-all text-white/75">Visitor {session.visitor_id.slice(0, 12)}…</span>
-                      <span className="text-white/40">·</span>
-                      <span className="break-all text-white/55">Session {session.session_id.slice(0, 10)}…</span>
-=======
                       <span className="break-all text-white/75">
                         {(() => {
                           const profile = chatProfiles[session.visitor_id];
@@ -449,41 +417,23 @@ const Admin = () => {
                       </span>
                       <span className="text-white/40">·</span>
                       <span className="break-all text-white/55">Visitor {session.visitor_id.slice(0, 12)}…</span>
->>>>>>> web/main
                     </span>
                     <span className="pl-6 text-sm text-white/45 sm:pl-0">Last activity: {formatClockTimestamp(lastActivity)}</span>
                   </button>
                   {expanded && <div id={detailsId} className="border-t border-white/10 px-4 pb-4 pt-3">
                     <dl className="grid gap-x-5 gap-y-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
-<<<<<<< HEAD
-                      <div><dt className="text-white/40">Device</dt><dd className="mt-0.5">{session.device_type || "Unknown"}</dd></div>
-                      <div><dt className="text-white/40">Browser</dt><dd className="mt-0.5">{session.browser || "Unknown"}</dd></div>
-                      <div><dt className="text-white/40">Operating system</dt><dd className="mt-0.5">{session.operating_system || "Unknown"}</dd></div>
-                      <div><dt className="text-white/40">Referrer</dt><dd className="mt-0.5 break-all">{session.referrer_domain || "Direct / unknown"}</dd></div>
-                      <div><dt className="text-white/40">Current page</dt><dd className="mt-0.5 break-all">{session.current_path || "Unknown"}</dd></div>
-                      <div><dt className="text-white/40">Session duration</dt><dd className="mt-0.5">{formatDuration(session.session_duration_seconds)}</dd></div>
-                      <div><dt className="text-white/40">Visit count</dt><dd className="mt-0.5">{session.visit_count ?? "Unknown"}</dd></div>
-                      <div><dt className="text-white/40">Session started</dt><dd className="mt-0.5">{formatTimestamp(session.started_at)}</dd></div>
-                      <div><dt className="text-white/40">First seen</dt><dd className="mt-0.5">{formatTimestamp(session.first_seen)}</dd></div>
-                      <div><dt className="text-white/40">Last seen</dt><dd className="mt-0.5">{formatTimestamp(session.last_seen)}</dd></div>
-                      <div><dt className="text-white/40">Last activity</dt><dd className="mt-0.5">{formatTimestamp(lastActivity)}</dd></div>
-                      <div className="sm:col-span-2 lg:col-span-3"><dt className="text-white/40">Pages visited</dt><dd className="mt-0.5 break-words">{session.pages_visited?.length ? session.pages_visited.join(" · ") : session.current_path || "Unknown"}</dd></div>
-=======
                       {session.visit_count != null && <div><dt className="text-white/40">Visits</dt><dd className="mt-0.5">{session.visit_count}</dd></div>}
                       {session.session_duration_seconds != null && <div><dt className="text-white/40">Current/last session</dt><dd className="mt-0.5">{formatDuration(session.session_duration_seconds)}</dd></div>}
                       {session.started_at && <div><dt className="text-white/40">Session started</dt><dd className="mt-0.5">{formatTimestamp(session.started_at)}</dd></div>}
                       {session.first_seen && <div><dt className="text-white/40">First seen</dt><dd className="mt-0.5">{formatTimestamp(session.first_seen)}</dd></div>}
                       {session.last_seen && <div><dt className="text-white/40">Last seen</dt><dd className="mt-0.5">{formatTimestamp(session.last_seen)}</dd></div>}
                       {lastActivity && <div><dt className="text-white/40">Last heartbeat/activity</dt><dd className="mt-0.5">{formatTimestamp(lastActivity)}</dd></div>}
->>>>>>> web/main
                     </dl>
                   </div>}
                 </article>;
               }) : !statsError && <p className="text-white/40">No sessions yet.</p>}
             </div>
           </div>
-<<<<<<< HEAD
-=======
           <div className="mt-7 rounded-2xl border border-white/10 bg-white/5 p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="font-semibold">Everyone / All People</h3>
@@ -524,7 +474,6 @@ const Admin = () => {
               }) : !statsError && <p className="text-white/40">No visitors yet.</p>}
             </div>
           </div>
->>>>>>> web/main
         </>}
 
         {tab === "announcements" && <>

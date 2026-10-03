@@ -263,10 +263,6 @@ const PollList = () => {
       {(loading || loadError || (!loading && !loadError && activePolls.length === 0)) && <section aria-label="Community polls" className="mx-auto mt-4 w-full max-w-5xl px-1">
         {loading && <p role="status" className="glass-panel px-4 py-3 text-sm text-muted-foreground">Loading polls…</p>}
         {loadError && <p role="alert" className="glass-panel border-destructive/30 px-4 py-3 text-sm text-destructive">Polls could not be loaded: {loadError}</p>}
-<<<<<<< HEAD
-        {!loading && !loadError && activePolls.length === 0 && <p className="glass-panel px-4 py-3 text-center text-sm text-muted-foreground">No active polls right now.</p>}
-=======
->>>>>>> web/main
       </section>}
 
       {visibleActivePolls.length > 0 && (
@@ -375,8 +371,4 @@ const PollList = () => {
   );
 };
 
-<<<<<<< HEAD
 export default PollList;
-=======
-export default PollList;
->>>>>>> web/main

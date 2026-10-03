@@ -198,14 +198,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-<<<<<<< HEAD
-      submit_poll_vote: {
-        Args: {
-          p_poll_id: string
-          p_option_index: number
-          p_voter_id: string
-        }
-=======
       get_admin_stats: { Args: never; Returns: Json }
       has_role: {
         Args: {
@@ -217,7 +209,6 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       submit_poll_vote: {
         Args: { p_option_index: number; p_poll_id: string; p_voter_id: string }
->>>>>>> web/main
         Returns: Json
       }
     }
