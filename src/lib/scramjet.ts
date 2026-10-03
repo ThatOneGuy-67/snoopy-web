@@ -23,7 +23,12 @@ export function getWispUrl(): string {
       const s = JSON.parse(raw);
       if (s?.wispPoolEnabled && Array.isArray(s.wispPool)) {
         const pool = s.wispPool.filter((u: unknown): u is string => typeof u === 'string' && /^wss?:\/\//i.test(u.trim())).map((u: string) => u.trim());
-        if (pool.length) return pool[0];
+        if (pool.length) {
+          const key = 'snoopy-wisp-pool-index';
+          const index = Number(sessionStorage.getItem(key) || '0') % pool.length;
+          sessionStorage.setItem(key, String(index + 1));
+          return pool[index];
+        }
       }
       if (s?.wispUrl && typeof s.wispUrl === 'string' && s.wispUrl.trim()) return s.wispUrl.trim();
     }
