@@ -185,7 +185,7 @@ const Index = () => {
 
   const handleSearch = (query: string) => {
     const isUrl = query.includes('.') && !query.includes(' ');
-    const url = isUrl ? (query.startsWith('http') ? query : `https://${query}`) : buildSearchUrl(query, settings.searchEngine);
+    const url = isUrl ? (query.startsWith('http') ? query : `https://${query}`) : buildSearchUrl(query, settings.searchEngine, settings);
     perfMark('search.submit', { kind: isUrl ? 'url' : 'search', engine: settings.searchEngine });
     activity.log({ kind: 'search', label: isUrl ? `Visit ${query}` : `Search "${query}"` });
     createTab(url, isUrl ? undefined : `Search: ${query}`);

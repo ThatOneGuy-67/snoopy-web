@@ -38,7 +38,7 @@ const cloakPresets = [
   { name: 'Wikipedia',        title: 'Wikipedia, the free encyclopedia', favicon: 'https://en.wikipedia.org/static/favicon/wikipedia.ico' },
 ];
 
-type Tab = 'general' | 'proxy' | 'cloak' | 'panic' | 'theme' | 'performance';
+type Tab = 'general' | 'proxy' | 'privacy' | 'search' | 'cloak' | 'panic' | 'theme' | 'performance';
 
 /** Sets per-route <title> and a self-referencing canonical link. */
 function usePageMeta(title: string, path: string) {
@@ -62,6 +62,8 @@ function usePageMeta(title: string, path: string) {
 const tabs: { id: Tab; label: string; icon: any }[] = [
   { id: 'general',     label: 'General',     icon: SettingsIcon },
   { id: 'proxy',       label: 'Proxy',       icon: Globe },
+  { id: 'privacy',     label: 'Privacy',     icon: Shield },
+  { id: 'search',      label: 'Search',      icon: Globe },
   { id: 'cloak',       label: 'Cloak',       icon: Shield },
   { id: 'panic',       label: 'Panic',       icon: KeyRound },
   { id: 'theme',       label: 'Theme',       icon: Palette },
@@ -73,6 +75,7 @@ const SettingsPage = () => {
   const navigate = useNavigate();
   const [settings, setSettings] = useSettings();
   const [tab, setTab] = useState<Tab>('general');
+  const [showAdvanced, setShowAdvanced] = useState(settings.settingsMode === 'advanced');
   const [customTitle, setCustomTitle] = useState('');
   const [customFavicon, setCustomFavicon] = useState('');
   const [testing, setTesting] = useState(false);
@@ -128,7 +131,11 @@ const SettingsPage = () => {
             className="flex md:flex-col gap-1 overflow-x-auto md:overflow-visible
                        glass-panel p-2 md:sticky md:top-4 md:self-start"
           >
-            {tabs.map(t => {
+            <button onClick={() => { const next = !showAdvanced; setShowAdvanced(next); update('settingsMode', next ? 'advanced' : 'simple'); }}
+              className="flex items-center justify-center gap-2 px-3 py-2 mb-2 rounded-lg text-xs border border-border hover:border-primary/50">
+              {showAdvanced ? 'Show fewer settings' : 'Show all settings'}
+            </button>
+            {tabs.filter(t => showAdvanced || ['general', 'proxy', 'privacy', 'search', 'theme'].includes(t.id)).map(t => {
               const Icon = t.icon;
               const active = tab === t.id;
               return (
@@ -174,6 +181,7 @@ const SettingsPage = () => {
                     <option value="duckduckgo">DuckDuckGo</option>
                     <option value="google">Google</option>
                     <option value="bing">Bing</option>
+                    <option value="custom">{settings.customSearchName || 'Custom'}</option>
                   </select>
                 </Field>
 
@@ -245,6 +253,12 @@ const SettingsPage = () => {
                     </button>
                   </div>
                 </Field>
+                <Toggle label="Use a Wisp server pool" hint="Try the listed relays in order when one is unavailable. One WebSocket URL per line."
+                  checked={settings.wispPoolEnabled} onChange={v => update('wispPoolEnabled', v)} />
+                <Field label="Wisp pool" hint="Advanced: public or self-hosted WebSocket relay URLs.">
+                  <textarea value={settings.wispPool.join('\n')} onChange={e => update('wispPool', e.target.value.split(/\r?\n/).map(v => v.trim()).filter(Boolean))}
+                    placeholder="wss://relay.example.com\nwss://backup.example.com" className="w-full min-h-24 px-4 py-2 rounded-lg bg-input border border-border outline-none font-mono text-xs" />
+                </Field>
 
                 <div className="space-y-2">
                   <button
@@ -293,6 +307,26 @@ const SettingsPage = () => {
                     </div>
                   )}
                 </div>
+              </>
+            )}
+
+            {tab === 'privacy' && (
+              <>
+                <Toggle label="Ad and tracker blocking" hint="Blocks common advertising and analytics hostnames before they load in supported proxy requests."
+                  checked={settings.adBlockEnabled} onChange={v => update('adBlockEnabled', v)} />
+                <Toggle label="Block WebRTC connections" hint="Reduces direct peer-to-peer connection attempts. Some calls and real-time apps may stop working."
+                  checked={settings.webRtcBlockEnabled} onChange={v => update('webRtcBlockEnabled', v)} />
+              </>
+            )}
+
+            {tab === 'search' && (
+              <>
+                <Field label="Custom search name" hint="The label shown in the search picker.">
+                  <input value={settings.customSearchName} onChange={e => update('customSearchName', e.target.value)} className="w-full px-4 py-2 rounded-lg bg-input border border-border outline-none" />
+                </Field>
+                <Field label="Custom search URL" hint="Use {q} where the search query should go. Example: https://example.com/search?q={q}">
+                  <input value={settings.customSearchUrl} onChange={e => update('customSearchUrl', e.target.value)} placeholder="https://example.com/search?q={q}" className="w-full px-4 py-2 rounded-lg bg-input border border-border outline-none font-mono text-sm" />
+                </Field>
               </>
             )}
 

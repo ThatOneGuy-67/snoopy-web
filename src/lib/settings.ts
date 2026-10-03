@@ -3,6 +3,7 @@ import { applyTheme } from './themes';
 import { DEFAULT_PROXY_URL } from './siteConfig';
 
 export interface AppSettings {
+  settingsMode: 'simple' | 'advanced';
   themeId: string;
   proxyUrl: string;
   proxyPrefix: string;
@@ -14,13 +15,19 @@ export interface AppSettings {
   panicKey: string;
   panicUrl: string;
   showParticles: boolean;
-  searchEngine: 'duckduckgo' | 'google' | 'bing';
+  searchEngine: string;
+  customSearchName: string;
+  customSearchUrl: string;
   accentHue: number;
   backgroundImage: string; // URL or '' for none
   backgroundDim: number;   // 0-100 overlay darkness
   autoAccentFromBg: boolean;
   useScramjet: boolean; // bundled in-app proxy
   wispUrl: string; // custom Wisp relay URL (empty = default)
+  wispPoolEnabled: boolean;
+  wispPool: string[];
+  adBlockEnabled: boolean;
+  webRtcBlockEnabled: boolean;
   accentOverride: boolean; // when true, accentHue overrides theme accent
   glassOpacity: number; // 10-100, transparency of glass surfaces
   uiAnimations: boolean; // master toggle for hover/transition animations
@@ -32,6 +39,7 @@ export interface AppSettings {
 }
 
 const DEFAULTS: AppSettings = {
+  settingsMode: 'simple',
   themeId: 'matrix',
   proxyUrl: DEFAULT_PROXY_URL,
   proxyPrefix: '/service/',
@@ -44,12 +52,18 @@ const DEFAULTS: AppSettings = {
   panicUrl: 'https://classroom.google.com',
   showParticles: true,
   searchEngine: 'duckduckgo',
+  customSearchName: 'Custom',
+  customSearchUrl: '',
   accentHue: 140,
   backgroundImage: '/wallpapers/gifs/snoopy-snow.gif',
   backgroundDim: 60,
   autoAccentFromBg: false,
   useScramjet: true,
   wispUrl: '',
+  wispPoolEnabled: false,
+  wispPool: [],
+  adBlockEnabled: true,
+  webRtcBlockEnabled: false,
   accentOverride: false,
   glassOpacity: 60,
   uiAnimations: true,
@@ -147,8 +161,9 @@ export function buildProxyUrl(target: string, s: AppSettings): string | null {
   return `${base}${prefix}${encoded}`;
 }
 
-export function buildSearchUrl(query: string, engine: AppSettings['searchEngine']): string {
+export function buildSearchUrl(query: string, engine: AppSettings['searchEngine'], settings?: Pick<AppSettings, 'customSearchUrl'>): string {
   const q = encodeURIComponent(query);
+  if (engine === 'custom' && settings?.customSearchUrl) return settings.customSearchUrl.replaceAll('{q}', q);
   switch (engine) {
     case 'google': return `https://www.google.com/search?q=${q}`;
     case 'bing': return `https://www.bing.com/search?q=${q}`;

@@ -21,6 +21,10 @@ export function getWispUrl(): string {
     const raw = localStorage.getItem('snoopy-settings-v1');
     if (raw) {
       const s = JSON.parse(raw);
+      if (s?.wispPoolEnabled && Array.isArray(s.wispPool)) {
+        const pool = s.wispPool.filter((u: unknown): u is string => typeof u === 'string' && /^wss?:\/\//i.test(u.trim())).map((u: string) => u.trim());
+        if (pool.length) return pool[0];
+      }
       if (s?.wispUrl && typeof s.wispUrl === 'string' && s.wispUrl.trim()) return s.wispUrl.trim();
     }
   } catch {}
@@ -170,7 +174,12 @@ export async function findWorkingRelay(
   preferred = getWispUrl(),
   onEvent?: (e: RetryEvent) => void
 ): Promise<{ ok: boolean; url: string; message: string; pingMs?: number; tried: string[] }> {
-  const candidates = [preferred, ...RELAY_PRESETS.map(r => r.url).filter(u => u !== preferred)];
+  let configuredPool: string[] = [];
+  try {
+    const s = JSON.parse(localStorage.getItem('snoopy-settings-v1') || '{}');
+    if (s?.wispPoolEnabled && Array.isArray(s.wispPool)) configuredPool = s.wispPool.filter((u: unknown): u is string => typeof u === 'string' && /^wss?:\/\//i.test(u.trim())).map((u: string) => u.trim());
+  } catch {}
+  const candidates = [...new Set([preferred, ...configuredPool, ...RELAY_PRESETS.map(r => r.url)])];
   const tried: string[] = [];
   let lastMsg = 'No relay reachable';
   for (const url of candidates) {
