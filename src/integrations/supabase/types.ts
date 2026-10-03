@@ -14,23 +14,215 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      announcements: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          ends_at: string | null
+          id: string
+          message: string
+          starts_at: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          ends_at?: string | null
+          id?: string
+          message: string
+          starts_at?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          ends_at?: string | null
+          id?: string
+          message?: string
+          starts_at?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      poll_votes: {
+        Row: {
+          created_at: string
+          id: string
+          option_index: number
+          poll_id: string
+          voter_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          option_index: number
+          poll_id: string
+          voter_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          option_index?: number
+          poll_id?: string
+          voter_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      polls: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          ends_at: string | null
+          id: string
+          options: Json
+          question: string
+          starts_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          ends_at?: string | null
+          id?: string
+          options: Json
+          question: string
+          starts_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          ends_at?: string | null
+          id?: string
+          options?: Json
+          question?: string
+          starts_at?: string | null
+        }
+        Relationships: []
+      }
+      sessions: {
+        Row: {
+          browser: string | null
+          current_path: string | null
+          device_type: string | null
+          id: string
+          last_activity: string | null
+          last_heartbeat: string
+          operating_system: string | null
+          pages_visited: string[] | null
+          referrer_domain: string | null
+          session_id: string
+          started_at: string
+          visitor_id: string
+        }
+        Insert: {
+          browser?: string | null
+          current_path?: string | null
+          device_type?: string | null
+          id?: string
+          last_activity?: string | null
+          last_heartbeat?: string
+          operating_system?: string | null
+          pages_visited?: string[] | null
+          referrer_domain?: string | null
+          session_id: string
+          started_at?: string
+          visitor_id: string
+        }
+        Update: {
+          browser?: string | null
+          current_path?: string | null
+          device_type?: string | null
+          id?: string
+          last_activity?: string | null
+          last_heartbeat?: string
+          operating_system?: string | null
+          pages_visited?: string[] | null
+          referrer_domain?: string | null
+          session_id?: string
+          started_at?: string
+          visitor_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      visitors: {
+        Row: {
+          first_seen: string
+          id: string
+          last_seen: string
+          visit_count: number
+          visitor_id: string
+        }
+        Insert: {
+          first_seen?: string
+          id?: string
+          last_seen?: string
+          visit_count?: number
+          visitor_id: string
+        }
+        Update: {
+          first_seen?: string
+          id?: string
+          last_seen?: string
+          visit_count?: number
+          visitor_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+<<<<<<< HEAD
       submit_poll_vote: {
         Args: {
           p_poll_id: string
           p_option_index: number
           p_voter_id: string
         }
+=======
+      get_admin_stats: { Args: never; Returns: Json }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: never; Returns: boolean }
+      submit_poll_vote: {
+        Args: { p_option_index: number; p_poll_id: string; p_voter_id: string }
+>>>>>>> web/main
         Returns: Json
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -157,6 +349,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const

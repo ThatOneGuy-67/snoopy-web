@@ -1,3 +1,4 @@
+import { openInAboutBlank as openAboutBlank } from '@/lib/scramjet';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layers, Command as CommandIcon, BookmarkPlus, X, Palette } from 'lucide-react';
@@ -23,12 +24,15 @@ import CloakSettings from '@/components/CloakSettings';
 import {
   useBookmarks, useHistory, useFavoriteApps, useActivity, useClosedTabs, usePinnedApps,
 } from '@/lib/browserData';
-import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank, extractDominantHue, DEFAULT_WALLPAPER_FALLBACK } from '@/lib/settings';
+import { useSettings, buildProxyUrl, buildSearchUrl, extractDominantHue, DEFAULT_WALLPAPER_FALLBACK } from '@/lib/settings';
 import { perfMark } from '@/lib/perf';
 import { Wallpaper } from '@/components/Wallpaper';
 import AnnouncementList from '@/components/AnnouncementList';
 import PollList from '@/components/PollList';
 import { THEMES, applyTheme } from '@/lib/themes';
+import PollList from '@/components/PollList';
+import AnnouncementList from '@/components/AnnouncementList';
+import { startVisitorTracking } from '@/lib/visitorTracker';
 
 interface Tab { id: string; history: string[]; index: number; title: string; reloadKey: number; }
 
@@ -49,6 +53,8 @@ const Index = () => {
   const activity   = useActivity();
   const closedTabs = useClosedTabs();
   const pinned     = usePinnedApps();
+
+  useEffect(() => startVisitorTracking(), []);
 
 
   const activeTab = tabs.find(t => t.id === activeTabId) || null;

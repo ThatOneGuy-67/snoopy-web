@@ -8,16 +8,37 @@ import Index from "./pages/Index";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+<<<<<<< HEAD
 import { notifyVisitorPageChange, startVisitorTracking } from "./lib/visitorTracker";
+=======
+import SiteBanGate from "./components/SiteBanGate";
+>>>>>>> web/main
 
 const queryClient = new QueryClient();
 
 const VisitorPageTracking = () => {
   const location = useLocation();
 
+<<<<<<< HEAD
   useEffect(() => {
     notifyVisitorPageChange();
   }, [location.pathname]);
+=======
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
+        <SiteBanGate>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/admin" element={<Admin />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        </SiteBanGate>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+>>>>>>> web/main
 
   return null;
 };

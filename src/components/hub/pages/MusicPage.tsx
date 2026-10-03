@@ -30,6 +30,9 @@ const MusicPage = () => {
   const [shuffle, setShuffle] = useState(false);
   const [repeat, setRepeat] = useState(false);
   const [query, setQuery] = useState('');
+  const [pendingProtectedPlaylist, setPendingProtectedPlaylist] = useState<Playlist | null>(null);
+  const [passwordDraft, setPasswordDraft] = useState('');
+  const [passwordError, setPasswordError] = useState(false);
   const [liked, setLiked] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem(LIKED_KEY) || '[]'); } catch { return []; }
   });
@@ -105,8 +108,40 @@ const MusicPage = () => {
     setPlaying(true);
   };
 
+  const isPlaylistLocked = (pl: Playlist | null | undefined) => Boolean(
+    pl && pl.privacy === 'password' && sessionStorage.getItem(`playlist-unlocked-${pl.id}`) !== 'true'
+  );
+
   const openPlaylist = (pl: Playlist) => {
+    if (isPlaylistLocked(pl)) {
+      setPendingProtectedPlaylist(pl);
+      setPasswordDraft('');
+      setPasswordError(false);
+      return;
+    }
     setPlaylist(pl);
+    setActiveCustomId(null);
+    setIndex(0);
+    setView('playlist');
+    setPlaying(false);
+  };
+
+  const closePasswordDialog = () => {
+    setPendingProtectedPlaylist(null);
+    setPasswordDraft('');
+    setPasswordError(false);
+  };
+
+  const unlockPlaylist = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!pendingProtectedPlaylist || passwordDraft !== pendingProtectedPlaylist.password) {
+      setPasswordError(true);
+      return;
+    }
+    sessionStorage.setItem(`playlist-unlocked-${pendingProtectedPlaylist.id}`, 'true');
+    const unlocked = pendingProtectedPlaylist;
+    closePasswordDialog();
+    setPlaylist(unlocked);
     setActiveCustomId(null);
     setIndex(0);
     setView('playlist');
@@ -160,7 +195,7 @@ const MusicPage = () => {
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    return ALL_SONGS.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q));
+    return ALL_SONGS.filter(s => !isPlaylistLocked(PLAYLISTS.find(pl => pl.id === s.playlistId)) && (s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)));
   }, [query]);
 
   const playlistOf = (s: Song) => PLAYLISTS.find(p => p.songs.includes(s)) || PLAYLISTS[0];
@@ -458,6 +493,42 @@ const MusicPage = () => {
       </div>
         </main>
       </div>
+
+      {pendingProtectedPlaylist && (
+        <div className="fixed inset-0 z-[100] grid place-items-center bg-background/70 p-4 backdrop-blur-sm">
+          <form
+            onSubmit={unlockPlaylist}
+            className="glass-panel w-full max-w-md rounded-xl p-6 shadow-2xl"
+          >
+            <button
+              type="button"
+              onClick={closePasswordDialog}
+              className="float-right text-2xl leading-none text-muted-foreground hover:text-foreground"
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <p className="text-xs font-bold uppercase tracking-wider text-primary">Protected playlist</p>
+            <h2 className="mt-2 text-2xl font-bold">{pendingProtectedPlaylist.name}</h2>
+            <label htmlFor="playlist-password" className="mt-5 block text-sm font-medium">Password</label>
+            <input
+              id="playlist-password"
+              type="password"
+              value={passwordDraft}
+              onChange={e => { setPasswordDraft(e.target.value); setPasswordError(false); }}
+              autoComplete="off"
+              autoFocus
+              required
+              className="mt-2 w-full rounded-lg border border-border bg-background/70 px-3 py-2 outline-none focus:border-primary"
+            />
+            {passwordError && <p className="mt-2 text-sm text-destructive">Incorrect password.</p>}
+            <button type="submit" className="mt-5 rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground">
+              Unlock
+            </button>
+          </form>
+        </div>
+      )}
+
     </div>
   );
 };

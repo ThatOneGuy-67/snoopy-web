@@ -1,3 +1,4 @@
+import { openInAboutBlank as openAboutBlank } from '@/lib/scramjet';
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -7,7 +8,7 @@ import {
 } from 'lucide-react';
 import {
   useSettings, AppSettings, testProxyReachable, BACKGROUND_PRESETS,
-  LIVE_WALLPAPERS, resolveWallpaperUrl, downloadExport, applyImport, openAboutBlank,
+  LIVE_WALLPAPERS, resolveWallpaperUrl, downloadExport, applyImport,
 } from '@/lib/settings';
 import { THEMES } from '@/lib/themes';
 import {
@@ -319,7 +320,7 @@ const SettingsPage = () => {
                 <div className="border-t border-border pt-4 space-y-3">
                   <h3 className="text-sm font-medium text-muted-foreground">About:Blank launcher</h3>
                   <button
-                    onClick={() => openAboutBlank(window.location.origin)}
+                    onClick={() => openAboutBlank(window.location.href)}
                     className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-primary/15 border border-primary/40 text-primary hover:bg-primary/25 transition-colors text-sm font-medium">
                     <ExternalLink className="w-4 h-4" />
                     Launch inside about:blank

@@ -1,6 +1,6 @@
+import { openInAboutBlank as openAboutBlank } from '@/lib/scramjet';
 import { useState } from 'react';
 import { Shield, X, ExternalLink } from 'lucide-react';
-import { openAboutBlank } from '@/lib/settings';
 
 interface CloakSettingsProps {
   isOpen: boolean;

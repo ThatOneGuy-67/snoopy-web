@@ -45,7 +45,7 @@ const DEFAULTS: AppSettings = {
   showParticles: true,
   searchEngine: 'duckduckgo',
   accentHue: 140,
-  backgroundImage: '',
+  backgroundImage: '/wallpapers/gifs/snoopy-snow.gif',
   backgroundDim: 60,
   autoAccentFromBg: false,
   useScramjet: true,
@@ -156,19 +156,6 @@ export function buildSearchUrl(query: string, engine: AppSettings['searchEngine'
   }
 }
 
-export function openAboutBlank(url: string) {
-  const win = window.open('about:blank', '_blank');
-  if (!win) {
-    window.open(url, '_blank', 'noopener,noreferrer');
-    return;
-  }
-  win.document.write(
-    `<!doctype html><html><head><title>${document.title}</title><link rel="icon" href="${
-      (document.querySelector("link[rel~='icon']") as HTMLLinkElement)?.href || ''
-    }"></head><body style="margin:0"><iframe src="${url}" style="border:0;width:100vw;height:100vh"></iframe></body></html>`
-  );
-}
-
 // Best-effort reachability test. CORS prevents reading the response,
 // but a successful no-cors fetch indicates the server is up.
 export async function testProxyReachable(url: string): Promise<{ ok: boolean; message: string }> {
@@ -195,6 +182,7 @@ export const BACKGROUND_PRESETS: { name: string; url: string }[] = [
   { name: 'City Night', url: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1920&q=80' },
   { name: 'Galaxy', url: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80' },
   { name: 'Sunset', url: 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=80' },
+  { name: 'Dreamy Mountains', url: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=1920&q=80' },
 ];
 
 // Live (animated) wallpaper presets — bundled locally under /public/wallpapers/gifs/
@@ -207,6 +195,7 @@ export type LiveWallpaperCategory =
 export interface LiveWallpaper { name: string; url: string; category: LiveWallpaperCategory; }
 
 export const LIVE_WALLPAPERS: LiveWallpaper[] = [
+  { name: 'Snoopy Snow', url: '/wallpapers/gifs/snoopy-snow.gif', category: 'Nature' },
   { name: 'Deep Space',    url: '/wallpapers/gifs/space.gif',     category: 'Space' },
   { name: 'Matrix Rain',   url: '/wallpapers/gifs/matrix.gif',    category: 'Cyberpunk' },
   { name: 'Neon City',     url: '/wallpapers/gifs/cyberpunk.gif', category: 'Cyberpunk' },
