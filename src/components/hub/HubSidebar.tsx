@@ -5,11 +5,12 @@ import { HUB_NAV_ITEMS, type HubViewId } from '@/lib/hubNav';
 interface Props {
   active: HubViewId;
   onSelect: (id: HubViewId) => void;
+  enabledViews?: Partial<Record<HubViewId, boolean>>;
 }
 
 const STORAGE_KEY = 'snoopy.hubSidebar.collapsed';
 
-const HubSidebar = ({ active, onSelect }: Props) => {
+const HubSidebar = ({ active, onSelect, enabledViews = {} }: Props) => {
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     try { return localStorage.getItem(STORAGE_KEY) === '1'; } catch { return false; }
   });
@@ -26,7 +27,7 @@ const HubSidebar = ({ active, onSelect }: Props) => {
 
   const NavList = ({ isCollapsed }: { isCollapsed: boolean }) => (
     <nav className="flex flex-col gap-1">
-      {HUB_NAV_ITEMS.map(it => {
+      {HUB_NAV_ITEMS.filter(it => enabledViews[it.id] !== false).map(it => {
         const Icon = it.icon;
         const isActive = active === it.id;
         return (

@@ -1,13 +1,14 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { checkVisitorBanned } from "@/lib/visitorTracker";
+import { supabase } from "@/integrations/supabase/client";
 
 const SiteBanGate = ({ children }: { children: ReactNode }) => {
-  const [status, setStatus] = useState<"checking" | "allowed" | "banned">("checking");
+  const [status, setStatus] = useState<"checking" | "allowed" | "banned" | "maintenance">("checking");
 
   useEffect(() => {
     let active = true;
-    const check = () => void checkVisitorBanned().then(banned => {
-      if (active) setStatus(banned ? "banned" : "allowed");
+    const check = () => void Promise.all([checkVisitorBanned(), (supabase as any).rpc("is_site_feature_enabled", { p_key: "maintenance_mode" })]).then(([banned, maintenance]) => {
+      if (active) setStatus(banned ? "banned" : maintenance.data === true ? "maintenance" : "allowed");
     });
     check();
     const timer = window.setInterval(check, 3_000);
@@ -36,6 +37,8 @@ const SiteBanGate = ({ children }: { children: ReactNode }) => {
       </main>
     );
   }
+
+  if (status === "maintenance" && !window.location.pathname.endsWith("/admin")) return <main className="min-h-screen bg-[#090a0d] text-white grid place-items-center p-6"><section className="max-w-lg rounded-2xl border border-white/10 bg-white/5 p-8 text-center"><h1 className="text-3xl font-bold">Snoopy’s Web is under maintenance</h1><p className="mt-3 text-white/60">Please check back soon.</p></section></main>;
 
   return <>{children}</>;
 };
