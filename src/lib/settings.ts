@@ -156,19 +156,6 @@ export function buildSearchUrl(query: string, engine: AppSettings['searchEngine'
   }
 }
 
-export function openAboutBlank(url: string) {
-  const win = window.open('about:blank', '_blank');
-  if (!win) {
-    window.open(url, '_blank', 'noopener,noreferrer');
-    return;
-  }
-  win.document.write(
-    `<!doctype html><html><head><title>${document.title}</title><link rel="icon" href="${
-      (document.querySelector("link[rel~='icon']") as HTMLLinkElement)?.href || ''
-    }"></head><body style="margin:0"><iframe src="${url}" style="border:0;width:100vw;height:100vh"></iframe></body></html>`
-  );
-}
-
 // Best-effort reachability test. CORS prevents reading the response,
 // but a successful no-cors fetch indicates the server is up.
 export async function testProxyReachable(url: string): Promise<{ ok: boolean; message: string }> {

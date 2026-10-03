@@ -1,3 +1,4 @@
+import { openInAboutBlank as openAboutBlank } from '@/lib/scramjet';
 import { useEffect, useRef, useState } from 'react';
 import {
   AlertTriangle, ExternalLink, RefreshCw, Shield, Globe,
@@ -8,7 +9,7 @@ import {
   RELAY_PRESETS, type RetryEvent, type ProxyEndpoint,
 } from '@/lib/scramjet';
 
-import { loadSettings, saveSettings, openAboutBlank } from '@/lib/settings';
+import { loadSettings, saveSettings } from '@/lib/settings';
 import CacheStatus from './CacheStatus';
 
 interface Props {

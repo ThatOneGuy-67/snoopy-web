@@ -1,3 +1,4 @@
+import { openInAboutBlank as openAboutBlank } from '@/lib/scramjet';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layers, Command as CommandIcon, BookmarkPlus, X, Palette } from 'lucide-react';
@@ -23,7 +24,7 @@ import CloakSettings from '@/components/CloakSettings';
 import {
   useBookmarks, useHistory, useFavoriteApps, useActivity, useClosedTabs, usePinnedApps,
 } from '@/lib/browserData';
-import { useSettings, buildProxyUrl, buildSearchUrl, openAboutBlank, extractDominantHue, DEFAULT_WALLPAPER_FALLBACK } from '@/lib/settings';
+import { useSettings, buildProxyUrl, buildSearchUrl, extractDominantHue, DEFAULT_WALLPAPER_FALLBACK } from '@/lib/settings';
 import { perfMark } from '@/lib/perf';
 import { Wallpaper } from '@/components/Wallpaper';
 import { THEMES, applyTheme } from '@/lib/themes';
