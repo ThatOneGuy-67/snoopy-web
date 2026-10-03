@@ -35,6 +35,22 @@ $$;
 revoke execute on function public.set_visitor_ban(text, boolean) from public, anon;
 grant execute on function public.set_visitor_ban(text, boolean) to authenticated;
 
+create or replace function public.is_current_visitor_banned()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.visitor_bans
+    where visitor_id = ((current_setting('request.headers', true))::json ->> 'x-visitor-id')
+  );
+$$;
+
+revoke execute on function public.is_current_visitor_banned() from public;
+grant execute on function public.is_current_visitor_banned() to anon, authenticated;
+
 create or replace function public.get_admin_stats()
 returns jsonb
 language plpgsql

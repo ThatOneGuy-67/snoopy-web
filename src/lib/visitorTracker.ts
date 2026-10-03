@@ -184,3 +184,15 @@ export function getTrackedVisitorId() {
   if (typeof window === "undefined") return null;
   return getVisitorId();
 }
+
+export async function checkVisitorBanned(): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  const visitorId = getVisitorId();
+  const client = createTrackingClient(visitorId, "");
+  const { data, error } = await client.rpc("is_current_visitor_banned");
+  if (error) {
+    console.warn("Visitor ban check failed:", error);
+    return false;
+  }
+  return data === true;
+}
