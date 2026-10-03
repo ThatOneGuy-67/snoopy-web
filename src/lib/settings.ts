@@ -38,6 +38,19 @@ export interface AppSettings {
   chatMatchTheme: boolean; // Chat page follows the active proxy theme preset
 }
 
+export const DEFAULT_WISP_POOL = [
+  'wss://motor-cycle-part.org/',
+  'wss://wisp.terbiumon.top/',
+  'wss://lichology.com/',
+  'wss://mages.io/',
+  'wss://definitelyscience.com/',
+  'wss://anura.pro/',
+  'wss://invisiproxy.com/',
+  'wss://wisp.mercurywork.shop/',
+  'wss://nebulaproxy.io/',
+  'wss://relay.widgetry.org/',
+];
+
 const DEFAULTS: AppSettings = {
   settingsMode: 'simple',
   themeId: 'matrix',
@@ -61,18 +74,7 @@ const DEFAULTS: AppSettings = {
   useScramjet: true,
   wispUrl: '',
   wispPoolEnabled: false,
-  wispPool: [
-    'wss://motor-cycle-part.org/',
-    'wss://wisp.terbiumon.top/',
-    'wss://lichology.com/',
-    'wss://mages.io/',
-    'wss://definitelyscience.com/',
-    'wss://anura.pro/',
-    'wss://invisiproxy.com/',
-    'wss://wisp.mercurywork.shop/',
-    'wss://nebulaproxy.io/',
-    'wss://relay.widgetry.org/',
-  ],
+  wispPool: DEFAULT_WISP_POOL,
   adBlockEnabled: true,
   webRtcBlockEnabled: false,
   accentOverride: false,
@@ -128,7 +130,10 @@ export function loadSettings(): AppSettings {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return DEFAULTS;
-    return { ...DEFAULTS, ...JSON.parse(raw) };
+    const saved = JSON.parse(raw);
+    const merged = { ...DEFAULTS, ...saved };
+    if (!Array.isArray(saved.wispPool) || saved.wispPool.length === 0) merged.wispPool = DEFAULT_WISP_POOL;
+    return merged;
   } catch {
     return DEFAULTS;
   }

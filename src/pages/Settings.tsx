@@ -257,7 +257,7 @@ const SettingsPage = () => {
                   checked={settings.wispPoolEnabled} onChange={v => update('wispPoolEnabled', v)} />
                 <Field label="Wisp pool" hint="Advanced: public or self-hosted WebSocket relay URLs.">
                   <textarea value={settings.wispPool.join('\n')} onChange={e => update('wispPool', e.target.value.split(/\r?\n/).map(v => v.trim()).filter(Boolean))}
-                    placeholder="wss://relay.example.com\nwss://backup.example.com" className="w-full min-h-24 px-4 py-2 rounded-lg bg-input border border-border outline-none font-mono text-xs" />
+                    placeholder={'wss://relay.example.com\nwss://backup.example.com'} className="w-full min-h-24 px-4 py-2 rounded-lg bg-input border border-border outline-none font-mono text-xs" />
                 </Field>
 
                 <div className="space-y-2">
