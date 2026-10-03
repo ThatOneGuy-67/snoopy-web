@@ -229,29 +229,23 @@ async function waitForServiceWorkerControl(timeoutMs = 6000): Promise<void> {
 }
 
 let bareConn: any = null;
-type TransportKind = 'epoxy' | 'libcurl';
-let transportKind: TransportKind = 'epoxy';
+type TransportKind = 'epoxy';
+const transportKind: TransportKind = 'epoxy';
 function transportPath(kind: TransportKind) {
   return `${import.meta.env.BASE_URL}${kind}/index.mjs`;
 }
-function transportArgs(kind: TransportKind, wisp: string) {
-  return kind === 'libcurl' ? [{ wisp }] : [{ wisp }];
-}
-/** True for TLS/handshake failures that epoxy hits on sites like TikTok. */
-export function isTlsError(msg: string) {
-  return /tls|handshake|UnexpectedEof|hyper/i.test(msg);
+function transportArgs(_kind: TransportKind, wisp: string) {
+  return [{ wisp }];
 }
 /**
- * Switch to the libcurl transport (different TLS stack). Epoxy's rustls
- * handshake fails against some CDNs ("tls handshake eof"); libcurl's
- * OpenSSL-based stack usually succeeds.
+ * Point the proxy at a different Wisp relay. Some relays have TikTok and
+ * similar CDNs blocked (they surface as "tls handshake eof").
  */
-export async function switchTransport(kind: TransportKind = transportKind === 'epoxy' ? 'libcurl' : 'epoxy') {
-  transportKind = kind;
-  if (bareConn) await bareConn.setTransport(transportPath(kind), transportArgs(kind, bareWisp));
-  return kind;
+export async function switchRelay(wisp: string) {
+  bareWisp = wisp;
+  if (bareConn) await bareConn.setTransport(transportPath(transportKind), transportArgs(transportKind, wisp));
 }
-export function currentTransport() { return transportKind; }
+export function currentRelay() { return bareWisp; }
 let bareWisp = '';
 
 /**

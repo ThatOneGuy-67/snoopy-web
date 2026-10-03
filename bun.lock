@@ -8,7 +8,6 @@
         "@hookform/resolvers": "^3.10.0",
         "@mercuryworkshop/bare-mux": "^2.1.9",
         "@mercuryworkshop/epoxy-transport": "2.1.28",
-        "@mercuryworkshop/libcurl-transport": "1",
         "@mercuryworkshop/scramjet": "^1.1.0",
         "@radix-ui/react-accordion": "^1.2.11",
         "@radix-ui/react-alert-dialog": "^1.1.14",
@@ -310,8 +309,6 @@
     "@mercuryworkshop/epoxy-tls": ["@mercuryworkshop/epoxy-tls@2.1.18-1", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@mercuryworkshop/epoxy-tls/-/epoxy-tls-2.1.18-1.tgz", {}, "sha512-2N1BYn/+FJxIbRw+sipbl3mQPinRflqQDB9HGAXJEVj4Ok4FIlTlS4fO2cpXKEq5yoD3oaKb8GyNaQfndNui9w=="],
 
     "@mercuryworkshop/epoxy-transport": ["@mercuryworkshop/epoxy-transport@2.1.28", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@mercuryworkshop/epoxy-transport/-/epoxy-transport-2.1.28.tgz", { "dependencies": { "@mercuryworkshop/epoxy-tls": "2.1.18-1" } }, "sha512-lv/Kfdn37y8ZCXQaIT3Ebj4OSztBqeXdbR9rchbHQBKIw/fNSQJLGNBHV5ScXSzqt7NCwv8ZiZx7urRyk7Ua/Q=="],
-
-    "@mercuryworkshop/libcurl-transport": ["@mercuryworkshop/libcurl-transport@1.5.2", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@mercuryworkshop/libcurl-transport/-/libcurl-transport-1.5.2.tgz", { "dependencies": { "libcurl.js": "^0.7.4" } }, "sha512-E0tD/3W6HE99ypc7CStpchU6xs+TP5u2vms/9q/46BShblB2pbRCNeXHBlvXqdz97nh2Xh4A68DryDt5CM29Dg=="],
 
     "@mercuryworkshop/scramjet": ["@mercuryworkshop/scramjet@1.1.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@mercuryworkshop/scramjet/-/scramjet-1.1.0.tgz", { "dependencies": { "@mercuryworkshop/bare-mux": "^2.1.9", "dom-serializer": "^2.0.0", "domhandler": "^5.0.3", "domutils": "^3.2.2", "htmlparser2": "10.0.0", "idb": "^8.0.3", "parse-domain": "^8.2.2", "set-cookie-parser": "^2.7.1" } }, "sha512-T/9GZqAQX42eYr/t6VGR2m9J4BtIuncRkANo8hBVTGskrr522yuhaADhSu+65DYlhUyQnLUjDikuNYzlgv0Ejw=="],
 
@@ -1052,8 +1049,6 @@
     "keyv": ["keyv@4.5.4", "", { "dependencies": { "json-buffer": "3.0.1" } }, "sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw=="],
 
     "levn": ["levn@0.4.1", "", { "dependencies": { "prelude-ls": "^1.2.1", "type-check": "~0.4.0" } }, "sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ=="],
-
-    "libcurl.js": ["libcurl.js@0.7.4", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/libcurl.js/-/libcurl.js-0.7.4.tgz", {}, "sha512-UpvVirvATP7fD0t4rnsxVRuUpPVIo2QvWj4+5JrMsd1KSEvYkON36+COOPAl88hPlGJddk+DfZRvyF7KG7YcSA=="],
 
     "lilconfig": ["lilconfig@3.1.3", "", {}, "sha512-/vlFKAoH5Cgt3Ie+JLhRbwOsCQePABiU3tJ1egGvyQ+33R/vcwM2Zl2QR/LzjsBeItPt3oSVXapn+m4nQDvpzw=="],
 

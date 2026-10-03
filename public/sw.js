@@ -28,7 +28,6 @@ function isScramjetAsset(pathname) {
     pathname.includes('/scramjet/') ||
     pathname.includes('/baremux/') ||
     pathname.includes('/epoxy/') ||
-    pathname.includes('/libcurl/') ||
     pathname.endsWith('/sw.js')
   );
 }
