@@ -229,6 +229,29 @@ async function waitForServiceWorkerControl(timeoutMs = 6000): Promise<void> {
 }
 
 let bareConn: any = null;
+type TransportKind = 'epoxy' | 'libcurl';
+let transportKind: TransportKind = 'epoxy';
+function transportPath(kind: TransportKind) {
+  return `${import.meta.env.BASE_URL}${kind}/index.mjs`;
+}
+function transportArgs(kind: TransportKind, wisp: string) {
+  return kind === 'libcurl' ? [{ wisp }] : [{ wisp }];
+}
+/** True for TLS/handshake failures that epoxy hits on sites like TikTok. */
+export function isTlsError(msg: string) {
+  return /tls|handshake|UnexpectedEof|hyper/i.test(msg);
+}
+/**
+ * Switch to the libcurl transport (different TLS stack). Epoxy's rustls
+ * handshake fails against some CDNs ("tls handshake eof"); libcurl's
+ * OpenSSL-based stack usually succeeds.
+ */
+export async function switchTransport(kind: TransportKind = transportKind === 'epoxy' ? 'libcurl' : 'epoxy') {
+  transportKind = kind;
+  if (bareConn) await bareConn.setTransport(transportPath(kind), transportArgs(kind, bareWisp));
+  return kind;
+}
+export function currentTransport() { return transportKind; }
 let bareWisp = '';
 
 /**
@@ -245,8 +268,7 @@ export async function ensureTransport(): Promise<void> {
     ]);
     if (name) return;
   } catch { /* fall through and re-set */ }
-  const BASE = import.meta.env.BASE_URL;
-  await bareConn.setTransport(`${BASE}epoxy/index.mjs`, [{ wisp: bareWisp }]);
+  await bareConn.setTransport(transportPath(transportKind), transportArgs(transportKind, bareWisp));
 }
 
 /** Warm the proxy up in the background so the first search is instant. */
@@ -363,10 +385,7 @@ async function repairLegacyScramjetDatabase(): Promise<void> {
       `${BASE}baremux/worker.js`
     );
   
-    await conn.setTransport(
-      `${BASE}epoxy/index.mjs`,
-      [{ wisp: wispUrl }]
-    );
+    await conn.setTransport(transportPath(transportKind), transportArgs(transportKind, wispUrl));
     bareConn = conn;
     bareWisp = wispUrl;
   

@@ -1,4 +1,4 @@
-// sw v3 — config-race fix. Bump this comment to force browsers to pick up a new worker.
+// sw v4 — config-race fix. Bump this comment to force browsers to pick up a new worker.
 importScripts('./scramjet/scramjet.all.js');
 
 const { ScramjetServiceWorker } = $scramjetLoadWorker();
@@ -28,6 +28,7 @@ function isScramjetAsset(pathname) {
     pathname.includes('/scramjet/') ||
     pathname.includes('/baremux/') ||
     pathname.includes('/epoxy/') ||
+    pathname.includes('/libcurl/') ||
     pathname.endsWith('/sw.js')
   );
 }
@@ -48,14 +49,14 @@ async function handleRequest(event) {
 
   // Serve Scramjet's own runtime files directly (but never the proxy route).
   if (!isProxied && isScramjetAsset(url.pathname)) {
-    return fetch(event.request);
+    return safeFetch(event.request);
   }
 
   try {
     await scramjet.loadConfig();
   } catch (e) {
     if (isProxied) return errorResponse('Proxy config failed to load', String(e && e.stack || e));
-    return fetch(event.request);
+    return safeFetch(event.request);
   }
 
   if (!scramjet.config) {
@@ -67,7 +68,7 @@ async function handleRequest(event) {
         503,
       );
     }
-    return fetch(event.request);
+    return safeFetch(event.request);
   }
 
   if (isProxied || scramjet.route(event)) {
@@ -80,7 +81,17 @@ async function handleRequest(event) {
     }
   }
 
-  return fetch(event.request);
+  return safeFetch(event.request);
+}
+
+// Network fallback that never rejects respondWith() (Chrome would show
+// "might be temporarily down" for the whole site).
+async function safeFetch(req) {
+  try { return await fetch(req); }
+  catch (e) {
+    if (req.mode === 'navigate') return errorResponse('Network request failed', String(e), 502);
+    return Response.error();
+  }
 }
 
 self.addEventListener('install', () => {
