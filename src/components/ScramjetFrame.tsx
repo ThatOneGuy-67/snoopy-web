@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Loader2, CheckCircle2, ExternalLink } from 'lucide-react';
 import {
   getController, findWorkingRelay, checkEnvironment, getWispUrl,
-  describeEndpoint, type ProxyEndpoint,
+  describeEndpoint, type ProxyEndpoint, switchRelay, currentRelay, RELAY_PRESETS,
 } from '@/lib/scramjet';
 import { loadSettings, saveSettings } from '@/lib/settings';
 import { perfStart } from '@/lib/perf';
@@ -24,10 +24,12 @@ const ScramjetFrame = ({ url }: Props) => {
   const [encoded, setEncoded] = useState<string | null>(null);
   const [endpoint, setEndpoint] = useState<ProxyEndpoint>(() => describeEndpoint(url));
   const [bootKey, setBootKey] = useState(0); // bump to retry
+  const triedFallback = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
     setStatus('checking');
+    triedFallback.current = false;
     setError(null);
     setEncoded(null);
     setEndpoint(describeEndpoint(url));
@@ -169,6 +171,17 @@ const ScramjetFrame = ({ url }: Props) => {
                   /updating scramjet|wisp|verify the server|administrator/i.test(txt);
                 if (looksLikeScramjetError || title.includes('error')) {
                   // Try to extract a more specific message
+                  // Relay blocked this site (TikTok etc.): retry once on another relay.
+                  const alt = RELAY_PRESETS.find(r => r.url !== currentRelay());
+                  if (alt && !triedFallback.current) {
+                    triedFallback.current = true;
+                    setStatus('loading');
+                    switchRelay(alt.url).then(() => {
+                      saveSettings({ ...loadSettings(), wispUrl: alt.url });
+                      frameRef.current?.go(url.startsWith('http') ? url : `https://${url}`);
+                    }).catch(() => {});
+                    return;
+                  }
                   const m = txt.match(/There was an error loading[^\n]*/i);
                   setError(m ? m[0] : 'Scramjet failed to load the page');
                   setStatus('error');

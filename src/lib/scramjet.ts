@@ -229,6 +229,23 @@ async function waitForServiceWorkerControl(timeoutMs = 6000): Promise<void> {
 }
 
 let bareConn: any = null;
+type TransportKind = 'epoxy';
+const transportKind: TransportKind = 'epoxy';
+function transportPath(kind: TransportKind) {
+  return `${import.meta.env.BASE_URL}${kind}/index.mjs`;
+}
+function transportArgs(_kind: TransportKind, wisp: string) {
+  return [{ wisp }];
+}
+/**
+ * Point the proxy at a different Wisp relay. Some relays have TikTok and
+ * similar CDNs blocked (they surface as "tls handshake eof").
+ */
+export async function switchRelay(wisp: string) {
+  bareWisp = wisp;
+  if (bareConn) await bareConn.setTransport(transportPath(transportKind), transportArgs(transportKind, wisp));
+}
+export function currentRelay() { return bareWisp; }
 let bareWisp = '';
 
 /**
@@ -245,8 +262,7 @@ export async function ensureTransport(): Promise<void> {
     ]);
     if (name) return;
   } catch { /* fall through and re-set */ }
-  const BASE = import.meta.env.BASE_URL;
-  await bareConn.setTransport(`${BASE}epoxy/index.mjs`, [{ wisp: bareWisp }]);
+  await bareConn.setTransport(transportPath(transportKind), transportArgs(transportKind, bareWisp));
 }
 
 /** Warm the proxy up in the background so the first search is instant. */
@@ -363,10 +379,7 @@ async function repairLegacyScramjetDatabase(): Promise<void> {
       `${BASE}baremux/worker.js`
     );
   
-    await conn.setTransport(
-      `${BASE}epoxy/index.mjs`,
-      [{ wisp: wispUrl }]
-    );
+    await conn.setTransport(transportPath(transportKind), transportArgs(transportKind, wispUrl));
     bareConn = conn;
     bareWisp = wispUrl;
   
