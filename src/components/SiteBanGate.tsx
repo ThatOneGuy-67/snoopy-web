@@ -6,10 +6,19 @@ const SiteBanGate = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let active = true;
-    void checkVisitorBanned().then(banned => {
+    const check = () => void checkVisitorBanned().then(banned => {
       if (active) setStatus(banned ? "banned" : "allowed");
     });
-    return () => { active = false; };
+    check();
+    const timer = window.setInterval(check, 3_000);
+    window.addEventListener("focus", check);
+    document.addEventListener("visibilitychange", check);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", check);
+      document.removeEventListener("visibilitychange", check);
+    };
   }, []);
 
   if (status === "checking") {
