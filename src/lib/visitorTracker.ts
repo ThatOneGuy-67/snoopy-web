@@ -1,28 +1,11 @@
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
 const VISITOR_KEY = "tog_visitor_id";
 const SESSION_KEY = "tog_session_id";
 const STARTED_KEY = "tog_session_started_at";
 const HEARTBEAT_MS = 30_000;
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-function createTrackingClient(visitorId: string, sessionId: string) {
-  return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    global: {
-      headers: {
-        "x-visitor-id": visitorId,
-        "x-session-id": sessionId,
-      },
-    },
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-    },
-  });
-}
+const trackingClient = supabase;
 
 function getVisitorId(): string {
   const existing = localStorage.getItem(VISITOR_KEY);
@@ -49,7 +32,7 @@ function getSessionId(): string {
   return id;
 }
 
-async function ensureVisitor(client: ReturnType<typeof createTrackingClient>, visitorId: string) {
+async function ensureVisitor(client: typeof trackingClient, visitorId: string) {
   const now = new Date().toISOString();
 
   const { data, error: selectError } = await client
@@ -86,7 +69,7 @@ async function ensureVisitor(client: ReturnType<typeof createTrackingClient>, vi
 }
 
 async function ensureSession(
-  client: ReturnType<typeof createTrackingClient>,
+  client: typeof trackingClient,
   visitorId: string,
   sessionId: string,
 ) {
@@ -119,7 +102,7 @@ async function ensureSession(
 }
 
 async function heartbeat(
-  client: ReturnType<typeof createTrackingClient>,
+  client: typeof trackingClient,
   sessionId: string,
   visitorId: string,
 ) {
@@ -148,7 +131,7 @@ export function startVisitorTracking() {
 
   const visitorId = getVisitorId();
   const sessionId = getSessionId();
-  const client = createTrackingClient(visitorId, sessionId);
+  const client = trackingClient;
 
   void (async () => {
     try {
@@ -188,8 +171,7 @@ export function getTrackedVisitorId() {
 export async function checkVisitorBanned(): Promise<boolean> {
   if (typeof window === "undefined") return false;
   const visitorId = getVisitorId();
-  const client = createTrackingClient(visitorId, "");
-  const { data, error } = await client.rpc("is_current_visitor_banned");
+  const { data, error } = await (trackingClient as any).rpc("is_current_visitor_banned");
   if (error) {
     console.warn("Visitor ban check failed:", error);
     return false;

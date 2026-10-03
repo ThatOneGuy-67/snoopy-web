@@ -27,6 +27,12 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
     }
 
     headers.set('apikey', supabaseKey);
+    if (typeof window !== 'undefined') {
+      const visitorId = window.localStorage.getItem('tog_visitor_id');
+      const sessionId = window.sessionStorage.getItem('tog_session_id');
+      if (visitorId) headers.set('x-visitor-id', visitorId);
+      if (sessionId) headers.set('x-session-id', sessionId);
+    }
     return fetch(input, { ...init, headers });
   };
 }
