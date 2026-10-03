@@ -318,6 +318,7 @@ const Index = () => {
                     onOpen={(u, t) => createTab(u, t)}
                     onOpenApps={() => setView('apps')}
                     onOpenSettings={() => openSettings()}
+                    searchEngine={settings.searchEngine} onSearchEngineChange={engine => setSettings(s => ({ ...s, searchEngine: engine }))}
                   />
                 )}
                 {view === 'home' && settings.layoutStyle !== 'hub' && (
@@ -330,8 +331,8 @@ const Index = () => {
                         </h1>
                       </div>
                       <p className="text-muted-foreground text-sm font-mono mb-6">// access the web without limits</p>
-                      <SearchBar onSearch={handleSearch} />
-                      <RotatingFacts />
+                      <SearchBar onSearch={handleSearch} searchEngine={settings.searchEngine} onSearchEngineChange={engine => setSettings(s => ({ ...s, searchEngine: engine }))} />
+                      {settings.showHomeFacts && <RotatingFacts />}
                     </section>
                     <Dashboard
                       tabs={tabs.map(t => ({ id: t.id, title: t.title, url: t.history[t.index] }))}

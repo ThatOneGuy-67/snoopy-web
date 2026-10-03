@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import {
   useSettings, AppSettings, testProxyReachable, BACKGROUND_PRESETS,
-  LIVE_WALLPAPERS, resolveWallpaperUrl, downloadExport, applyImport,
+  LIVE_WALLPAPERS, resolveWallpaperUrl, downloadExport, applyImport, DEFAULT_WISP_POOL,
 } from '@/lib/settings';
 import { THEMES } from '@/lib/themes';
 import {
@@ -75,7 +75,8 @@ const SettingsPage = () => {
   const navigate = useNavigate();
   const [settings, setSettings] = useSettings();
   const [tab, setTab] = useState<Tab>('general');
-  const [showAdvanced, setShowAdvanced] = useState(settings.settingsMode === 'advanced');
+  const [poolResults, setPoolResults] = useState<Record<string, { ok: boolean; pingMs?: number }>>({});
+  const [poolTesting, setPoolTesting] = useState(false);
   const [customTitle, setCustomTitle] = useState('');
   const [customFavicon, setCustomFavicon] = useState('');
   const [testing, setTesting] = useState(false);
@@ -131,11 +132,7 @@ const SettingsPage = () => {
             className="flex md:flex-col gap-1 overflow-x-auto md:overflow-visible
                        glass-panel p-2 md:sticky md:top-4 md:self-start"
           >
-            <button onClick={() => { const next = !showAdvanced; setShowAdvanced(next); update('settingsMode', next ? 'advanced' : 'simple'); }}
-              className="flex items-center justify-center gap-2 px-3 py-2 mb-2 rounded-lg text-xs border border-border hover:border-primary/50">
-              {showAdvanced ? 'Show fewer settings' : 'Show all settings'}
-            </button>
-            {tabs.filter(t => showAdvanced || ['general', 'proxy', 'privacy', 'search', 'theme'].includes(t.id)).map(t => {
+            {tabs.map(t => {
               const Icon = t.icon;
               const active = tab === t.id;
               return (
@@ -259,6 +256,11 @@ const SettingsPage = () => {
                   <textarea value={settings.wispPool.join('\n')} onChange={e => update('wispPool', e.target.value.split(/\r?\n/).map(v => v.trim()).filter(Boolean))}
                     placeholder={'wss://relay.example.com\nwss://backup.example.com'} className="w-full min-h-24 px-4 py-2 rounded-lg bg-input border border-border outline-none font-mono text-xs" />
                 </Field>
+                <div className="space-y-2">
+                  <button onClick={async () => { setPoolTesting(true); const entries = settings.wispPool.length ? settings.wispPool : DEFAULT_WISP_POOL; const next: Record<string, { ok: boolean; pingMs?: number }> = {}; await Promise.all(entries.map(async url => { const r = await testWispReachable(url, { retries: 1, timeoutMs: 5000, useCache: false }); next[url] = { ok: r.ok, pingMs: r.pingMs }; })); setPoolResults(next); setPoolTesting(false); }} disabled={poolTesting}
+                    className="w-full py-2 rounded-lg bg-secondary text-secondary-foreground font-medium hover:bg-secondary/80 disabled:opacity-50">{poolTesting ? 'Benchmarking relays…' : 'Benchmark all relays'}</button>
+                  {Object.keys(poolResults).length > 0 && <div className="space-y-1 max-h-56 overflow-y-auto">{(settings.wispPool.length ? settings.wispPool : DEFAULT_WISP_POOL).map(url => { const result = poolResults[url]; return <div key={url} className="flex items-center justify-between gap-2 text-xs px-2 py-1.5 rounded bg-secondary/30"><span className="truncate font-mono">{url.replace(/^wss?:\/\//, '').replace(/\/$/, '')}</span><span className={result?.ok ? 'text-primary' : 'text-destructive'}>{result?.ok ? `${result.pingMs ?? '—'} ms` : 'offline'}</span></div>; })}</div>}
+                </div>
 
                 <div className="space-y-2">
                   <button
@@ -475,8 +477,9 @@ const SettingsPage = () => {
                   <Toggle label="UI animations"
                     hint="Hover effects, transitions, and motion. Turn off for max performance."
                     checked={settings.uiAnimations} onChange={v => update('uiAnimations', v)} />
-                  <Toggle label="Animated star background"
-                    checked={settings.showParticles} onChange={v => update('showParticles', v)} />
+                <Toggle label="Animated star background"
+                  checked={settings.showParticles} onChange={v => update('showParticles', v)} />
+                <Toggle label="Show Did you know? on the home screen" checked={settings.showHomeFacts} onChange={v => update('showHomeFacts', v)} />
                   <Toggle label="Chat matches theme preset"
                     hint="Chat page follows the active theme (Matrix, AMOLED, Vaporwave...). Off uses the default dark grey glass look."
                     checked={settings.chatMatchTheme} onChange={v => update('chatMatchTheme', v)} />

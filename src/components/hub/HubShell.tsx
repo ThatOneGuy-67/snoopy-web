@@ -15,9 +15,11 @@ interface Props {
   onOpen: (url: string, title?: string) => void;
   onOpenApps: () => void;
   onOpenSettings: () => void;
+  searchEngine: string;
+  onSearchEngineChange: (engine: string) => void;
 }
 
-const HubShell = ({ pinnedIds, onSearch, onOpen, onOpenApps, onOpenSettings }: Props) => {
+const HubShell = ({ pinnedIds, onSearch, onOpen, onOpenApps, onOpenSettings, searchEngine, onSearchEngineChange }: Props) => {
   const [view, setView] = useState<HubViewId>('home');
 
   const handleSelect = useCallback((id: HubViewId) => {
@@ -42,6 +44,7 @@ const HubShell = ({ pinnedIds, onSearch, onOpen, onOpenApps, onOpenSettings }: P
             onSearch={onSearch}
             onOpen={onOpen}
             onOpenApps={onOpenApps}
+            searchEngine={searchEngine} onSearchEngineChange={onSearchEngineChange}
           />
         )}
         {view === 'games'  && <GamesPage />}

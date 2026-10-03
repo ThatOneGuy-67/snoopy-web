@@ -1,11 +1,13 @@
 import { useState, KeyboardEvent } from 'react';
-import { Search, ArrowRight } from 'lucide-react';
+import { Search, ArrowRight, ChevronDown } from 'lucide-react';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
+  searchEngine?: string;
+  onSearchEngineChange?: (engine: string) => void;
 }
 
-const SearchBar = ({ onSearch }: SearchBarProps) => {
+const SearchBar = ({ onSearch, searchEngine = 'duckduckgo', onSearchEngineChange }: SearchBarProps) => {
   const [query, setQuery] = useState('');
 
   const handleSearch = () => {
@@ -33,6 +35,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
           placeholder="Enter URL or search..."
           className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground py-3 text-lg"
         />
+        {onSearchEngineChange && <div className="relative shrink-0"><select value={searchEngine} onChange={e => onSearchEngineChange(e.target.value)} aria-label="Search engine" className="appearance-none bg-secondary/50 border border-border rounded-lg pl-3 pr-7 py-2 text-xs font-medium outline-none cursor-pointer"><option value="duckduckgo">DuckDuckGo</option><option value="google">Google</option><option value="bing">Bing</option><option value="custom">Custom</option></select><ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3" /></div>}
         <button
           onClick={handleSearch}
           aria-label="Search or visit URL"

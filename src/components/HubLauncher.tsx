@@ -7,9 +7,11 @@ interface Props {
   onSearch: (q: string) => void;
   onOpen: (url: string, title?: string) => void;
   onOpenApps: () => void;
+  searchEngine: string;
+  onSearchEngineChange: (engine: string) => void;
 }
 
-const HubLauncher = ({ pinnedIds, onSearch, onOpen, onOpenApps }: Props) => {
+const HubLauncher = ({ pinnedIds, onSearch, onOpen, onOpenApps, searchEngine, onSearchEngineChange }: Props) => {
   const pinned = pinnedIds.map(getApp).filter(Boolean) as ReturnType<typeof getApp>[];
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center px-4 pt-10 pb-20">
@@ -20,7 +22,7 @@ const HubLauncher = ({ pinnedIds, onSearch, onOpen, onOpenApps }: Props) => {
       <p className="text-muted-foreground text-sm font-mono mb-8">// your personal web hub</p>
 
       <div className="w-full max-w-2xl">
-        <SearchBar onSearch={onSearch} />
+        <SearchBar onSearch={onSearch} searchEngine={searchEngine} onSearchEngineChange={onSearchEngineChange} />
       </div>
 
       <div className="mt-10 w-full max-w-3xl">

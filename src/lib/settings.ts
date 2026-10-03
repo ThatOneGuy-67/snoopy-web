@@ -4,6 +4,7 @@ import { DEFAULT_PROXY_URL } from './siteConfig';
 
 export interface AppSettings {
   settingsMode: 'simple' | 'advanced';
+  showHomeFacts: boolean;
   themeId: string;
   proxyUrl: string;
   proxyPrefix: string;
@@ -53,6 +54,7 @@ export const DEFAULT_WISP_POOL = [
 
 const DEFAULTS: AppSettings = {
   settingsMode: 'simple',
+  showHomeFacts: true,
   themeId: 'matrix',
   proxyUrl: DEFAULT_PROXY_URL,
   proxyPrefix: '/service/',
