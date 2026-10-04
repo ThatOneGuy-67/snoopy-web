@@ -38,7 +38,7 @@ const SiteBanGate = ({ children }: { children: ReactNode }) => {
     );
   }
 
-  if (status === "maintenance" && !window.location.pathname.endsWith("/admin")) return <main className="min-h-screen bg-[#090a0d] text-white grid place-items-center p-6"><section className="max-w-lg rounded-2xl border border-white/10 bg-white/5 p-8 text-center"><h1 className="text-3xl font-bold">Snoopy’s Web is under maintenance</h1><p className="mt-3 text-white/60">Please check back soon.</p></section></main>;
+  if (status === "maintenance" && !window.location.pathname.endsWith("/admin")) return <main className="min-h-screen bg-[#090a0d] text-white grid place-items-center p-6"><section className="max-w-lg rounded-2xl border border-white/10 bg-white/5 p-8 text-center"><h1 className="text-3xl font-bold">TOG&apos;s Web is under maintenance</h1><p className="mt-3 text-white/60">Please check back soon.</p></section></main>;
 
   return <>{children}</>;
 };

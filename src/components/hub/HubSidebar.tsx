@@ -6,11 +6,12 @@ interface Props {
   active: HubViewId;
   onSelect: (id: HubViewId) => void;
   enabledViews?: Partial<Record<HubViewId, boolean>>;
+  maintenanceViews?: Partial<Record<HubViewId, boolean>>;
 }
 
 const STORAGE_KEY = 'snoopy.hubSidebar.collapsed';
 
-const HubSidebar = ({ active, onSelect, enabledViews = {} }: Props) => {
+const HubSidebar = ({ active, onSelect, enabledViews = {}, maintenanceViews = {} }: Props) => {
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     try { return localStorage.getItem(STORAGE_KEY) === '1'; } catch { return false; }
   });
@@ -46,7 +47,7 @@ const HubSidebar = ({ active, onSelect, enabledViews = {} }: Props) => {
               className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300
                 ${isCollapsed ? 'md:opacity-0 md:w-0' : 'opacity-100 w-auto'}`}
             >
-              {it.label}
+              {it.label}{maintenanceViews[it.id] ? ' · Maintenance' : ''}
             </span>
           </button>
         );

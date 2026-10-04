@@ -23,6 +23,7 @@ interface Props {
 const HubShell = ({ pinnedIds, onSearch, onOpen, onOpenApps, onOpenSettings, searchEngine, onSearchEngineChange }: Props) => {
   const [view, setView] = useState<HubViewId>('home');
   const [enabledViews, setEnabledViews] = useState<Partial<Record<HubViewId, boolean>>>({});
+  const [maintenanceViews, setMaintenanceViews] = useState<Partial<Record<HubViewId, boolean>>>({});
 
   useEffect(() => {
     let active = true;
@@ -33,9 +34,12 @@ const HubShell = ({ pinnedIds, onSearch, onOpen, onOpenApps, onOpenSettings, sea
           (supabase as any).rpc('is_site_feature_enabled', { p_key: `feature_${name}` }),
           (supabase as any).rpc('is_site_feature_enabled', { p_key: `maintenance_${name}` }),
         ]);
-        return [name as HubViewId, feature !== false && maintenance !== true] as const;
+        return [name as HubViewId, { enabled: feature !== false, maintenance: maintenance === true }] as const;
       }));
-      if (active) setEnabledViews(Object.fromEntries(entries));
+      if (active) {
+        setEnabledViews(Object.fromEntries(entries.map(([name, state]) => [name, state.enabled])));
+        setMaintenanceViews(Object.fromEntries(entries.map(([name, state]) => [name, state.maintenance])));
+      }
     };
     void loadFeatureState();
     const timer = window.setInterval(() => void loadFeatureState(), 5_000);
@@ -57,7 +61,7 @@ const HubShell = ({ pinnedIds, onSearch, onOpen, onOpenApps, onOpenSettings, sea
 
   return (
     <div className="flex flex-col md:flex-row min-h-full">
-      <HubSidebar active={view} onSelect={handleSelect} enabledViews={enabledViews} />
+      <HubSidebar active={view} onSelect={handleSelect} enabledViews={enabledViews} maintenanceViews={maintenanceViews} />
       <div
         key={view}
         className="flex-1 min-w-0 px-3 sm:px-4 md:px-6 pb-8 animate-fade-in transition-all duration-300"
@@ -71,10 +75,12 @@ const HubShell = ({ pinnedIds, onSearch, onOpen, onOpenApps, onOpenSettings, sea
             searchEngine={searchEngine} onSearchEngineChange={onSearchEngineChange}
           />
         )}
-        {view === 'games'  && <GamesPage />}
-        {view === 'chat'   && <ChatPage />}
-        {view === 'movies' && <MoviesPage />}
-        {view === 'music'  && <MusicPage />}
+        {view !== 'home' && maintenanceViews[view] ? <section className="min-h-[60vh] grid place-items-center"><div className="max-w-lg rounded-2xl border border-amber-400/20 bg-amber-400/10 p-8 text-center"><h1 className="text-3xl font-bold">{view[0].toUpperCase() + view.slice(1)} is under maintenance</h1><p className="mt-3 text-muted-foreground">Please check back soon.</p></div></section> : <>
+          {view === 'games'  && <GamesPage />}
+          {view === 'chat'   && <ChatPage />}
+          {view === 'movies' && <MoviesPage />}
+          {view === 'music'  && <MusicPage />}
+        </>}
         {view === 'ai'     && <AIPage />}
       </div>
     </div>
