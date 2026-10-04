@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Navigate } from "react-router-dom";
-import { BarChart3, ChevronDown, Megaphone, ShieldCheck, Users, Vote, LogOut, Plus, Trash2, Power, SlidersHorizontal, ScrollText, Library, Search, RefreshCw } from "lucide-react";
+import { BarChart3, ChevronDown, Megaphone, ShieldCheck, Users, Vote, LogOut, Plus, Trash2, Power, SlidersHorizontal, ScrollText, Search, RefreshCw } from "lucide-react";
 import { getPollOptionResults, isPollActive, type PollOptionResult } from "@/lib/polls";
 import { ref, get } from "firebase/database";
 import { db } from "@/lib/chatDb";
+import { BarChart, Bar, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Area, AreaChart } from "recharts";
 
 type RecentSession = {
   session_id: string;
@@ -151,9 +152,8 @@ const Admin = () => {
   const [pollEndsAt, setPollEndsAt] = useState("");
   const [siteSettings, setSiteSettings] = useState<Record<string, boolean>>({});
   const [activityLogs, setActivityLogs] = useState<any[]>([]);
-  const [content, setContent] = useState<any[]>([]);
-  const [contentKind, setContentKind] = useState("game");
-  const [contentSearch, setContentSearch] = useState("");
+  const [userSearch, setUserSearch] = useState("");
+  const [chartMode, setChartMode] = useState<"bar" | "line" | "area">("line");
 
   const load = useCallback(async () => {
     try {
@@ -182,13 +182,12 @@ const Admin = () => {
       setStatsError("");
       setPollError("");
 
-      const [statsResult, announcementsResult, pollsResult, settingsResult, logsResult, contentResult] = await Promise.all([
+      const [statsResult, announcementsResult, pollsResult, settingsResult, logsResult] = await Promise.all([
         (supabase as any).rpc("get_admin_stats"),
         (supabase as any).from("announcements").select("*").order("created_at", { ascending: false }),
         (supabase as any).from("polls").select("*").order("created_at", { ascending: false }),
         (supabase as any).rpc("get_site_settings"),
         (supabase as any).rpc("get_admin_activity", { p_limit: 100 }),
-        (supabase as any).from("content_items").select("*").order("updated_at", { ascending: false }),
       ]);
 
       try {
@@ -208,7 +207,6 @@ const Admin = () => {
       if (announcementsResult.data) setAnnouncements(announcementsResult.data);
       if (!settingsResult.error) setSiteSettings(Object.fromEntries(Object.entries(settingsResult.data ?? {}).map(([key, value]) => [key, value === true])));
       if (!logsResult.error) setActivityLogs(logsResult.data ?? []);
-      if (!contentResult.error) setContent(contentResult.data ?? []);
 
       if (pollsResult.error) {
         setPollError(errorMessage(pollsResult.error, "Unable to load polls."));
@@ -351,16 +349,6 @@ const Admin = () => {
     if (error) setStatsError(errorMessage(error, "Unable to update site setting.")); else await load();
   };
 
-  const saveContent = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const title = String(data.get("title") ?? "").trim();
-    const url = String(data.get("url") ?? "").trim();
-    if (!title) return;
-    const { error } = await (supabase as any).from("content_items").insert({ kind: contentKind, title, url: url || null });
-    if (!error) { event.currentTarget.reset(); await load(); }
-  };
-
   if (checking) return <div className="min-h-screen bg-[#090a0d] text-white grid place-items-center">Checking admin access...</div>;
 
   if (!session) {
@@ -389,7 +377,6 @@ const Admin = () => {
     ["polls", "Polls", Vote],
     ["security", "Security", ShieldCheck],
     ["logs", "Activity Logs", ScrollText],
-    ["content", "Content", Library],
     ["settings", "Settings", SlidersHorizontal],
   ] as const;
 
@@ -509,15 +496,13 @@ const Admin = () => {
           </div>
         </>}
 
-        {tab === "users" && <section><h2 className="text-3xl font-bold">Users & Visitors</h2><p className="mt-1 text-white/50">Search, inspect, and manage visitor access.</p><input className="mt-6 w-full rounded-lg bg-black/30 border border-white/10 p-3" placeholder="Search visitor ID or nickname" onChange={e => setContentSearch(e.target.value.toLowerCase())}/><div className="mt-5 space-y-3">{(stats?.all_visitors ?? []).filter(v => !contentSearch || v.visitor_id.toLowerCase().includes(contentSearch)).map(v => <div key={v.visitor_id} className="rounded-xl border border-white/10 bg-white/5 p-4 flex items-center justify-between gap-3"><div><div className="font-medium">{v.visitor_id}</div><div className="text-sm text-white/50">{v.is_online ? "Online" : "Offline"} · {v.visit_count ?? 0} visits</div></div><button className="rounded-lg bg-red-400/15 px-3 py-2 text-sm text-red-300" onClick={() => void setVisitorBan(v.visitor_id, !v.banned)}>{v.banned ? "Unban" : "Ban"}</button></div>)}</div></section>}
+        {tab === "users" && <section><h2 className="text-3xl font-bold">Users & Visitors</h2><p className="mt-1 text-white/50">Search by visitor ID or chat nickname.</p><input className="mt-6 w-full rounded-lg bg-black/30 border border-white/10 p-3" placeholder="Search visitor ID or nickname" onChange={e => setUserSearch(e.target.value.toLowerCase())}/><div className="mt-5 space-y-3">{(stats?.all_visitors ?? []).filter(v => { const names = [chatProfiles[v.visitor_id]?.currentName, ...Object.keys(chatProfiles[v.visitor_id]?.names ?? {})].filter(Boolean).join(" ").toLowerCase(); return !userSearch || v.visitor_id.toLowerCase().includes(userSearch) || names.includes(userSearch); }).map(v => { const profile = chatProfiles[v.visitor_id]; const names = [profile?.currentName, ...Object.keys(profile?.names ?? {})].filter(Boolean); return <div key={v.visitor_id} className="rounded-xl border border-white/10 bg-white/5 p-4 flex items-center justify-between gap-3"><div><div className="font-medium">{names.length ? names.join(" · ") : `Visitor ${v.visitor_id.slice(0, 12)}…`}</div><div className="text-xs text-white/35 break-all">{v.visitor_id}</div><div className="text-sm text-white/50">{v.is_online ? "Online" : "Offline"} · {v.visit_count ?? 0} visits</div></div><button className="rounded-lg bg-red-400/15 px-3 py-2 text-sm text-red-300" onClick={() => void setVisitorBan(v.visitor_id, !v.banned)}>{v.banned ? "Unban" : "Ban"}</button></div>; })}</div></section>}
 
-        {tab === "analytics" && <section><h2 className="text-3xl font-bold">Analytics</h2><div className="mt-6 grid gap-4 sm:grid-cols-3">{[["Online now",stats?.online??0],["Visitors",stats?.visitors??0],["Sessions",stats?.sessions??0]].map(([label,value])=><div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-5"><p className="text-white/50">{label}</p><p className="mt-2 text-4xl font-bold">{value}</p></div>)}</div><div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5"><h3 className="font-semibold">Top paths and devices</h3><p className="mt-2 text-sm text-white/50">Live session detail is available from the Dashboard visitor list.</p></div></section>}
+        {tab === "analytics" && (() => { const chartData = (stats?.recent_sessions ?? []).reduce<Record<string, { name: string; visits: number }>>((acc, item) => { const name = item.current_path || "Home"; acc[name] = acc[name] ?? { name, visits: 0 }; acc[name].visits += 1; return acc; }, {}); const data = Object.values(chartData).slice(0, 12); const Chart = chartMode === "bar" ? BarChart : chartMode === "area" ? AreaChart : LineChart; return <section><div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-3xl font-bold">Analytics</h2><p className="mt-1 text-white/50">Traffic and session activity from the live visitor tracker.</p></div><select value={chartMode} onChange={e => setChartMode(e.target.value as typeof chartMode)} className="rounded-lg bg-black/30 border border-white/10 p-2"><option value="line">Line chart</option><option value="bar">Bar chart</option><option value="area">Area chart</option></select></div><div className="mt-6 grid gap-4 sm:grid-cols-3">{[["Online now",stats?.online??0],["Visitors",stats?.visitors??0],["Sessions",stats?.sessions??0]].map(([label,value])=><div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-5"><p className="text-white/50">{label}</p><p className="mt-2 text-4xl font-bold">{value}</p></div>)}</div><div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5"><h3 className="font-semibold">Visits by page</h3><div className="mt-5 h-72">{data.length ? <ResponsiveContainer width="100%" height="100%"><Chart data={data}><CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,.1)"/><XAxis dataKey="name" stroke="rgba(255,255,255,.5)"/><YAxis allowDecimals={false} stroke="rgba(255,255,255,.5)"/><Tooltip contentStyle={{ background: "#15171d", border: "1px solid rgba(255,255,255,.15)" }}/>{chartMode === "bar" ? <Bar dataKey="visits" fill="#8b5cf6" radius={[5,5,0,0]} /> : chartMode === "area" ? <Area type="monotone" dataKey="visits" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={.25} /> : <Line type="monotone" dataKey="visits" stroke="#8b5cf6" strokeWidth={3} />}</Chart></ResponsiveContainer> : <p className="text-white/40">No session data yet.</p>}</div></div></section>; })()}
 
-        {tab === "site" && <section><h2 className="text-3xl font-bold">Site Control</h2><p className="mt-1 text-white/50">These server-backed switches affect public site behavior.</p><div className="mt-6 space-y-3">{[["feature_chat","Chat"],["feature_games","Games"],["feature_movies","Movies"],["feature_music","Music"],["maintenance_mode","Maintenance mode"]].map(([key,label])=><button key={key} onClick={() => void toggleSiteSetting(key)} className="w-full rounded-xl border border-white/10 bg-white/5 p-4 flex justify-between"><span>{label}</span><span className={siteSettings[key] ? "text-emerald-300" : "text-white/40"}>{siteSettings[key] ? "Enabled" : "Disabled"}</span></button>)}</div></section>}
+        {tab === "site" && <section><h2 className="text-3xl font-bold">Site Control</h2><p className="mt-1 text-white/50">Enable features or place individual sections into maintenance.</p><div className="mt-6 space-y-3">{[["feature_chat","Chat"],["feature_games","Games"],["feature_movies","Movies"],["feature_music","Music"]].map(([key,label])=><div key={key} className="rounded-xl border border-white/10 bg-white/5 p-4"><div className="font-medium">{label}</div><div className="mt-3 flex flex-wrap gap-2"><button onClick={() => void toggleSiteSetting(key)} className={`rounded-lg px-3 py-2 text-sm ${siteSettings[key] ? "bg-emerald-400/15 text-emerald-300" : "bg-red-400/15 text-red-300"}`}>{siteSettings[key] ? "Enabled" : "Disabled"}</button><button onClick={() => void toggleSiteSetting(`maintenance_${label.toLowerCase()}`)} className={`rounded-lg px-3 py-2 text-sm ${siteSettings[`maintenance_${label.toLowerCase()}`] ? "bg-amber-400/15 text-amber-300" : "bg-white/10 text-white/60"}`}>{siteSettings[`maintenance_${label.toLowerCase()}`] ? "Maintenance on" : "Maintenance off"}</button></div></div>)}<button onClick={() => void toggleSiteSetting("maintenance_mode")} className="w-full rounded-xl border border-amber-400/20 bg-amber-400/10 p-4 flex justify-between"><span>Global Maintenance mode</span><span className={siteSettings.maintenance_mode ? "text-amber-300" : "text-white/50"}>{siteSettings.maintenance_mode ? "On" : "Off"}</span></button></div></section>}
 
         {tab === "logs" && <section><div className="flex items-center justify-between"><div><h2 className="text-3xl font-bold">Admin Activity Logs</h2><p className="mt-1 text-white/50">Server-recorded changes made by administrators.</p></div><button onClick={() => void load()} className="rounded-lg bg-white/10 p-2" aria-label="Refresh logs"><RefreshCw size={18}/></button></div><div className="mt-6 space-y-2">{activityLogs.map(log => <div key={log.id} className="rounded-xl border border-white/10 bg-white/5 p-4"><div className="font-medium">{log.action}</div><div className="text-sm text-white/50">{log.target_type ?? ""} {log.target_id ?? ""} · {formatTimestamp(log.created_at)}</div></div>)}</div></section>}
-
-        {tab === "content" && <section><h2 className="text-3xl font-bold">Content Management</h2><div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5"><form onSubmit={saveContent} className="grid gap-3 sm:grid-cols-[140px_1fr_1fr_auto]"><select value={contentKind} onChange={e => setContentKind(e.target.value)} className="rounded-lg bg-black/30 border border-white/10 p-3"><option value="game">Game</option><option value="movie">Movie</option><option value="music">Music</option></select><input name="title" required placeholder="Title" className="rounded-lg bg-black/30 border border-white/10 p-3"/><input name="url" placeholder="URL (optional)" className="rounded-lg bg-black/30 border border-white/10 p-3"/><button className="rounded-lg bg-white px-4 py-2 font-semibold text-black">Add</button></form></div><div className="mt-5 space-y-2">{content.filter(i => i.kind === contentKind).map(item => <div key={item.id} className="rounded-xl border border-white/10 bg-white/5 p-4 flex justify-between"><span>{item.title}</span><button onClick={async () => { await (supabase as any).from("content_items").update({ enabled: !item.enabled }).eq("id", item.id); await load(); }} className="text-sm text-white/60">{item.enabled ? "Enabled" : "Disabled"}</button></div>)}</div></section>}
 
         {tab === "settings" && <section><h2 className="text-3xl font-bold">Admin Settings</h2><div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-6 space-y-3"><p><b>Authorization:</b> every admin RPC and write policy checks <code>public.is_admin()</code>.</p><p><b>Auditability:</b> site-control changes are recorded in the activity log.</p><p className="text-sm text-white/50">Keep service-role credentials out of the browser. Configure authentication and role assignment in Supabase.</p></div></section>}
 

@@ -27,10 +27,13 @@ const HubShell = ({ pinnedIds, onSearch, onOpen, onOpenApps, onOpenSettings, sea
   useEffect(() => {
     let active = true;
     const loadFeatureState = async () => {
-      const keys = ['feature_games', 'feature_chat', 'feature_movies', 'feature_music'] as const;
-      const entries = await Promise.all(keys.map(async key => {
-        const { data } = await (supabase as any).rpc('is_site_feature_enabled', { p_key: key });
-        return [key.replace('feature_', '') as HubViewId, data !== false] as const;
+      const keys = ['games', 'chat', 'movies', 'music'] as const;
+      const entries = await Promise.all(keys.map(async name => {
+        const [{ data: feature }, { data: maintenance }] = await Promise.all([
+          (supabase as any).rpc('is_site_feature_enabled', { p_key: `feature_${name}` }),
+          (supabase as any).rpc('is_site_feature_enabled', { p_key: `maintenance_${name}` }),
+        ]);
+        return [name as HubViewId, feature !== false && maintenance !== true] as const;
       }));
       if (active) setEnabledViews(Object.fromEntries(entries));
     };
